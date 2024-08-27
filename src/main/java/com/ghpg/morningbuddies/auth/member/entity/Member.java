@@ -6,10 +6,11 @@ import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.time.LocalTime;:
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,11 +29,21 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    private String fcmToken;
+
     private String email;
 
     private String password;
 
-    private String name;
+    private String firstName;
+
+    private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @ColumnDefault("0")
+    private Integer age;
 
     @Lob
     private byte[] profileImage;
