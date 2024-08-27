@@ -1,13 +1,12 @@
 package com.ghpg.morningbuddies.domain.group;
 
-import com.ghpg.morningbuddies.domain.ChatMessage;
+import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalTime;
 import java.util.ArrayList;

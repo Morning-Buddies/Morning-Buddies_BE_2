@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain;
+package com.ghpg.morningbuddies.domain.chatmessage;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.group.Group;

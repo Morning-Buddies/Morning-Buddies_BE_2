@@ -1,6 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.entity;
 
-import com.ghpg.morningbuddies.domain.ChatMessage;
+import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
