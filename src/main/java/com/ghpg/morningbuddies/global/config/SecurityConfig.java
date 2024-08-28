@@ -2,7 +2,9 @@ package com.ghpg.morningbuddies.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
 import com.ghpg.morningbuddies.auth.member.service.MemberCommandService;
+import com.ghpg.morningbuddies.global.security.jwt.CustomLogoutFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 import com.ghpg.morningbuddies.global.security.jwt.LoginFilter;
@@ -17,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +33,7 @@ public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
 
-    private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -48,7 +51,7 @@ public class SecurityConfig {
 
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
-        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, memberRepository);
+        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, refreshTokenRepository);
         loginFilter.setFilterProcessesUrl("/auth/login"); // 로그인 처리 URL 설정 (필요에 따라 변경)
         //csrf disable
         http
@@ -76,6 +79,9 @@ public class SecurityConfig {
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class);
         //세션 설정
         http
                 .sessionManagement((session) -> session
