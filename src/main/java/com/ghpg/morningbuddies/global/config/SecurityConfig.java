@@ -3,7 +3,6 @@ package com.ghpg.morningbuddies.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
-import com.ghpg.morningbuddies.auth.member.service.MemberCommandService;
 import com.ghpg.morningbuddies.global.security.jwt.CustomLogoutFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
@@ -35,6 +34,8 @@ public class SecurityConfig {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private final MemberRepository memberRepository;
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
 
@@ -47,11 +48,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration, MemberRepository memberRepository) throws Exception {
 
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
-        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, refreshTokenRepository);
+        LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, refreshTokenRepository, memberRepository);
         loginFilter.setFilterProcessesUrl("/auth/login"); // 로그인 처리 URL 설정 (필요에 따라 변경)
         //csrf disable
         http
@@ -81,7 +82,7 @@ public class SecurityConfig {
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         http
-                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository), LogoutFilter.class);
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository, objectMapper), LogoutFilter.class);
         //세션 설정
         http
                 .sessionManagement((session) -> session

@@ -27,6 +27,8 @@ public enum GlobalErrorCode implements BaseErrorCode {
     AUTHENTICATION_REQUIRED(UNAUTHORIZED, "AUTH401_5", "인증 정보가 유효하지 않습니다."),
     LOGIN_REQUIRED(UNAUTHORIZED, "AUTH401_6", "로그인이 필요한 서비스입니다."),
     REFRESH_TOKEN_REQUIRED(UNAUTHORIZED, "AUTH401_7", "리프레시 토큰이 필요합니다."),
+    ACCESS_TOKEN_EXPIRED(UNAUTHORIZED, "AUTH401_8", "액세스 토큰이 만료 되었습니다."),
+    INVALID_ACCESS_TOKEN(UNAUTHORIZED, "AUTH401_9", "액세스 토큰이 유효하지 않습니다."),
 
     // 403 Forbidden - 인증 거부
     AUTHENTICATION_DENIED(FORBIDDEN, "AUTH403_1", "인증이 거부 되었습니다."),
