@@ -4,12 +4,15 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.service.MemberCommandService;
 import com.ghpg.morningbuddies.auth.member.service.MemberQueryService;
+import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,4 +40,10 @@ public class MemberController {
 
         return CommonResponse.onSuccess("비밀번호 변경 성공");
     }
+
+    @GetMapping("/me/groups")
+    public CommonResponse<List<GroupResponseDto.GroupInfo>> getMyGroups() {
+        return CommonResponse.onSuccess(memberQueryService.getMyGroups());
+    }
+
 }
