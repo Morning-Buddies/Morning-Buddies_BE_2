@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.dto;
 
+import com.ghpg.morningbuddies.auth.member.entity.Member;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -33,5 +34,25 @@ public class MemberResponseDto {
         private String name;
 
         private LocalTime wakeupTime;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberSummaryDTO{
+        private Long id;
+        private String firstName;
+        private String lastName;
+        private String email;
+
+        public static MemberSummaryDTO from(Member member) {
+            return new MemberSummaryDTO(
+                    member.getId(),
+                    member.getFirstName(),
+                    member.getLastName(),
+                    member.getEmail()
+            );
+        }
     }
 }
