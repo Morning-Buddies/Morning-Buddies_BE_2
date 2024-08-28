@@ -6,6 +6,7 @@ import com.ghpg.morningbuddies.auth.member.entity.UserRole;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
+import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,15 @@ public class MemberCommandServiceImpl implements MemberCommandService{
 
         memberRepository.save(member);
 
+
+    }
+
+    @Override
+    public void changePassword(MemberRequestDto.PasswordDto request) {
+        Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentMemberEmail())
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        currentMember.changePassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
     }
 }
