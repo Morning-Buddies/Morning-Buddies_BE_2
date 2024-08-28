@@ -126,7 +126,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
+
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        refreshRepository.deleteByEmail(email);
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .member(member)

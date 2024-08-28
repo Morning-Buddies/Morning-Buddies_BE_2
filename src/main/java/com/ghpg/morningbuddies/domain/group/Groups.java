@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.domain.group;
 
+import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -41,6 +42,10 @@ public class Groups extends BaseEntity {
     private boolean isActivated;
 
     private LocalTime timeOut;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leader_id")
+    private Member leader;
 
     @ColumnDefault("0")
     private Integer currentParticipantCount;

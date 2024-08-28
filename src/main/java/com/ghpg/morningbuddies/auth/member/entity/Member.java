@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.auth.member.entity;
 
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
+import com.ghpg.morningbuddies.domain.group.Groups;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -58,6 +59,10 @@ public class Member extends BaseEntity {
     private boolean isActivated;
 
     private UserRole userRole;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Groups> groups = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
