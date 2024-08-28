@@ -5,7 +5,7 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
-import com.ghpg.morningbuddies.domain.group.Groups;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.refresh.RefreshException;
@@ -50,7 +50,7 @@ public class MemberQueryServiceImpl implements MemberQueryService{
         if (foundGroups != null) {
             for (Groups foundGroup : foundGroups) {
                 groupInfos.add(GroupResponseDto.GroupInfo.builder()
-                        .name(foundGroup.getName())
+                        .name(foundGroup.getGroupName())
                         .wakeupTime(foundGroup.getWakeupTime())
                         .build());
             }
@@ -79,7 +79,7 @@ public class MemberQueryServiceImpl implements MemberQueryService{
         if (foundGroups != null) {
             for (Groups foundGroup : foundGroups) {
                 groupInfos.add(GroupResponseDto.GroupInfo.builder()
-                        .name(foundGroup.getName())
+                        .name(foundGroup.getGroupName())
                         .wakeupTime(foundGroup.getWakeupTime())
                         .build());
             }
