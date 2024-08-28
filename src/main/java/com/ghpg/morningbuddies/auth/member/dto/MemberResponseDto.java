@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.dto;
 
+import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -22,16 +23,8 @@ public class MemberResponseDto {
 
         private Integer successGameCount;
 
-        private List<GroupInfo> groups;
+        private List<GroupResponseDto.GroupInfo> groups;
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @AllArgsConstructor
-    public static class GroupInfo {
-        private String name;
 
-        private LocalTime wakeupTime;
-    }
 }

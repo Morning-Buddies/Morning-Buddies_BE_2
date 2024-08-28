@@ -1,6 +1,7 @@
 package com.ghpg.morningbuddies.auth.member.repository;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -8,5 +9,6 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
-
+    @EntityGraph(attributePaths = {"groups"})
+    Optional<Member> findGroupsByEmail(String email);
 }
