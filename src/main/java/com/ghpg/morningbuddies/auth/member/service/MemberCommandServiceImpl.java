@@ -2,12 +2,17 @@ package com.ghpg.morningbuddies.auth.member.service;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.entity.UserRole;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class MemberCommandServiceImpl implements MemberCommandService{
 
@@ -16,6 +21,11 @@ public class MemberCommandServiceImpl implements MemberCommandService{
 
     @Override
     public void join(MemberRequestDto.JoinDto request) {
+        memberRepository.findByEmail(request.getEmail())
+                .ifPresent(member -> {
+                    throw new MemberException(GlobalErrorCode.MEMBER_ALREADY_EXIST);
+                });
+
         Member member = Member.builder()
                 .email(request.getEmail())
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
@@ -23,9 +33,11 @@ public class MemberCommandServiceImpl implements MemberCommandService{
                 .lastName(request.getLastName())
                 .preferredWakeupTime(request.getPreferredWakeupTime())
                 .phoneNumber(request.getPhoneNumber())
+                .userRole(UserRole.ROLE_USER)
                 .build();
 
-        Member savedMember = memberRepository.save(member);
+        memberRepository.save(member);
+
 
     }
 }

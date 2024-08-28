@@ -67,7 +67,14 @@ public class Member extends BaseEntity {
     private Recommend recommend;
 
     @Builder.Default
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
+
+    /*
+    * 사용자 편의 메서드
+    * */
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 }
