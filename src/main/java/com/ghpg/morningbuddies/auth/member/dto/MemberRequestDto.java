@@ -30,4 +30,11 @@ public class MemberRequestDto {
         private String phoneNumber;
 
     }
+
+    @Getter
+    public static class PasswordDto {
+
+        @NotEmpty
+        private String password;
+    }
 }

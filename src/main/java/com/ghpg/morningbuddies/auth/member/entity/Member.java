@@ -77,8 +77,12 @@ public class Member extends BaseEntity {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
-    /*
-    * 사용자 편의 메서드
-    * */
 
+
+    /*
+     * 사용자 편의 메서드
+     * */
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }
