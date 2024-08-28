@@ -3,18 +3,22 @@ package com.ghpg.morningbuddies.global.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.dto.CustomMemberDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
 import com.ghpg.morningbuddies.auth.member.service.MemberCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -39,7 +44,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final ObjectMapper objectMapper;
 
-    private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshRepository;
 
 
     @SneakyThrows
@@ -73,9 +78,31 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(email, role, 60*60*10L);
+        //토큰 생성
+        String access = jwtUtil.createJwt("access", email, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
 
-        CommonResponse<String> successResponse = CommonResponse.onSuccess(token);
+        addRefreshEntity(email, refresh, 86400000L);
+
+        // 기존 refresh 쿠키 삭제
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refresh".equals(cookie.getName())) {
+                    cookie.setValue("");
+                    cookie.setPath("/");
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                }
+            }
+        }
+
+        //응답 설정
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        response.setStatus(HttpStatus.OK.value());
+
+        CommonResponse<String> successResponse = CommonResponse.onSuccess("AUTH_SUCCESS");
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
@@ -91,5 +118,30 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(failureResponse));
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+
+    private void addRefreshEntity(String email, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshToken refreshToken = RefreshToken.builder()
+                .email(email)
+                .refresh(refresh)
+                .expiration(date.toString())
+                .build();
+
+
+        refreshRepository.save(refreshToken);
     }
 }
