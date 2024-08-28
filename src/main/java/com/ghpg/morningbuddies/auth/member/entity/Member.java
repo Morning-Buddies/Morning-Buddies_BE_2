@@ -1,5 +1,7 @@
 package com.ghpg.morningbuddies.auth.member.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
@@ -72,6 +74,11 @@ public class Member extends BaseEntity {
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private RefreshToken refreshToken;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @JsonManagedReference // 순환 참조 방지
+    private List<MemberGroup> memberGroups = new ArrayList<>();
     /*
     * 사용자 편의 메서드
     * */
