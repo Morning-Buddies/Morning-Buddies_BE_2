@@ -3,14 +3,18 @@ package com.ghpg.morningbuddies.auth.member.service;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
 import com.ghpg.morningbuddies.domain.group.Groups;
+import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.refresh.RefreshException;
+import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,7 @@ import java.util.Optional;
 public class MemberQueryServiceImpl implements MemberQueryService{
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public MemberResponseDto.MemberInfo getMemberInfo(String refreshToken) {
@@ -39,12 +44,12 @@ public class MemberQueryServiceImpl implements MemberQueryService{
                 .orElse(0);
 
         // 그룹 정보 저장
-        List<MemberResponseDto.GroupInfo> groupInfos = new ArrayList<>();
+        List<GroupResponseDto.GroupInfo> groupInfos = new ArrayList<>();
 
         // 그룹 정보가 존재할 경우 그룹 정보 저장
         if (foundGroups != null) {
             for (Groups foundGroup : foundGroups) {
-                groupInfos.add(MemberResponseDto.GroupInfo.builder()
+                groupInfos.add(GroupResponseDto.GroupInfo.builder()
                         .name(foundGroup.getName())
                         .wakeupTime(foundGroup.getWakeupTime())
                         .build());
@@ -60,5 +65,26 @@ public class MemberQueryServiceImpl implements MemberQueryService{
                 .successGameCount(totalSuccessCount)
                 .groups(groupInfos)
                 .build();
+    }
+
+    @Override
+    public List<GroupResponseDto.GroupInfo> getMyGroups() {
+        Member currentMember = memberRepository.findGroupsByEmail(SecurityUtil.getCurrentMemberEmail())
+                .orElseThrow(() -> new RefreshException(GlobalErrorCode.INVALID_TOKEN));
+
+        List<Groups> foundGroups = currentMember.getGroups();
+
+        List<GroupResponseDto.GroupInfo> groupInfos = new ArrayList<>();
+
+        if (foundGroups != null) {
+            for (Groups foundGroup : foundGroups) {
+                groupInfos.add(GroupResponseDto.GroupInfo.builder()
+                        .name(foundGroup.getName())
+                        .wakeupTime(foundGroup.getWakeupTime())
+                        .build());
+            }
+        }
+
+        return groupInfos;
     }
 }
