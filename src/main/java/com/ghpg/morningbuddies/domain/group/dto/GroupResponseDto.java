@@ -32,13 +32,14 @@ public class GroupResponseDto {
     @Builder
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
-    public static class LeaderDTO{
+    public static class LeaderDTO {
         private Long id;
         private String firstName;
         private String lastName;
         private String email;
 
-        public static LeaderDTO from(Member member){
+
+        public static LeaderDTO from(Member member) {
             return LeaderDTO.builder()
                     .id(member.getId())
                     .firstName(member.getFirstName())
@@ -46,5 +47,14 @@ public class GroupResponseDto {
                     .email(member.getEmail())
                     .build();
         }
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor
+    public static class GroupInfo {
+        private String name;
+        private LocalTime wakeupTime;
     }
 }
