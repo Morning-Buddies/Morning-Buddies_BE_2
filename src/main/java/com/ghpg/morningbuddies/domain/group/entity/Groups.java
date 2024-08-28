@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
+import com.ghpg.morningbuddies.domain.group.entity.AlarmSound;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

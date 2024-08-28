@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
@@ -62,6 +63,10 @@ public class Member extends BaseEntity {
     private UserRole userRole;
 
     @Builder.Default
+    @OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Groups> groups = new ArrayList<>();
+
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MemberAllowance> memberAllowances = new ArrayList<>();
 
@@ -79,8 +84,12 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @JsonManagedReference // 순환 참조 방지
     private List<MemberGroup> memberGroups = new ArrayList<>();
-    /*
-    * 사용자 편의 메서드
-    * */
 
+
+    /*
+     * 사용자 편의 메서드
+     * */
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }
