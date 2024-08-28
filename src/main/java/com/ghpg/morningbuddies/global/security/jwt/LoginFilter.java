@@ -46,11 +46,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final RefreshTokenRepository refreshRepository;
 
+    private final MemberRepository memberRepository;
+
 
     @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
+        // 요청에서 email과 password를 가져옴
         Map<String, String> requestMap = objectMapper.readValue(request.getInputStream(), Map.class);
         String email = requestMap.get("email");
         String password = requestMap.get("password");
@@ -82,20 +85,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String access = jwtUtil.createJwt("access", email, role, 600000L);
         String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
 
+        //refresh을 데이터베이스에 저장
         addRefreshEntity(email, refresh, 86400000L);
-
-        // 기존 refresh 쿠키 삭제
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("refresh".equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
 
         //응답 설정
         response.setHeader("access", access);
@@ -135,7 +126,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Date date = new Date(System.currentTimeMillis() + expiredMs);
 
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
         RefreshToken refreshToken = RefreshToken.builder()
+                .member(member)
                 .email(email)
                 .refresh(refresh)
                 .expiration(date.toString())

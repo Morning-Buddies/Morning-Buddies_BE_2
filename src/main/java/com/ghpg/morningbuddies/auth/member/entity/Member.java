@@ -70,11 +70,10 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> chatMessages = new ArrayList<>();
 
-
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private RefreshToken refreshToken;
     /*
     * 사용자 편의 메서드
     * */
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-    }
+
 }
