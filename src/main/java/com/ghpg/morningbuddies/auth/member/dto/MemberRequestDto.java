@@ -1,6 +1,7 @@
 package com.ghpg.morningbuddies.auth.member.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -22,7 +23,7 @@ public class MemberRequestDto {
         @NotEmpty
         private String lastName;
 
-        @NotEmpty
+        @NotNull
         private LocalTime preferredWakeupTime;
 
         @NotEmpty
