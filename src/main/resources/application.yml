@@ -2,27 +2,27 @@ spring:
   jwt:
     secret: askdfjlskdfjsldkfjsldkfjslfkjsldfkjsldfkjsldfkjsldfkjsdflksjdflkjsfaisdgjoaigj
 
-    datasource:
-      url: jdbc:h2:tcp://localhost/~/morningbuddies
-      username: sa
-      password:
-      driver-class-name: org.h2.Driver
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/morningbuddies
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
 
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
       hibernate:
-        ddl-auto: update
-      properties:
-        hibernate:
-          format_sql: true
-          show_sql: true
-      database-platform: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        show_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
 
-    h2:
-      console:
-        enabled: true
-        path: /h2-console
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
-  logging:
-    level:
-      org.hibernate.SQL: debug
-      org.hibernate.type: trace
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
