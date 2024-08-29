@@ -5,7 +5,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
-import com.ghpg.morningbuddies.domain.group.entity.AlarmSound;
+import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

@@ -14,4 +14,7 @@ public interface GroupCommandService {
 
     // 그룹 삭제
     void deleteGroup(Long groupId);
+
+    // 그룹 가입 요청
+    void requestJoinGroup(Long groupId);
 }
