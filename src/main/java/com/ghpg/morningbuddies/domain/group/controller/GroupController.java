@@ -110,4 +110,12 @@ public class GroupController {
 		return CommonResponse.onSuccess("요청을 수락하였습니다.");
 	}
 
+	// 그룹 가입 요청 거절
+	@PostMapping("/{groupId}/reject-join/{requestId}")
+	public CommonResponse<String> rejectJoinGroup(@PathVariable("groupId") Long groupId, @PathVariable("requestId") Long requestId){
+		groupCommandService.rejectJoinGroup(groupId, requestId);
+
+		return CommonResponse.onSuccess("요청을 거절하였습니다.");
+	}
+
 }

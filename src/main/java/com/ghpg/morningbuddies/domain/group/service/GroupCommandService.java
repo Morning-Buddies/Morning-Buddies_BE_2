@@ -25,4 +25,7 @@ public interface GroupCommandService {
 
     // 그룹 가입 요청 수락 및 그룹 가입
     void acceptJoinGroup(Long groupId, Long requestId);
+
+    // 그룹 가입 요청 거절
+    void rejectJoinGroup(Long groupId, Long requestId);
 }
