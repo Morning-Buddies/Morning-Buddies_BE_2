@@ -4,6 +4,8 @@ import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface GroupCommandService {
 
     // 그룹 생성
@@ -17,4 +19,7 @@ public interface GroupCommandService {
 
     // 그룹 가입 요청
     void requestJoinGroup(Long groupId);
+
+    // 그룹 가입 요청 리스트
+    List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId);
 }

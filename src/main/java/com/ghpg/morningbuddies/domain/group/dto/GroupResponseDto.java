@@ -6,6 +6,7 @@ import java.util.List;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 
+import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,5 +61,20 @@ public class GroupResponseDto {
 		private Long id;
 		private String name;
 		private LocalTime wakeupTime;
+	}
+
+	// 그룹 요청 DTO
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
+	public static class JoinRequestDTO {
+		private Long requestId;
+		private Long memberId;
+		private String firstName;
+		private String lastName;
+		private String email;
+		private RequestStatus status;
+
 	}
 }
