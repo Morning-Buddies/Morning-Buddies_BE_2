@@ -31,6 +31,7 @@ public class GroupRequestDto {
 
 	}
 
+
 	// 그룹 수정 DTO
 	@Getter
 	public static class UpdateGroupDTO {
