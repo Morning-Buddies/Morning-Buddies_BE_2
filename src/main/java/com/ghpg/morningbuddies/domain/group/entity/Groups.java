@@ -1,6 +1,7 @@
 package com.ghpg.morningbuddies.domain.group.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
@@ -15,9 +16,11 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -78,6 +81,13 @@ public class Groups extends BaseEntity {
         MemberGroup memberGroup = MemberGroup.createMemberGroup(member, this);
         memberGroups.add(memberGroup);
         member.getMemberGroups().add(memberGroup);
+    }
+
+    // 그룹에 가입된 회원 불러오기
+    public List<MemberResponseDto.MemberSummaryDTO> getMembers() {
+        return memberGroups.stream()
+                .map(memberGroup -> MemberResponseDto.MemberSummaryDTO.from(memberGroup.getMember()))
+                .collect(Collectors.toList());
     }
 
 }
