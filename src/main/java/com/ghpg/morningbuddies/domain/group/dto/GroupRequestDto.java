@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import lombok.*;
 
 public class GroupRequestDto {
 
@@ -31,4 +31,25 @@ public class GroupRequestDto {
 
 	}
 
+
+	// 그룹 수정 DTO
+	@Getter
+	public static class UpdateGroupDTO {
+
+		@NotBlank
+		private String groupName;
+
+		@NotNull
+		private LocalTime wakeUpTime;
+
+		@Min(value = 1)
+		@Max(value = 10)
+		@NotNull
+		private Integer maxParticipantCount;
+
+		@NotBlank
+		@Size(max = 500)
+		private String description;
+
+	}
 }
