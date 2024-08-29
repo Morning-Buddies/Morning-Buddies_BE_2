@@ -1,7 +1,18 @@
 package com.ghpg.morningbuddies.domain.group.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,6 +73,19 @@ public class GroupController {
 		return CommonResponse.onSuccess("그룹이 삭제되었습니다.");
 	}
 
+
+	// 그룹 검색 결과 가져오기
+	@GetMapping("/search")
+	public CommonResponse<GroupResponseDto.SearchedGroupInfoList> searchGroups(
+		@RequestParam String keyword,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size) {
+
+		PageRequest pageRequest = PageRequest.of(page, size, Sort.by("groupName").ascending());
+
+		return CommonResponse.onSuccess(groupQueryService.getSearchedGroupInfoList(keyword, pageRequest));
+	}
+
 	// 그룹 가입 요청
 	@PostMapping("/{groupId}/join-request")
 	public CommonResponse<String> requestJoinGroup(@PathVariable("groupId") Long groupId){
@@ -77,5 +101,6 @@ public class GroupController {
 
 		return CommonResponse.onSuccess(joinRequests);
 	}
+
 
 }
