@@ -2,7 +2,6 @@ package com.ghpg.morningbuddies.domain.group.dto;
 
 import java.time.LocalTime;
 
-import jakarta.persistence.Lob;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -14,9 +13,6 @@ public class GroupRequestDto {
 
 	@Getter
 	public static class CreateGroupDto {
-
-		@NotNull
-		private Integer groupId;
 
 		@NotBlank
 		private String groupName;
@@ -33,7 +29,5 @@ public class GroupRequestDto {
 		@Size(max = 500)
 		private String description;
 
-		@Lob
-		private String imageUrl;
 	}
 }
