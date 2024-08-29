@@ -8,4 +8,6 @@ public interface GroupCommandService {
 
     // 그룹 생성
     GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file);
+
+    //
 }
