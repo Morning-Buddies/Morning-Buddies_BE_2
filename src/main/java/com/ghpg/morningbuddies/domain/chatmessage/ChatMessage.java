@@ -1,7 +1,7 @@
 package com.ghpg.morningbuddies.domain.chatmessage;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.group.Groups;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
