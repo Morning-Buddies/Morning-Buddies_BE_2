@@ -25,6 +25,8 @@ import com.ghpg.morningbuddies.global.common.CommonResponse;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/groups")
@@ -92,6 +94,13 @@ public class GroupController {
 		return CommonResponse.onSuccess("그룹 가입 요청을 보냈습니다.");
 	}
 
+	// 그룹 가입 요청 리스트
+	@GetMapping("/{groupId}/join-request")
+	public CommonResponse<List<GroupResponseDto.JoinRequestDTO>> findByGroupAndStatus(@PathVariable("groupId") Long groupId){
+		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupCommandService.findByGroupAndStatus(groupId);
+
+		return CommonResponse.onSuccess(joinRequests);
+	}
 
 
 }
