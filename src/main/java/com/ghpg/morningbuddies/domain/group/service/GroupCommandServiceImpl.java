@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -167,6 +168,35 @@ public class GroupCommandServiceImpl implements GroupCommandService {
                 .build();
 
         groupJoinRequestRepository.save(joinRequest);
+
+    }
+
+    // 그룹 가입 요청 리스트
+    @Override
+    public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId){
+        String currentEmail = SecurityUtil.getCurrentMemberEmail();
+        Member member = memberRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        Groups group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+        if (!group.getLeader().equals(member)){
+            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+        }
+
+        List<GroupJoinRequest> joinRequests = groupJoinRequestRepository.findByGroupAndStatus(group, RequestStatus.PENDING);
+
+        return joinRequests.stream()
+                .map(request -> GroupResponseDto.JoinRequestDTO.builder()
+                        .requestId(request.getId())
+                        .memberId(request.getMember().getId())
+                        .firstName(request.getMember().getFirstName())
+                        .lastName(request.getMember().getLastName())
+                        .email(request.getMember().getEmail())
+                        .status(request.getStatus())
+                        .build())
+                .collect(Collectors.toList());
 
     }
 }
