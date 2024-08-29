@@ -235,8 +235,33 @@ public class GroupCommandServiceImpl implements GroupCommandService {
     private void addMemberToGroup(Groups group, Member member){
         group.addMember(member);
         group.setCurrentParticipantCount(group.getCurrentParticipantCount() + 1);
-        groupRepository.save(group);
 
+        groupRepository.save(group);
+    }
+
+    // 그룹 가입 요청 거절
+    @Override
+    public void rejectJoinGroup(Long groupId, Long requestId){
+        String currentEmail = SecurityUtil.getCurrentMemberEmail();
+        Member leader = memberRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
+                .orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
+
+        Groups group = joinRequest.getGroup();
+
+        if (!group.getId().equals(groupId)){
+            throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
+        }
+
+        if (!group.getLeader().equals(leader)){
+            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+        }
+
+        joinRequest.setStatus(RequestStatus.REJECTED);
+
+        groupJoinRequestRepository.save(joinRequest);
 
     }
 }
