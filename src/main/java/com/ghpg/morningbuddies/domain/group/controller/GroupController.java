@@ -45,6 +45,15 @@ public class GroupController {
 	public CommonResponse<GroupResponseDto.GroupDetailDTO> getGroupDetailsById(@PathVariable("groupId") Long groupId) {
 		GroupResponseDto.GroupDetailDTO group = groupQueryService.getGroupDetailById(groupId);
 
-		return CommonResponse.onSuccess(group);
-	}
+    return CommonResponse.onSuccess(group);
+  }
+
+  // 그룹 정보 수정
+  @PatchMapping("/{groupId}")
+  public CommonResponse<GroupResponseDto.GroupDetailDTO> updateGroup(@PathVariable("groupId") Long groupId, @RequestPart("request") String requestJson, @RequestPart(value = "file", required = false) MultipartFile file) throws JsonProcessingException {
+      GroupRequestDto.UpdateGroupDTO request = objectMapper.readValue(requestJson, GroupRequestDto.UpdateGroupDTO.class);
+      GroupResponseDto.GroupDetailDTO group = groupCommandService.updateGroup(groupId, request, file);
+
+      return CommonResponse.onSuccess(group);
+  }
 }

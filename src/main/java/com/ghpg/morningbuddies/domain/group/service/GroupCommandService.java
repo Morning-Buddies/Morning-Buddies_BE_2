@@ -9,5 +9,6 @@ public interface GroupCommandService {
     // 그룹 생성
     GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file);
 
-    //
+    // 그룹 수정
+    GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request, MultipartFile file);
 }
