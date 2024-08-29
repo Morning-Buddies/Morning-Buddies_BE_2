@@ -1,10 +1,13 @@
 package com.ghpg.morningbuddies.domain.group.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,5 +49,17 @@ public class GroupController {
 		GroupResponseDto.GroupDetailDTO group = groupQueryService.getGroupDetailById(groupId);
 
 		return CommonResponse.onSuccess(group);
+	}
+
+	// 그룹 검색 결과 가져오기
+	@GetMapping("/search")
+	public CommonResponse<GroupResponseDto.SearchedGroupInfoList> searchGroups(
+		@RequestParam String keyword,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size) {
+
+		PageRequest pageRequest = PageRequest.of(page, size, Sort.by("groupName").ascending());
+
+		return CommonResponse.onSuccess(groupQueryService.getSearchedGroupInfoList(keyword, pageRequest));
 	}
 }
