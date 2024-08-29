@@ -44,6 +44,7 @@ public enum GlobalErrorCode implements BaseErrorCode {
     //Group
     GROUP_ALREADY_CREATED(CONFLICT, "GROUP409_1", "그룹이 이미 존재합니다."),
     GROUP_NOT_FOUND(CONFLICT, "GROUP409_2", "그룹을 찾을 수 없습니다."),
+    GROUP_PERMISSION_DENIED(CONFLICT, "GROUP409_3", "그룹에 대한 권한이 없습니다."),
 
 
     //File
