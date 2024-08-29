@@ -68,7 +68,6 @@ public class GroupResponseDto {
 	@Builder
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
-
 	public static class JoinRequestDTO {
 		private Long requestId;
 		private Long memberId;
@@ -78,6 +77,10 @@ public class GroupResponseDto {
 		private RequestStatus status;
   }
 
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
 	public static class SearchedGroupInfoList {
 		List<SearchedGroupInfo> searchedGroupInfoList;
 		Integer listSize;
