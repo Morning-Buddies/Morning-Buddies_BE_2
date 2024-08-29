@@ -129,4 +129,20 @@ public class GroupCommandServiceImpl implements GroupCommandService {
                 .leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
                 .build();
     }
+
+    @Override
+    public void deleteGroup(Long groupId){
+        String currentEmail = SecurityUtil.getCurrentMemberEmail();
+        Member member = memberRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        Groups group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+        if (!group.getLeader().equals(member)){
+            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+        }
+
+        groupRepository.delete(group);
+    }
 }
