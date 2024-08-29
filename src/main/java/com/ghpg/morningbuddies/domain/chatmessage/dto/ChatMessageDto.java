@@ -1,5 +1,8 @@
 package com.ghpg.morningbuddies.domain.chatmessage.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ChatMessageDto {
 	private MessageType type;
 	private String content;
