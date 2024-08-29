@@ -22,4 +22,7 @@ public interface GroupCommandService {
 
     // 그룹 가입 요청 리스트
     List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId);
+
+    // 그룹 가입 요청 수락 및 그룹 가입
+    void acceptJoinGroup(Long groupId, Long requestId);
 }
