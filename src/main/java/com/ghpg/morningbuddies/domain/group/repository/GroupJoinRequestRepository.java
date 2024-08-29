@@ -10,4 +10,6 @@ import java.util.List;
 public interface GroupJoinRequestRepository extends JpaRepository<GroupJoinRequest, Long> {
 
     List<GroupJoinRequest> findByGroupAndStatus(Groups group, RequestStatus status);
+
+
 }
