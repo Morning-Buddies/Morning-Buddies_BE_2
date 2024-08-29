@@ -11,6 +11,8 @@ import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageDto;
 import com.ghpg.morningbuddies.domain.chatmessage.repository.ChatMessageRepository;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
 
 @Service
 @Transactional
