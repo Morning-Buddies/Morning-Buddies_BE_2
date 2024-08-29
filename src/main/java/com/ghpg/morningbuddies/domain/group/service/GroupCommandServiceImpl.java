@@ -37,7 +37,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
         String currentEmail = SecurityUtil.getCurrentMemberEmail();
         Member leader = memberRepository.findByEmail(currentEmail)
-                        .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_ALREADY_EXIST));
+                        .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
         Optional<Groups> existingGroup = groupRepository.findByGroupName(requestDto.getGroupName());
         if (existingGroup.isPresent()) {
@@ -83,5 +83,50 @@ public class GroupCommandServiceImpl implements GroupCommandService {
                 .leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
                 .build();
 
+    }
+
+    // 그룹 수정
+    @Override
+    public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request, MultipartFile file){
+
+        String currentEmail = SecurityUtil.getCurrentMemberEmail();
+        Member member = memberRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        Groups group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+        if (!group.getLeader().equals(member)){
+           throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+        }
+
+        String uploadedGroupImageUrl = group.getGroupImage();
+        if (file != null && !file.isEmpty()) {
+            try {
+                uploadedGroupImageUrl = fileCommandService.saveFile(file);
+            } catch (Exception e) {
+                throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
+            }
+        }
+
+        group.setGroupName(request.getGroupName());
+        group.setWakeupTime(request.getWakeUpTime());
+        group.setMaxParticipantCount(request.getMaxParticipantCount());
+        group.setDescription(request.getDescription());
+        group.setGroupImage(uploadedGroupImageUrl);
+
+        Groups savedGroup = groupRepository.save(group);
+
+        return GroupResponseDto.GroupDetailDTO.builder()
+                .groupId(savedGroup.getId())
+                .groupName(savedGroup.getGroupName())
+                .description(savedGroup.getDescription())
+                .wakeUpTime(savedGroup.getWakeupTime())
+                .currentParticipantCount(savedGroup.getCurrentParticipantCount())
+                .maxParticipantCount(savedGroup.getMaxParticipantCount())
+                .imageUrl(uploadedGroupImageUrl)
+                .members(savedGroup.getMembers())
+                .leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
+                .build();
     }
 }
