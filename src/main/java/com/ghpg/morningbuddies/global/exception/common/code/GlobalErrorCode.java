@@ -40,6 +40,14 @@ public enum GlobalErrorCode implements BaseErrorCode {
     // 404 Not Found - 찾을 수 없음
     MEMBER_NOT_FOUND(NOT_FOUND, "MEMBER404_1", "회원을 찾을 수 없습니다."),
     MEMBER_ALREADY_EXIST(CONFLICT, "MEMBER409_1", "이미 존재하는 회원입니다."),
+
+    //Group
+    GROUP_ALREADY_CREATED(CONFLICT, "GROUP409_1", "그룹이 이미 존재합니다."),
+    GROUP_NOT_FOUND(CONFLICT, "GROUP409_2", "그룹을 찾을 수 없습니다."),
+
+
+    //File
+    FILE_UPLOAD_FAILED(CONFLICT, "FILE409_1", "파일 업로드에 실패하였습니다.")
     ;
 
 
