@@ -4,6 +4,9 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.domain.file.service.FileCommandService;
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
+import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
+import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
@@ -30,6 +33,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
     private final MemberRepository memberRepository;
     private final GroupRepository groupRepository;
     private final FileCommandService fileCommandService;
+    private final GroupJoinRequestRepository groupJoinRequestRepository;
 
     // 그룹 생성
     @Override
@@ -144,5 +148,25 @@ public class GroupCommandServiceImpl implements GroupCommandService {
         }
 
         groupRepository.delete(group);
+    }
+
+    // 그룹 가입 요청
+    @Override
+    public void requestJoinGroup(Long groupId){
+        String currentEmail = SecurityUtil.getCurrentMemberEmail();
+        Member member = memberRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+        Groups group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+        GroupJoinRequest joinRequest = GroupJoinRequest.builder()
+                .member(member)
+                .group(group)
+                .status(RequestStatus.PENDING)
+                .build();
+
+        groupJoinRequestRepository.save(joinRequest);
+
     }
 }

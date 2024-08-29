@@ -60,5 +60,13 @@ public class GroupController {
 		return CommonResponse.onSuccess("그룹이 삭제되었습니다.");
 	}
 
+	// 그룹 가입 요청
+	@PostMapping("/{groupId}/join-request")
+	public CommonResponse<String> requestJoinGroup(@PathVariable("groupId") Long groupId){
+		groupCommandService.requestJoinGroup(groupId);
+
+		return CommonResponse.onSuccess("그룹 가입 요청을 보냈습니다.");
+	}
+
 
 }
