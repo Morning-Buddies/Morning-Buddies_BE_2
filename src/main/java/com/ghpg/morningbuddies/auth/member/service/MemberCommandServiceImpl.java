@@ -50,4 +50,12 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		currentMember.changePassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
 	}
+
+	@Override
+	public void registerFcmToken(MemberRequestDto.FcmTokenDto request) {
+		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentMemberEmail())
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		currentMember.registerFcmToken(request.getFcmToken(), request.getDeviceId());
+	}
 }
