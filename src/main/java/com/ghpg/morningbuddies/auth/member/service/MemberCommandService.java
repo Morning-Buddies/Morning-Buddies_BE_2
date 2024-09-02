@@ -6,6 +6,6 @@ public interface MemberCommandService {
 	void join(MemberRequestDto.JoinDto joinDto);
 
 	void changePassword(MemberRequestDto.PasswordDto request);
-
-	void registerFcmToken(MemberRequestDto.FcmTokenDto request);
+	
+	void updateFcmToken(MemberRequestDto.FcmTokenDto request);
 }

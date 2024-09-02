@@ -9,9 +9,13 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ghpg.morningbuddies.auth.member.entity.enums.Gender;
+import com.ghpg.morningbuddies.auth.member.entity.enums.SocialType;
+import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
@@ -47,6 +51,8 @@ public class Member extends BaseEntity {
 	private Long id;
 
 	private String fcmToken;
+
+	private String deviceId;
 
 	private String email;
 
@@ -99,6 +105,10 @@ public class Member extends BaseEntity {
 	@JsonManagedReference // 순환 참조 방지
 	private List<MemberGroup> memberGroups = new ArrayList<>();
 
+	@Builder.Default
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Notification> notifications = new ArrayList<>();
+
 	/*
 	 * 사용자 편의 메서드
 	 * */
@@ -106,7 +116,8 @@ public class Member extends BaseEntity {
 		this.password = password;
 	}
 
-	public void registerFcmToken(String fcmToken, String deviceId) {
+	public void updateFcmToken(String fcmToken, String deviceId) {
 		this.fcmToken = fcmToken;
+		this.deviceId = deviceId;
 	}
 }

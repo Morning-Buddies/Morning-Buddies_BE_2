@@ -57,9 +57,9 @@ public class MemberController {
 	}
 
 	@PostMapping("/me/fcm-token")
-	public CommonResponse<String> registerFcmToken(@Valid @RequestBody MemberRequestDto.FcmTokenDto request) {
-		memberCommandService.registerFcmToken(request);
+	public CommonResponse<String> updateFcmToken(@Valid @RequestBody MemberRequestDto.FcmTokenDto request) {
+		memberCommandService.updateFcmToken(request);
 
-		return CommonResponse.onSuccess("FCM 토큰 등록 성공");
+		return CommonResponse.onSuccess("FCM 토큰 갱신 성공");
 	}
 }
