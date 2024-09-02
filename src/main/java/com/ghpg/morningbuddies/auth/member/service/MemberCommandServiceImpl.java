@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.entity.UserRole;
+import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
@@ -52,10 +52,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	}
 
 	@Override
-	public void registerFcmToken(MemberRequestDto.FcmTokenDto request) {
+	public void updateFcmToken(MemberRequestDto.FcmTokenDto request) {
 		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentMemberEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		currentMember.registerFcmToken(request.getFcmToken(), request.getDeviceId());
+		currentMember.updateFcmToken(request.getFcmToken(), request.getDeviceId());
 	}
 }
