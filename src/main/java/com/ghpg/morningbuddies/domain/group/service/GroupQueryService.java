@@ -24,4 +24,7 @@ public interface GroupQueryService {
 	// 핫한 그룹 기준
 	Page<GroupResponseDto.GroupSummaryDTO> getHotGroups(Integer page, Integer size);
 
+	// 일찍 일어나는 그룹 기준
+	Page<GroupResponseDto.GroupSummaryDTO> getEarlyMorningGroups(Integer page, Integer size);
+
 }
