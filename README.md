@@ -18,23 +18,22 @@ feature/기능요약 형식. ex) feature/login
 ### 1. 커밋 유형 지정
 
 - 커밋 유형은 영어 대문자로 작성하기
-    
-    
-    | 커밋 유형 | 의미 |
-    | --- | --- |
-    | Feature | 새로운 기능 추가 |
-    | Fix | 버그 수정 |
-    | Docs | 문서 수정 |
-    | Style | 코드 formatting, 세미콜론 누락, 코드 자체의 변경이 없는 경우 |
-    | Refactor | 코드 리팩토링 |
-    | Test | 테스트 코드, 리팩토링 테스트 코드 추가 |
-    | Chore | 패키지 매니저 수정, 그 외 기타 수정 ex) .gitignore |
-    | Design | CSS 등 사용자 UI 디자인 변경 |
-    | Comment | 필요한 주석 추가 및 변경 |
-    | Rename | 파일 또는 폴더 명을 수정하거나 옮기는 작업만인 경우 |
-    | Remove | 파일을 삭제하는 작업만 수행한 경우 |
-    | !BREAKING CHANGE | 커다란 API 변경의 경우 |
-    | !HOTFIX | 급하게 치명적인 버그를 고쳐야 하는 경우 |
+
+  | 커밋 유형 | 의미 |
+        | --- | --- |
+  | Feature | 새로운 기능 추가 |
+  | Fix | 버그 수정 |
+  | Docs | 문서 수정 |
+  | Style | 코드 formatting, 세미콜론 누락, 코드 자체의 변경이 없는 경우 |
+  | Refactor | 코드 리팩토링 |
+  | Test | 테스트 코드, 리팩토링 테스트 코드 추가 |
+  | Chore | 패키지 매니저 수정, 그 외 기타 수정 ex) .gitignore |
+  | Design | CSS 등 사용자 UI 디자인 변경 |
+  | Comment | 필요한 주석 추가 및 변경 |
+  | Rename | 파일 또는 폴더 명을 수정하거나 옮기는 작업만인 경우 |
+  | Remove | 파일을 삭제하는 작업만 수행한 경우 |
+  | !BREAKING CHANGE | 커다란 API 변경의 경우 |
+  | !HOTFIX | 급하게 치명적인 버그를 고쳐야 하는 경우 |
 
 ### 2. 제목과 본문을 빈행으로 분리
 
@@ -60,24 +59,66 @@ feature/기능요약 형식. ex) feature/login
 ## 디렉토리 구조
 
 ### ✅ 도메인형 디렉터리 구조
+
 ```
-.
 └── com
-    └── morningbuddies
+    └── ghpg
         └── morningbuddies
             ├── MorningbuddiesApplication.java
-            ├── apiPayload
-            ├── base
-            ├── config
-            ├── converter
+            ├── auth
+            │   └── member
+            │       ├── controller
+            │       ├── dto
+            │       ├── entity
+            │       ├── repository
+            │       └── service
             ├── domain
-            ├── entity
-            ├── repository
-            ├── service
-            ├── validation
-            └── web
-                ├── controller
-                └── dto
+            │   ├── allowance
+            │   │   ├── Allowance.java
+            │   │   └── MemberAllowance.java
+            │   ├── chatmessage
+            │   │   ├── ChatMessage.java
+            │   │   ├── controller
+            │   │   ├── dto
+            │   │   ├── repository
+            │   │   └── service
+            │   ├── file
+            │   │   ├── entity
+            │   │   ├── repository
+            │   │   └── service
+            │   ├── group
+            │   │   ├── controller
+            │   │   ├── converter
+            │   │   ├── dto
+            │   │   ├── entity
+            │   │   ├── repository
+            │   │   └── service
+            │   ├── notification
+            │   │   ├── Notification.java
+            │   │   └── repository
+            │   └── recommend
+            │       └── Recommend.java
+            ├── global
+            │   ├── ApiConfig.java
+            │   ├── common
+            │   │   ├── BaseEntity.java
+            │   │   └── CommonResponse.java
+            │   ├── config
+            │   │   ├── CorsMvcConfig.java
+            │   │   ├── JacksonConfig.java
+            │   │   ├── SecurityConfig.java
+            │   │   └── WebSocketConfig.java
+            │   ├── exception
+            │   │   ├── common
+            │   │   ├── group
+            │   │   ├── member
+            │   │   └── refresh
+            │   └── security
+            │       ├── SecurityUtil.java
+            │       └── jwt
+            └── root
+                └── RootController.java
+
 ```
 
 ## ☑️ 코드 컨벤션
@@ -108,10 +149,10 @@ feature/기능요약 형식. ex) feature/login
 ```jsx
 // Good
 function someFunction() {
-  ...
+...
 
-  // statement에 관한 주석
-  statements
+    // statement에 관한 주석
+    statements
 }
 ```
 
@@ -121,7 +162,7 @@ function someFunction() {
 <img src="https://cdn-icons-png.flaticon.com/512/3978/3978575.png" alt="https://cdn-icons-png.flaticon.com/512/3978/3978575.png" width="40px" /> **연산자 사이에는 공백을 추가하여 가독성을 높입니다.**
 
 ```jsx
-a+b+c+d // bad
+a + b + c + d // bad
 a + b + c + d // good
 ```
 
@@ -131,7 +172,7 @@ a + b + c + d // good
 ☝ **콤마 다음에 값이 올 경우 공백을 추가하여 가독성을 높입니다.**
 
 ```jsx
-var arr = [1,2,3,4]; //bad
+var arr = [1, 2, 3, 4]; //bad
 var arr = [1, 2, 3, 4]; //good
 ```
 
@@ -141,7 +182,8 @@ var arr = [1, 2, 3, 4]; //good
 🔠 생성자 함수명의 맨 앞글자는 대문자로 합니다.
 
 ```java
-public void Person(){}
+public void Person() {
+}
 ```
 
 </aside>
