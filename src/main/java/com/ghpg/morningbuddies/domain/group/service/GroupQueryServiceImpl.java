@@ -110,7 +110,24 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	@Override
 	public Page<GroupResponseDto.GroupSummaryDTO> getAllGroups(Integer page, Integer size){
 		Page<Groups> groups = groupRepository.findAll(PageRequest.of(page, size));
+
 		return groups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
+				.id(group.getId())
+				.groupName(group.getGroupName())
+				.wakeupTime(group.getWakeupTime())
+				.currentParticipantCount(group.getCurrentParticipantCount())
+				.maxParticipantCount(group.getMaxParticipantCount())
+				.groupImage(group.getGroupImage())
+				.build());
+	}
+
+	// 핫한 그룹 기준
+	@Override
+	public Page<GroupResponseDto.GroupSummaryDTO> getHotGroups(Integer page, Integer size){
+		PageRequest pageRequest = PageRequest.of(page, size);
+		Page<Groups> hotGroups = groupRepository.getHotGroups(pageRequest);
+
+		return hotGroups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
 				.id(group.getId())
 				.groupName(group.getGroupName())
 				.wakeupTime(group.getWakeupTime())

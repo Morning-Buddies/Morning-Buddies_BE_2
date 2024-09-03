@@ -16,4 +16,8 @@ public interface GroupRepository extends JpaRepository<Groups, Long> {
 
 	@Query("select g from Groups g where g.groupName like %:keyword% or g.description like %:keyword%")
 	Page<Groups> findByGroupNameOrDescriptionContaining(@Param("keyword") String keyword, Pageable pageable);
+
+	// 핫한 그룹 기준
+	@Query("SELECT g FROM Groups g ORDER BY g.successCount DESC")
+	Page<Groups> getHotGroups(Pageable pageable);
 }
