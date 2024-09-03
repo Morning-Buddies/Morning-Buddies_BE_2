@@ -20,4 +20,8 @@ public interface GroupQueryService {
 
 	// 생성된 모든 그룹 리스트 가져오기
 	Page<GroupResponseDto.GroupSummaryDTO> getAllGroups(Integer page, Integer size);
+
+	// 핫한 그룹 기준
+	Page<GroupResponseDto.GroupSummaryDTO> getHotGroups(Integer page, Integer size);
+
 }
