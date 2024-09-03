@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.domain.group.service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,6 +129,23 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 		Page<Groups> hotGroups = groupRepository.getHotGroups(pageRequest);
 
 		return hotGroups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
+				.id(group.getId())
+				.groupName(group.getGroupName())
+				.wakeupTime(group.getWakeupTime())
+				.currentParticipantCount(group.getCurrentParticipantCount())
+				.maxParticipantCount(group.getMaxParticipantCount())
+				.groupImage(group.getGroupImage())
+				.build());
+	}
+
+	// 일찍 일어나는 그룹 기준
+	@Override
+	public Page<GroupResponseDto.GroupSummaryDTO> getEarlyMorningGroups(Integer page, Integer size){
+		PageRequest pageRequest = PageRequest.of(page, size);
+		LocalTime earlyMorningTime = LocalTime.of(6, 0);
+		Page<Groups> earlyMorningGroups = groupRepository.getGroupsByEarlyMorning(earlyMorningTime, pageRequest);
+
+		return earlyMorningGroups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
 				.id(group.getId())
 				.groupName(group.getGroupName())
 				.wakeupTime(group.getWakeupTime())
