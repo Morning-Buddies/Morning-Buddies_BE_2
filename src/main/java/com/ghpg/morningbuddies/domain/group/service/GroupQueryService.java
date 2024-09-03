@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.domain.group.service;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
@@ -17,4 +18,6 @@ public interface GroupQueryService {
 	// 그룹 가입 요청 리스트
 	List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId);
 
+	// 생성된 모든 그룹 리스트 가져오기
+	Page<GroupResponseDto.GroupSummaryDTO> getAllGroups(Integer page, Integer size);
 }
