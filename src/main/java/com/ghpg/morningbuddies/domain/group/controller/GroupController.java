@@ -1,5 +1,7 @@
 package com.ghpg.morningbuddies.domain.group.controller;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -115,6 +117,15 @@ public class GroupController {
 		groupCommandService.rejectJoinGroup(groupId, requestId);
 
 		return CommonResponse.onSuccess("요청을 거절하였습니다.");
+	}
+
+	// 생성된 모든 그룹 리스트 가져오기
+	@GetMapping("")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getAllGroups(@RequestParam(defaultValue = "0") Integer page,
+															   	@RequestParam(defaultValue = "10") Integer size){
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getAllGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
 	}
 
 }
