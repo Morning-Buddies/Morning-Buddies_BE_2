@@ -128,4 +128,14 @@ public class GroupController {
 		return CommonResponse.onSuccess(groups);
 	}
 
+	// 핫한 그룹 기준
+	@GetMapping("/popular")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getHotGroups(@RequestParam(defaultValue = "0") Integer page,
+																			   @RequestParam(defaultValue = "10") Integer size){
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getHotGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
+
+
 }
