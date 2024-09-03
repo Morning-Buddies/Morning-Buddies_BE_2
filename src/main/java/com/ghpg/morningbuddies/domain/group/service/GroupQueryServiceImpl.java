@@ -9,6 +9,7 @@ import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepositor
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,8 @@ import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 
 import lombok.RequiredArgsConstructor;
+
+import javax.swing.*;
 
 @Service
 @RequiredArgsConstructor
@@ -101,6 +104,20 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 						.build())
 				.collect(Collectors.toList());
 
+	}
+
+	// 생성된 모든 그룹 리스트 가져오기
+	@Override
+	public Page<GroupResponseDto.GroupSummaryDTO> getAllGroups(Integer page, Integer size){
+		Page<Groups> groups = groupRepository.findAll(PageRequest.of(page, size));
+		return groups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
+				.id(group.getId())
+				.groupName(group.getGroupName())
+				.wakeupTime(group.getWakeupTime())
+				.currentParticipantCount(group.getCurrentParticipantCount())
+				.maxParticipantCount(group.getMaxParticipantCount())
+				.groupImage(group.getGroupImage())
+				.build());
 	}
 
 }
