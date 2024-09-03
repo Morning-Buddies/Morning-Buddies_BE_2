@@ -26,4 +26,9 @@ public interface GroupRepository extends JpaRepository<Groups, Long> {
 	// 일찍 일어나는 그룹 기준
 	@Query("SELECT g FROM Groups g WHERE g.wakeupTime <= :time")
 	Page<Groups> getGroupsByEarlyMorning(@RequestParam("time") LocalTime time, Pageable pageable);
+
+	// 늦게 일어나는 그룹 기준
+	@Query("SELECT g FROM Groups g WHERE g.wakeupTime >= :time")
+	Page<Groups> getGroupsByLateEvening(@RequestParam("time") LocalTime time, Pageable pageable);
+
 }
