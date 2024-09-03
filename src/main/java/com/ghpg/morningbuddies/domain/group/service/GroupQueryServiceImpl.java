@@ -3,6 +3,11 @@ package com.ghpg.morningbuddies.domain.group.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
+import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
+import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
+import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,6 +32,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 
 	private final GroupRepository groupRepository;
 	private final MemberRepository memberRepository;
+	private final GroupJoinRequestRepository groupJoinRequestRepository;
 
 	// 그룹 정보 가져오기
 	@Override
@@ -66,6 +72,35 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.isFirst(groupsPage.isFirst())
 			.isLast(groupsPage.isLast())
 			.build();
+	}
+
+	// 그룹 가입 요청 리스트
+	@Override
+	public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId){
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member member = memberRepository.findByEmail(currentEmail)
+				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		Groups group = groupRepository.findById(groupId)
+				.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		if (!group.getLeader().equals(member)){
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
+
+		List<GroupJoinRequest> joinRequests = groupJoinRequestRepository.findByGroupAndStatus(group, RequestStatus.PENDING);
+
+		return joinRequests.stream()
+				.map(request -> GroupResponseDto.JoinRequestDTO.builder()
+						.requestId(request.getId())
+						.memberId(request.getMember().getId())
+						.firstName(request.getMember().getFirstName())
+						.lastName(request.getMember().getLastName())
+						.email(request.getMember().getEmail())
+						.status(request.getStatus())
+						.build())
+				.collect(Collectors.toList());
+
 	}
 
 }

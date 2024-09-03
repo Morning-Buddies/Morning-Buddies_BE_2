@@ -73,7 +73,6 @@ public class GroupController {
 		return CommonResponse.onSuccess("그룹이 삭제되었습니다.");
 	}
 
-
 	// 그룹 검색 결과 가져오기
 	@GetMapping("/search")
 	public CommonResponse<GroupResponseDto.SearchedGroupInfoList> searchGroups(
@@ -97,7 +96,7 @@ public class GroupController {
 	// 그룹 가입 요청 리스트
 	@GetMapping("/{groupId}/join-request")
 	public CommonResponse<List<GroupResponseDto.JoinRequestDTO>> findByGroupAndStatus(@PathVariable("groupId") Long groupId){
-		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupCommandService.findByGroupAndStatus(groupId);
+		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupQueryService.findByGroupAndStatus(groupId);
 
 		return CommonResponse.onSuccess(joinRequests);
 	}
