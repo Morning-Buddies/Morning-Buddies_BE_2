@@ -1,267 +1,277 @@
 package com.ghpg.morningbuddies.domain.group.service;
 
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
-import com.ghpg.morningbuddies.domain.file.service.FileCommandService;
-import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
-import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
-import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
-import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
-import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
-import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
-import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
-import com.ghpg.morningbuddies.global.exception.group.GroupException;
-import com.ghpg.morningbuddies.global.exception.member.MemberException;
-import com.ghpg.morningbuddies.global.security.SecurityUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.domain.file.service.FileCommandService;
+import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
+import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
+import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
+import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
+import com.ghpg.morningbuddies.domain.notification.service.NotificationCommandService;
+import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.group.GroupException;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
+import com.ghpg.morningbuddies.global.security.SecurityUtil;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class GroupCommandServiceImpl implements GroupCommandService {
 
-    private final MemberRepository memberRepository;
-    private final GroupRepository groupRepository;
-    private final FileCommandService fileCommandService;
-    private final GroupJoinRequestRepository groupJoinRequestRepository;
+	private final MemberRepository memberRepository;
+	private final GroupRepository groupRepository;
+	private final FileCommandService fileCommandService;
+	private final GroupJoinRequestRepository groupJoinRequestRepository;
 
-    // 그룹 생성
-    @Override
-    public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
+	private final NotificationCommandService notificationCommandService;
 
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member leader = memberRepository.findByEmail(currentEmail)
-                        .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+	// 그룹 생성
+	@Override
+	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
 
-        Optional<Groups> existingGroup = groupRepository.findByGroupName(requestDto.getGroupName());
-        if (existingGroup.isPresent()) {
-            throw new GroupException(GlobalErrorCode.GROUP_ALREADY_CREATED);
-        }
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member leader = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        String uploadedGroupImageUrl = null;
-        if (file != null && !file.isEmpty()) {
-            try {
-                uploadedGroupImageUrl = fileCommandService.saveFile(file);
-            } catch (Exception e) {
-                throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
-            }
-        }
+		Optional<Groups> existingGroup = groupRepository.findByGroupName(requestDto.getGroupName());
+		if (existingGroup.isPresent()) {
+			throw new GroupException(GlobalErrorCode.GROUP_ALREADY_CREATED);
+		}
 
-        Groups group = Groups.builder()
-                .groupName(requestDto.getGroupName())
-                .description(requestDto.getDescription())
-                .wakeupTime(requestDto.getWakeUpTime())
-                .currentParticipantCount(1)
-                .leader(leader)
-                .maxParticipantCount(requestDto.getMaxParticipantCount())
-                .isActivated(true)
-                .groupImage(uploadedGroupImageUrl)
-                .build();
+		String uploadedGroupImageUrl = null;
+		if (file != null && !file.isEmpty()) {
+			try {
+				uploadedGroupImageUrl = fileCommandService.saveFile(file);
+			} catch (Exception e) {
+				throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
+			}
+		}
 
-        group.addMember(leader);
+		Groups group = Groups.builder()
+			.groupName(requestDto.getGroupName())
+			.description(requestDto.getDescription())
+			.wakeupTime(requestDto.getWakeUpTime())
+			.currentParticipantCount(1)
+			.leader(leader)
+			.maxParticipantCount(requestDto.getMaxParticipantCount())
+			.isActivated(true)
+			.groupImage(uploadedGroupImageUrl)
+			.build();
 
-        Groups savedGroup = groupRepository.save(group);
+		group.addMember(leader);
 
-        ArrayList<Member> members = new ArrayList<>();
-        members.add(leader);
+		Groups savedGroup = groupRepository.save(group);
 
-        return GroupResponseDto.GroupDetailDTO.builder()
-                .groupId(savedGroup.getId())
-                .groupName(savedGroup.getGroupName())
-                .wakeUpTime(savedGroup.getWakeupTime())
-                .currentParticipantCount(savedGroup.getCurrentParticipantCount())
-                .maxParticipantCount(requestDto.getMaxParticipantCount() != null ? requestDto.getMaxParticipantCount() : 0) // Null 체크
-                .description(savedGroup.getDescription())
-                .imageUrl(savedGroup.getGroupImage())
-                .members(members.stream().map(MemberResponseDto.MemberSummaryDTO::from).collect(Collectors.toList()))
-                .leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
-                .build();
+		ArrayList<Member> members = new ArrayList<>();
+		members.add(leader);
 
-    }
+		return GroupResponseDto.GroupDetailDTO.builder()
+			.groupId(savedGroup.getId())
+			.groupName(savedGroup.getGroupName())
+			.wakeUpTime(savedGroup.getWakeupTime())
+			.currentParticipantCount(savedGroup.getCurrentParticipantCount())
+			.maxParticipantCount(
+				requestDto.getMaxParticipantCount() != null ? requestDto.getMaxParticipantCount() : 0) // Null 체크
+			.description(savedGroup.getDescription())
+			.imageUrl(savedGroup.getGroupImage())
+			.members(members.stream().map(MemberResponseDto.MemberSummaryDTO::from).collect(Collectors.toList()))
+			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
+			.build();
 
-    // 그룹 수정
-    @Override
-    public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request, MultipartFile file){
+	}
 
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member member = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+	// 그룹 수정
+	@Override
+	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request,
+		MultipartFile file) {
 
-        Groups group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member member = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        if (!group.getLeader().equals(member)){
-           throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-        }
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
-        String uploadedGroupImageUrl = group.getGroupImage();
-        if (file != null && !file.isEmpty()) {
-            try {
-                uploadedGroupImageUrl = fileCommandService.saveFile(file);
-            } catch (Exception e) {
-                throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
-            }
-        }
+		if (!group.getLeader().equals(member)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
 
-        group.setGroupName(request.getGroupName());
-        group.setWakeupTime(request.getWakeUpTime());
-        group.setMaxParticipantCount(request.getMaxParticipantCount());
-        group.setDescription(request.getDescription());
-        group.setGroupImage(uploadedGroupImageUrl);
+		String uploadedGroupImageUrl = group.getGroupImage();
+		if (file != null && !file.isEmpty()) {
+			try {
+				uploadedGroupImageUrl = fileCommandService.saveFile(file);
+			} catch (Exception e) {
+				throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
+			}
+		}
 
-        Groups savedGroup = groupRepository.save(group);
+		group.setGroupName(request.getGroupName());
+		group.setWakeupTime(request.getWakeUpTime());
+		group.setMaxParticipantCount(request.getMaxParticipantCount());
+		group.setDescription(request.getDescription());
+		group.setGroupImage(uploadedGroupImageUrl);
 
-        return GroupResponseDto.GroupDetailDTO.builder()
-                .groupId(savedGroup.getId())
-                .groupName(savedGroup.getGroupName())
-                .description(savedGroup.getDescription())
-                .wakeUpTime(savedGroup.getWakeupTime())
-                .currentParticipantCount(savedGroup.getCurrentParticipantCount())
-                .maxParticipantCount(savedGroup.getMaxParticipantCount())
-                .imageUrl(uploadedGroupImageUrl)
-                .members(savedGroup.getMembers())
-                .leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
-                .build();
-    }
+		Groups savedGroup = groupRepository.save(group);
 
-    @Override
-    public void deleteGroup(Long groupId){
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member member = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		return GroupResponseDto.GroupDetailDTO.builder()
+			.groupId(savedGroup.getId())
+			.groupName(savedGroup.getGroupName())
+			.description(savedGroup.getDescription())
+			.wakeUpTime(savedGroup.getWakeupTime())
+			.currentParticipantCount(savedGroup.getCurrentParticipantCount())
+			.maxParticipantCount(savedGroup.getMaxParticipantCount())
+			.imageUrl(uploadedGroupImageUrl)
+			.members(savedGroup.getMembers())
+			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
+			.build();
+	}
 
-        Groups group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+	@Override
+	public void deleteGroup(Long groupId) {
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member member = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        if (!group.getLeader().equals(member)){
-            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-        }
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
-        groupRepository.delete(group);
-    }
+		if (!group.getLeader().equals(member)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
 
-    // 그룹 가입 요청
-    @Override
-    public void requestJoinGroup(Long groupId){
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member member = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		groupRepository.delete(group);
+	}
 
-        Groups group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+	// 그룹 가입 요청
+	@Override
+	public void requestJoinGroup(Long groupId) {
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member member = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        GroupJoinRequest joinRequest = GroupJoinRequest.builder()
-                .member(member)
-                .group(group)
-                .status(RequestStatus.PENDING)
-                .build();
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
-        groupJoinRequestRepository.save(joinRequest);
+		GroupJoinRequest joinRequest = GroupJoinRequest.builder()
+			.member(member)
+			.group(group)
+			.status(RequestStatus.PENDING)
+			.build();
 
-    }
+		groupJoinRequestRepository.save(joinRequest);
 
-    // 그룹 가입 요청 리스트
-    @Override
-    public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId){
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member member = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		// 그룹 가입 요청 시, 그룹 리더에게 푸시 알림 전송
+		notificationCommandService.sendJoinRequestNotification(group.getLeader(), member, group);
 
-        Groups group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+	}
 
-        if (!group.getLeader().equals(member)){
-            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-        }
+	// 그룹 가입 요청 리스트
+	@Override
+	public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId) {
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member member = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        List<GroupJoinRequest> joinRequests = groupJoinRequestRepository.findByGroupAndStatus(group, RequestStatus.PENDING);
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
-        return joinRequests.stream()
-                .map(request -> GroupResponseDto.JoinRequestDTO.builder()
-                        .requestId(request.getId())
-                        .memberId(request.getMember().getId())
-                        .firstName(request.getMember().getFirstName())
-                        .lastName(request.getMember().getLastName())
-                        .email(request.getMember().getEmail())
-                        .status(request.getStatus())
-                        .build())
-                .collect(Collectors.toList());
+		if (!group.getLeader().equals(member)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
 
-    }
+		List<GroupJoinRequest> joinRequests = groupJoinRequestRepository.findByGroupAndStatus(group,
+			RequestStatus.PENDING);
 
-    // 그룹 가입 요청 수락 및 그룹 가입
-    @Override
-    public void acceptJoinGroup(Long groupId, Long requestId){
+		return joinRequests.stream()
+			.map(request -> GroupResponseDto.JoinRequestDTO.builder()
+				.requestId(request.getId())
+				.memberId(request.getMember().getId())
+				.firstName(request.getMember().getFirstName())
+				.lastName(request.getMember().getLastName())
+				.email(request.getMember().getEmail())
+				.status(request.getStatus())
+				.build())
+			.collect(Collectors.toList());
 
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member leader = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+	}
 
-        GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
+	// 그룹 가입 요청 수락 및 그룹 가입
+	@Override
+	public void acceptJoinGroup(Long groupId, Long requestId) {
 
-        Groups group = joinRequest.getGroup();
-        Member member = joinRequest.getMember();
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member leader = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        if (!group.getId().equals(groupId)){
-            throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
-        }
+		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
 
-        if (!group.getLeader().equals(leader)){
-            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-        }
+		Groups group = joinRequest.getGroup();
+		Member member = joinRequest.getMember();
 
-        if (group.getCurrentParticipantCount() > group.getMaxParticipantCount()){
-            throw new GroupException(GlobalErrorCode.GROUP_FULL);
-        }
+		if (!group.getId().equals(groupId)) {
+			throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
+		}
 
-        joinRequest.setStatus(RequestStatus.ACCEPTED);
-        groupJoinRequestRepository.save(joinRequest);
+		if (!group.getLeader().equals(leader)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
 
-        addMemberToGroup(group, member);
-    }
+		if (group.getCurrentParticipantCount() > group.getMaxParticipantCount()) {
+			throw new GroupException(GlobalErrorCode.GROUP_FULL);
+		}
 
-    private void addMemberToGroup(Groups group, Member member){
-        group.addMember(member);
-        group.setCurrentParticipantCount(group.getCurrentParticipantCount() + 1);
+		joinRequest.setStatus(RequestStatus.ACCEPTED);
+		groupJoinRequestRepository.save(joinRequest);
 
-        groupRepository.save(group);
-    }
+		addMemberToGroup(group, member);
+	}
 
-    // 그룹 가입 요청 거절
-    @Override
-    public void rejectJoinGroup(Long groupId, Long requestId){
-        String currentEmail = SecurityUtil.getCurrentMemberEmail();
-        Member leader = memberRepository.findByEmail(currentEmail)
-                .orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+	private void addMemberToGroup(Groups group, Member member) {
+		group.addMember(member);
+		group.setCurrentParticipantCount(group.getCurrentParticipantCount() + 1);
 
-        GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-                .orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
+		groupRepository.save(group);
+	}
 
-        Groups group = joinRequest.getGroup();
+	// 그룹 가입 요청 거절
+	@Override
+	public void rejectJoinGroup(Long groupId, Long requestId) {
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member leader = memberRepository.findByEmail(currentEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-        if (!group.getId().equals(groupId)){
-            throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
-        }
+		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
 
-        if (!group.getLeader().equals(leader)){
-            throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-        }
+		Groups group = joinRequest.getGroup();
 
-        joinRequest.setStatus(RequestStatus.REJECTED);
+		if (!group.getId().equals(groupId)) {
+			throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
+		}
 
-        groupJoinRequestRepository.save(joinRequest);
+		if (!group.getLeader().equals(leader)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
 
-    }
+		joinRequest.setStatus(RequestStatus.REJECTED);
+
+		groupJoinRequestRepository.save(joinRequest);
+
+	}
 }
