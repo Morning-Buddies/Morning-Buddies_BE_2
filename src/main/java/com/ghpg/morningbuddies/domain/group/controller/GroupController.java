@@ -137,5 +137,13 @@ public class GroupController {
 		return CommonResponse.onSuccess(groups);
 	}
 
+	// 일찍 일어나는 그룹 기준
+	@GetMapping("/early")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getEarlyMorningGroups(@RequestParam(defaultValue = "0") Integer page,
+																						@RequestParam(defaultValue = "10") Integer size){
 
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getEarlyMorningGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
 }
