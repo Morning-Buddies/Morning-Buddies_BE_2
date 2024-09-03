@@ -155,4 +155,21 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 				.build());
 	}
 
+	// 늦게 일어나는 그룹 기준
+	@Override
+	public Page<GroupResponseDto.GroupSummaryDTO> getGroupsByLateEvening(Integer page, Integer size){
+		PageRequest pageRequest = PageRequest.of(page, size);
+		LocalTime lateEveningTime = LocalTime.of(18, 0);
+		Page<Groups> lateEveningGroups = groupRepository.getGroupsByLateEvening(lateEveningTime, pageRequest);
+
+		return lateEveningGroups.map(group -> GroupResponseDto.GroupSummaryDTO.builder()
+				.id(group.getId())
+				.groupName(group.getGroupName())
+				.wakeupTime(group.getWakeupTime())
+				.currentParticipantCount(group.getCurrentParticipantCount())
+				.maxParticipantCount(group.getMaxParticipantCount())
+				.groupImage(group.getGroupImage())
+				.build());
+	}
+
 }

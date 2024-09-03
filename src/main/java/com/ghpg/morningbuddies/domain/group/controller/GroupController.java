@@ -146,4 +146,14 @@ public class GroupController {
 
 		return CommonResponse.onSuccess(groups);
 	}
+
+	// 늦게 일어나는 그룹 기준
+	@GetMapping("/late")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getGroupsByLateEvening(@RequestParam(defaultValue = "0") Integer page,
+																						 @RequestParam(defaultValue = "10") Integer size){
+
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getGroupsByLateEvening(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
 }
