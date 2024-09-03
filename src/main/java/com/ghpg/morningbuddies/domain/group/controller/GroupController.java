@@ -1,5 +1,7 @@
 package com.ghpg.morningbuddies.domain.group.controller;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
@@ -73,7 +75,6 @@ public class GroupController {
 		return CommonResponse.onSuccess("그룹이 삭제되었습니다.");
 	}
 
-
 	// 그룹 검색 결과 가져오기
 	@GetMapping("/search")
 	public CommonResponse<GroupResponseDto.SearchedGroupInfoList> searchGroups(
@@ -97,7 +98,7 @@ public class GroupController {
 	// 그룹 가입 요청 리스트
 	@GetMapping("/{groupId}/join-request")
 	public CommonResponse<List<GroupResponseDto.JoinRequestDTO>> findByGroupAndStatus(@PathVariable("groupId") Long groupId){
-		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupCommandService.findByGroupAndStatus(groupId);
+		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupQueryService.findByGroupAndStatus(groupId);
 
 		return CommonResponse.onSuccess(joinRequests);
 	}
@@ -118,4 +119,41 @@ public class GroupController {
 		return CommonResponse.onSuccess("요청을 거절하였습니다.");
 	}
 
+	// 생성된 모든 그룹 리스트 가져오기
+	@GetMapping("")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getAllGroups(@RequestParam(defaultValue = "0") Integer page,
+															   	@RequestParam(defaultValue = "10") Integer size){
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getAllGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
+
+	// 핫한 그룹 기준
+	@GetMapping("/popular")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getHotGroups(@RequestParam(defaultValue = "0") Integer page,
+																			   @RequestParam(defaultValue = "10") Integer size){
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getHotGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
+
+	// 일찍 일어나는 그룹 기준
+	@GetMapping("/early")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getEarlyMorningGroups(@RequestParam(defaultValue = "0") Integer page,
+																						@RequestParam(defaultValue = "10") Integer size){
+
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getEarlyMorningGroups(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
+
+	// 늦게 일어나는 그룹 기준
+	@GetMapping("/late")
+	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getGroupsByLateEvening(@RequestParam(defaultValue = "0") Integer page,
+																						 @RequestParam(defaultValue = "10") Integer size){
+
+		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getGroupsByLateEvening(page, size);
+
+		return CommonResponse.onSuccess(groups);
+	}
 }

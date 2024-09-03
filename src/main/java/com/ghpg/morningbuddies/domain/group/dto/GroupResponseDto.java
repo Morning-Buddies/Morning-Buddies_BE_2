@@ -103,4 +103,18 @@ public class GroupResponseDto {
 		private Integer currentParticipantCount;
 		private Integer maxParticipantCount;
 	}
+
+	// 그룹 요약 DTO
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
+	public static class GroupSummaryDTO{
+		private Long id;
+		private String groupName;
+		private LocalTime wakeupTime;
+		private Integer currentParticipantCount;
+		private Integer maxParticipantCount;
+		private String groupImage;
+	}
 }
