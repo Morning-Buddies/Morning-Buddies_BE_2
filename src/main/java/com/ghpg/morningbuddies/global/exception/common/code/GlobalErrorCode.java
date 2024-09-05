@@ -46,6 +46,10 @@ public enum GlobalErrorCode implements BaseErrorCode {
     GROUP_NOT_FOUND(CONFLICT, "GROUP409_2", "그룹을 찾을 수 없습니다."),
     GROUP_PERMISSION_DENIED(CONFLICT, "GROUP409_3", "그룹에 대한 권한이 없습니다."),
     GROUP_FULL(CONFLICT, "GROUP409_4", "인원이 다 찼습니다."),
+    LEADER_CANNOT_LEAVE_GROUP(CONFLICT, "GROUP409_5", "반장은 그룹에서 나갈 수 없습니다."),
+
+    //MemberGroup
+    MEMBER_NOT_IN_GROUP(CONFLICT, "MEMBERGROUP409_1", "해당 회원은 그룹에 없습니다."),
 
     //Request
     REQUEST_NOT_FOUND(CONFLICT, "REQUEST409_1", "요청을 찾을 수 없습니다."),
