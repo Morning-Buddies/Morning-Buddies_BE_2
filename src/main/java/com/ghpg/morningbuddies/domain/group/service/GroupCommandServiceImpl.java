@@ -175,7 +175,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		groupJoinRequestRepository.save(joinRequest);
 
 		// 그룹 가입 요청 시, 그룹 리더에게 푸시 알림 전송
-		notificationCommandService.sendJoinRequestNotification(group.getLeader(), member, group);
+		// notificationCommandService.sendJoinRequestNotification(group.getLeader(), member, group);
 
 	}
 
