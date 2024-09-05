@@ -2,13 +2,8 @@ package com.ghpg.morningbuddies.auth.member.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import org.springframework.web.bind.annotation.*;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
@@ -31,6 +26,7 @@ public class MemberController {
 	private final MemberQueryService memberQueryService;
 
 	private final MemberCommandService memberCommandService;
+	private final MemberRepository memberRepository;
 
 	@GetMapping("/me")
 	public CommonResponse<MemberResponseDto.MemberInfo> getMemberInfo(
@@ -61,5 +57,12 @@ public class MemberController {
 		memberCommandService.updateFcmToken(request);
 
 		return CommonResponse.onSuccess("FCM 토큰 갱신 성공");
+	}
+
+	// 그룹 탈퇴
+	@DeleteMapping("/me/groups/{groupId}")
+	public CommonResponse<String> deleteGroup(@PathVariable("groupId") Long groupId) {
+		memberCommandService.leaveGroup(groupId);
+		return CommonResponse.onSuccess("그룹에서 탈퇴하였습니다.");
 	}
 }

@@ -8,4 +8,7 @@ public interface MemberCommandService {
 	void changePassword(MemberRequestDto.PasswordDto request);
 	
 	void updateFcmToken(MemberRequestDto.FcmTokenDto request);
+
+	// 그룹 탈퇴
+	void leaveGroup(Long groupId);
 }
