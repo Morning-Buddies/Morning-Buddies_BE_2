@@ -25,4 +25,7 @@ public interface GroupCommandService {
 
     // 그룹 가입 요청 거절
     void rejectJoinGroup(Long groupId, Long requestId);
+
+    // 리더 교체
+    void changeLeaderAuthority(Long groupId, Long newLeaderId);
 }
