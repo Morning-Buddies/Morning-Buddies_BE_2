@@ -1,6 +1,5 @@
 package com.ghpg.morningbuddies.domain.group.controller;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -156,4 +155,14 @@ public class GroupController {
 
 		return CommonResponse.onSuccess(groups);
 	}
+
+	// 리더 변경
+	@PostMapping("/{groupId}/changeLeaderAuthority")
+	public CommonResponse<String> changeLeaderAuthority(@PathVariable("groupId") Long groupId, @RequestParam("newLeaderId") Long newLeaderId){
+		groupCommandService.changeLeaderAuthority(groupId, newLeaderId);
+
+		return CommonResponse.onSuccess("반장 권한이 변경되었습니다.");
+
+	}
+
 }
