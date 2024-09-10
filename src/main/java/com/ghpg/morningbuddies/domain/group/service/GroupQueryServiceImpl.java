@@ -47,6 +47,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 		List<Member> allMemberInGroup = memberRepository.findAllMemberByGroupId(groupId);
 
 		return GroupResponseDto.GroupDetailDTO.builder()
+			.groupId(groupId)
 			.groupName(group.getGroupName())
 			.wakeUpTime(group.getWakeupTime())
 			.currentParticipantCount(group.getCurrentParticipantCount())
