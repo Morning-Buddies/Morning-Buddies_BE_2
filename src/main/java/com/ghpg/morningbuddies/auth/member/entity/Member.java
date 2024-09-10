@@ -94,7 +94,7 @@ public class Member extends BaseEntity {
 	private Recommend recommend;
 
 	@Builder.Default
-	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ChatMessage> chatMessages = new ArrayList<>();
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
