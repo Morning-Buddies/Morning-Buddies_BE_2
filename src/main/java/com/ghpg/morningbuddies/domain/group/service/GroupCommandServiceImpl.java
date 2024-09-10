@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
+import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +40,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final GroupJoinRequestRepository groupJoinRequestRepository;
 
 	private final NotificationCommandService notificationCommandService;
+	private final MemberGroupRepository memberGroupRepository;
 
 	// 그룹 생성
 	@Override
@@ -243,4 +246,32 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		groupJoinRequestRepository.save(joinRequest);
 
 	}
+
+	// 리더 변경
+	@Override
+	public void changeLeaderAuthority(Long groupId, Long newLeaderId){
+		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		Member currentLeader = memberRepository.findByEmail(currentEmail)
+				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		Groups group = groupRepository.findById(groupId)
+				.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		if (!group.getLeader().equals(currentLeader)) {
+			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		}
+
+		Member newLeader = memberRepository.findById(newLeaderId)
+				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		if (!group.getMemberEntities().contains(newLeader)) {
+			throw new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP);
+		}
+
+		group.setLeader(newLeader);
+
+		groupRepository.save(group);
+
+	}
+
 }
