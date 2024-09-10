@@ -1,6 +1,6 @@
 package com.ghpg.morningbuddies.global.config;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
@@ -24,7 +25,6 @@ import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 import com.ghpg.morningbuddies.global.security.jwt.LoginFilter;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -32,92 +32,64 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	//AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
 	private final AuthenticationConfiguration authenticationConfiguration;
-
 	private final JwtUtil jwtUtil;
-
 	private final ObjectMapper objectMapper;
-
 	private final RefreshTokenRepository refreshTokenRepository;
-
 	private final MemberRepository memberRepository;
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-
 		return new BCryptPasswordEncoder();
 	}
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
 		return configuration.getAuthenticationManager();
 	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration,
 		MemberRepository memberRepository) throws Exception {
-
 		AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
 		LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, refreshTokenRepository,
 			memberRepository);
-		loginFilter.setFilterProcessesUrl("/auth/login"); // 로그인 처리 URL 설정 (필요에 따라 변경)
-		//csrf disable
-		http
-			.csrf((auth) -> auth.disable());
+		loginFilter.setFilterProcessesUrl("/auth/login");
 
-		//From 로그인 방식 disable
 		http
-			.formLogin((auth) -> auth.disable());
-
-		//http basic 인증 방식 disable
-		http
-			.httpBasic((auth) -> auth.disable());
-
-		//경로별 인가 작업
-		http
+			.csrf((auth) -> auth.disable())
+			.formLogin((auth) -> auth.disable())
+			.httpBasic((auth) -> auth.disable())
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/ws/**").permitAll()
-				.requestMatchers("/", "health", "/auth/**").permitAll()
+				.requestMatchers("/", "/health", "/auth/**").permitAll()
+				.requestMatchers("/ws-stomp/**").permitAll()
 				.requestMatchers("/admin").hasRole("ADMIN")
-				.anyRequest().authenticated());
-
-		http
-			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class);
-
-		http
-			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-
-		http
-			.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository, objectMapper), LogoutFilter.class);
-		//세션 설정
-		http
+				.anyRequest().authenticated())
+			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
+			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository, objectMapper), LogoutFilter.class)
 			.sessionManagement((session) -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		// CORS 설정
-		http
-			.cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-
-				@Override
-				public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
-					CorsConfiguration configuration = new CorsConfiguration();
-
-					configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-					configuration.setAllowedMethods(Collections.singletonList("*"));
-					configuration.setAllowCredentials(true);
-					configuration.setAllowedHeaders(Collections.singletonList("*"));
-					configuration.setMaxAge(3600L);
-
-					configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-					return configuration;
-				}
-			})));
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://apic.app"));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		configuration.setAllowCredentials(true);
+		configuration.setAllowedHeaders(Arrays.asList("*"));
+		configuration.setMaxAge(3600L);
+		configuration.setExposedHeaders(Arrays.asList("Authorization"));
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 }

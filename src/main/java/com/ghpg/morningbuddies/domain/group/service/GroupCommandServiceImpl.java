@@ -212,6 +212,9 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		groupJoinRequestRepository.save(joinRequest);
 
 		addMemberToGroup(group, member);
+
+		// 가입 요청이 수락되었다는 알림 전송
+		notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
 	}
 
 	private void addMemberToGroup(Groups group, Member member) {
@@ -244,6 +247,9 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		joinRequest.setStatus(RequestStatus.REJECTED);
 
 		groupJoinRequestRepository.save(joinRequest);
+
+		// 가입 요청이 거절되었다는 알림 전송
+		notificationCommandService.sendJoinRequestRejectedNotification(leader, group);
 
 	}
 
