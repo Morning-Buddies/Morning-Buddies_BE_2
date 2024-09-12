@@ -37,3 +37,8 @@ logging:
       springframework:
         web:
           socket: DEBUG
+    com:
+      morningbuddies:
+        controller: DEBUG
+        service: DEBUG
+        repository: DEBUG
