@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
-import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.file.service.FileCommandService;
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
@@ -28,7 +27,9 @@ import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -42,7 +43,12 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final NotificationCommandService notificationCommandService;
 	private final MemberGroupRepository memberGroupRepository;
 
-	// 그룹 생성
+	/**
+	 * 그룹 생성
+	 * @param requestDto
+	 * @param file
+	 * @return GroupResponseDto.GroupDetailDTO
+	 */
 	@Override
 	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
 
@@ -97,7 +103,13 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	}
 
-	// 그룹 수정
+	/**
+	 * 그룹 정보 수정
+	 * @param groupId
+	 * @param request
+	 * @param file
+	 * @return GroupResponseDto.GroupDetailDTO
+	 */
 	@Override
 	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request,
 		MultipartFile file) {
@@ -143,6 +155,10 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 			.build();
 	}
 
+	/**
+	 * 그룹 삭제
+	 * @param groupId
+	 */
 	@Override
 	public void deleteGroup(Long groupId) {
 		String currentEmail = SecurityUtil.getCurrentMemberEmail();
@@ -159,7 +175,10 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		groupRepository.delete(group);
 	}
 
-	// 그룹 가입 요청
+	/**
+	 * 그룹 가입 요청
+	 * @param groupId
+	 */
 	@Override
 	public void requestJoinGroup(Long groupId) {
 		String currentEmail = SecurityUtil.getCurrentMemberEmail();
@@ -182,7 +201,11 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	}
 
-	// 그룹 가입 요청 수락 및 그룹 가입
+	/**
+	 * 그룹 가입 요청 수락 및 그룹 가입
+	 * @param groupId
+	 * @param requestId
+	 */
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
 
@@ -217,6 +240,11 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
 	}
 
+	/**
+	 * 그룹에 멤버 추가
+	 * @param group
+	 * @param member
+	 */
 	private void addMemberToGroup(Groups group, Member member) {
 		group.addMember(member);
 		group.setCurrentParticipantCount(group.getCurrentParticipantCount() + 1);
@@ -224,7 +252,11 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		groupRepository.save(group);
 	}
 
-	// 그룹 가입 요청 거절
+	/**
+	 * 그룹 가입 요청 거절
+	 * @param groupId
+	 * @param requestId
+	 */
 	@Override
 	public void rejectJoinGroup(Long groupId, Long requestId) {
 		String currentEmail = SecurityUtil.getCurrentMemberEmail();
@@ -253,22 +285,25 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	}
 
-	// 리더 변경
+	/**
+	 * 그룹 탈퇴
+	 * @param groupId
+	 */
 	@Override
-	public void changeLeaderAuthority(Long groupId, Long newLeaderId){
+	public void changeLeaderAuthority(Long groupId, Long newLeaderId) {
 		String currentEmail = SecurityUtil.getCurrentMemberEmail();
 		Member currentLeader = memberRepository.findByEmail(currentEmail)
-				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		Groups group = groupRepository.findById(groupId)
-				.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
 		if (!group.getLeader().equals(currentLeader)) {
 			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
 		}
 
 		Member newLeader = memberRepository.findById(newLeaderId)
-				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		if (!group.getMemberEntities().contains(newLeader)) {
 			throw new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP);
