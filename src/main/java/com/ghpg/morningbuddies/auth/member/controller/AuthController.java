@@ -1,5 +1,14 @@
 package com.ghpg.morningbuddies.auth.member.controller;
 
+import java.util.Date;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
@@ -11,137 +20,135 @@ import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 
-    private final MemberCommandService memberCommandService;
+	private final MemberCommandService memberCommandService;
 
-    private final RefreshTokenRepository refreshRepository;
+	private final RefreshTokenRepository refreshRepository;
 
-    private final MemberRepository memberRepository;
+	private final MemberRepository memberRepository;
 
-    @GetMapping("/currentMember")
-    public CommonResponse<String> currentMember() {
+	@GetMapping("/currentMember")
+	public CommonResponse<String> currentMember() {
 
-        String currentMember = SecurityUtil.getCurrentMemberEmail();
+		String currentMember = SecurityUtil.getCurrentMemberEmail();
 
-        return CommonResponse.onSuccess(currentMember);
+		return CommonResponse.onSuccess(currentMember);
 
-    }
-    @PostMapping("/join")
-    public CommonResponse<String> join(@Valid @RequestBody MemberRequestDto.JoinDto request) {
+	}
 
-        memberCommandService.join(request);
+	@PostMapping("/join")
+	public CommonResponse<String> join(@Valid @RequestBody MemberRequestDto.JoinDto request) {
 
-        return CommonResponse.onSuccess("Join Success");
-    }
+		memberCommandService.join(request);
 
-    @PostMapping("/reissue")
-    public ResponseEntity<CommonResponse<String>> reissue(HttpServletRequest request, HttpServletResponse response) {
+		return CommonResponse.onSuccess("Join Success");
+	}
 
-        //get refresh token
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
+	@PostMapping("/reissue")
+	public ResponseEntity<CommonResponse<String>> reissue(HttpServletRequest request, HttpServletResponse response) {
 
-            if (cookie.getName().equals("refresh")) {
+		//get refresh token
+		String refresh = null;
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
 
-                refresh = cookie.getValue();
-            }
-        }
+			if (cookie.getName().equals("refresh")) {
 
-        if (refresh == null) {
+				refresh = cookie.getValue();
+			}
+		}
 
-            return ResponseEntity.badRequest().body(CommonResponse
-                    .onFailure(GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getCode(),
-                            GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getMessage(),
-                            null));
-        }
+		if (refresh == null) {
 
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
+			return ResponseEntity.badRequest().body(CommonResponse
+				.onFailure(GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getCode(),
+					GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getMessage(),
+					null));
+		}
 
-            //response status code
-            return ResponseEntity.badRequest().body(CommonResponse
-                    .onFailure(GlobalErrorCode.REFRESH_TOKEN_EXPIRED.getCode(),
-                            GlobalErrorCode.REFRESH_TOKEN_EXPIRED.getMessage(),
-                            null));
-        }
+		//expired check
+		try {
+			jwtUtil.isExpired(refresh);
+		} catch (ExpiredJwtException e) {
 
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
+			//response status code
+			return ResponseEntity.badRequest().body(CommonResponse
+				.onFailure(GlobalErrorCode.REFRESH_TOKEN_EXPIRED.getCode(),
+					GlobalErrorCode.REFRESH_TOKEN_EXPIRED.getMessage(),
+					null));
+		}
 
-        if (!category.equals("refresh")) {
+		// 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+		String category = jwtUtil.getCategory(refresh);
 
-            //response status code
-            return ResponseEntity.badRequest().body(CommonResponse
-                    .onFailure(GlobalErrorCode.INVALID_REFRESH_TOKEN.getCode(),
-                            GlobalErrorCode.INVALID_REFRESH_TOKEN.getMessage(),
-                            null));
-        }
+		if (!category.equals("refresh")) {
 
-        String username = jwtUtil.getUsername(refresh);
-        String role = jwtUtil.getRole(refresh);
+			//response status code
+			return ResponseEntity.badRequest().body(CommonResponse
+				.onFailure(GlobalErrorCode.INVALID_REFRESH_TOKEN.getCode(),
+					GlobalErrorCode.INVALID_REFRESH_TOKEN.getMessage(),
+					null));
+		}
 
-        //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+		String username = jwtUtil.getUsername(refresh);
+		String role = jwtUtil.getRole(refresh);
 
-        //delete old refresh token
-        refreshRepository.deleteByRefresh(refresh);
+		//make new JWT
+		String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
+		String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        //add new refresh token
-        addRefreshEntity(username, newRefresh, 86400000L);
+		//delete old refresh token
+		refreshRepository.deleteByRefresh(refresh);
 
-        //response
-        response.setHeader("access", newAccess);
-        response.addCookie(createCookie("refresh", newRefresh));
+		//add new refresh token
+		addRefreshEntity(username, newRefresh, 86400000L);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("Reissue Success"));
-    }
+		//response
+		response.setHeader("access", newAccess);
+		response.addCookie(createCookie("refresh", newRefresh));
 
-    private Cookie createCookie(String key, String value) {
+		return ResponseEntity.ok(CommonResponse.onSuccess("Reissue Success"));
+	}
 
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
-        cookie.setHttpOnly(true);
+	private Cookie createCookie(String key, String value) {
 
-        return cookie;
-    }
+		Cookie cookie = new Cookie(key, value);
+		cookie.setMaxAge(24 * 60 * 60);
+		cookie.setSecure(true);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
 
-    private void addRefreshEntity(String email, String refresh, Long expiredMs) {
+		return cookie;
+	}
 
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+	private void addRefreshEntity(String email, String refresh, Long expiredMs) {
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		Date date = new Date(System.currentTimeMillis() + expiredMs);
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .member(member)
-                .email(email)
-                .refresh(refresh)
-                .expiration(date.toString())
-                .build();
+		Member member = memberRepository.findByEmail(email)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
+		RefreshToken refreshToken = RefreshToken.builder()
+			.member(member)
+			.email(email)
+			.refresh(refresh)
+			.expiration(date.toString())
+			.build();
 
-        refreshRepository.save(refreshToken);
-    }
+		refreshRepository.save(refreshToken);
+	}
 }
