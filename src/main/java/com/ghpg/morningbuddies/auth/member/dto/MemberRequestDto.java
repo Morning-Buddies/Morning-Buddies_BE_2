@@ -32,6 +32,17 @@ public class MemberRequestDto {
 	}
 
 	@Getter
+	public static class LoginDto {
+
+		@NotEmpty
+		private String email;
+
+		@NotEmpty
+		private String password;
+
+	}
+
+	@Getter
 	public static class PasswordDto {
 
 		@NotEmpty
