@@ -60,4 +60,68 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 			.build();
 
 	}
+
+	@Override
+	public ChatMessageResponseDto.Message addUserToGroup(Long memberId, Long groupId,
+		ChatMessageRequestDto.Message message) {
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		// Add user to group logic here
+		// This might involve updating a GroupMember entity or similar
+
+		ChatMessage joinMessage = ChatMessage.builder()
+			.message(member.getFirstName() + " " + member.getLastName() + " has joined the group.")
+			.group(group)
+			.sender(member)
+			.sendTime(message.getTime())
+			.build();
+
+		ChatMessage savedMessage = chatMessageRepository.save(joinMessage);
+
+		return createChatMessageResponseDto(savedMessage);
+	}
+
+	@Override
+	public ChatMessageResponseDto.Message removeUserFromGroup(Long memberId, Long groupId,
+		ChatMessageRequestDto.Message message) {
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		// Remove user from group logic here
+		// This might involve updating a GroupMember entity or similar
+
+		ChatMessage leaveMessage = ChatMessage.builder()
+			.message(member.getFirstName() + " " + member.getLastName() + " has left the group.")
+			.group(group)
+			.sender(member)
+			.sendTime(message.getTime())
+			.build();
+
+		ChatMessage savedMessage = chatMessageRepository.save(leaveMessage);
+
+		return createChatMessageResponseDto(savedMessage);
+	}
+
+	private ChatMessageResponseDto.Message createChatMessageResponseDto(ChatMessage chatMessage) {
+		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
+			.memberId(chatMessage.getSender().getId())
+			.name(chatMessage.getSender().getFirstName() + " " + chatMessage.getSender().getLastName())
+			.profileImage(chatMessage.getSender().getProfileImage())
+			.build();
+
+		return ChatMessageResponseDto.Message.builder()
+			.groupId(chatMessage.getGroup().getId())
+			.sender(sender)
+			.message(chatMessage.getMessage())
+			.time(chatMessage.getSendTime())
+			.build();
+	}
+
 }
