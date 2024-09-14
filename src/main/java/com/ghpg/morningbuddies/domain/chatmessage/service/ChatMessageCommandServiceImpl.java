@@ -1,0 +1,127 @@
+package com.ghpg.morningbuddies.domain.chatmessage.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
+import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
+import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
+import com.ghpg.morningbuddies.domain.chatmessage.repository.ChatMessageRepository;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
+import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.group.GroupException;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class ChatMessageCommandServiceImpl implements ChatMessageCommandService {
+
+	private final ChatMessageRepository chatMessageRepository;
+
+	private final GroupRepository groupRepository;
+
+	private final MemberRepository memberRepository;
+
+	@Override
+	public ChatMessageResponseDto.Message saveAndConvert(Long memberId, Long groupId,
+		ChatMessageRequestDto.Message message) {
+		Groups currentParticipatedGroup = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		Member currentMember = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		ChatMessage sendedMessage = ChatMessage.builder()
+			.message(message.getMessage())
+			.group(currentParticipatedGroup)
+			.sender(currentMember)
+			.sendTime(message.getTime())
+			.build();
+
+		ChatMessage savedMessage = chatMessageRepository.save(sendedMessage);
+
+		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
+			.memberId(currentMember.getId())
+			.name(currentMember.getFirstName() + " " + currentMember.getLastName())
+			.profileImage(currentMember.getProfileImage())
+			.build();
+
+		return ChatMessageResponseDto.Message.builder()
+			.groupId(currentParticipatedGroup.getId())
+			.sender(sender)
+			.message(savedMessage.getMessage())
+			.time(savedMessage.getSendTime())
+			.build();
+
+	}
+
+	@Override
+	public ChatMessageResponseDto.Message addUserToGroup(Long memberId, Long groupId,
+		ChatMessageRequestDto.Message message) {
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		// Add user to group logic here
+		// This might involve updating a GroupMember entity or similar
+
+		ChatMessage joinMessage = ChatMessage.builder()
+			.message(member.getFirstName() + " " + member.getLastName() + " has joined the group.")
+			.group(group)
+			.sender(member)
+			.sendTime(message.getTime())
+			.build();
+
+		ChatMessage savedMessage = chatMessageRepository.save(joinMessage);
+
+		return createChatMessageResponseDto(savedMessage);
+	}
+
+	@Override
+	public ChatMessageResponseDto.Message removeUserFromGroup(Long memberId, Long groupId,
+		ChatMessageRequestDto.Message message) {
+		Groups group = groupRepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		// Remove user from group logic here
+		// This might involve updating a GroupMember entity or similar
+
+		ChatMessage leaveMessage = ChatMessage.builder()
+			.message(member.getFirstName() + " " + member.getLastName() + " has left the group.")
+			.group(group)
+			.sender(member)
+			.sendTime(message.getTime())
+			.build();
+
+		ChatMessage savedMessage = chatMessageRepository.save(leaveMessage);
+
+		return createChatMessageResponseDto(savedMessage);
+	}
+
+	private ChatMessageResponseDto.Message createChatMessageResponseDto(ChatMessage chatMessage) {
+		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
+			.memberId(chatMessage.getSender().getId())
+			.name(chatMessage.getSender().getFirstName() + " " + chatMessage.getSender().getLastName())
+			.profileImage(chatMessage.getSender().getProfileImage())
+			.build();
+
+		return ChatMessageResponseDto.Message.builder()
+			.groupId(chatMessage.getGroup().getId())
+			.sender(sender)
+			.message(chatMessage.getMessage())
+			.time(chatMessage.getSendTime())
+			.build();
+	}
+
+}
