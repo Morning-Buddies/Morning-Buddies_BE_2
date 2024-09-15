@@ -2,12 +2,8 @@ spring:
   profiles:
     active: dev
   jwt:
-    secret: askdfjlskdfjsldkfjsldkfjslfkjsldfkjsldfkjsldfkjsldfkjsdflksjdflkjsfaisdgjoaigj
 
   datasource:
-    url: jdbc:mysql://db-morning-buddies.chu202akwjzf.ap-northeast-2.rds.amazonaws.com:3306/morningbuddies
-    username: root
-    password: ehdfprl77
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

@@ -1,9 +1,9 @@
-package com.ghpg.morningbuddies.domain.recommend;
+package com.ghpg.morningbuddies.domain.game.puzzle;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -13,32 +13,42 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@DynamicUpdate
 @DynamicInsert
-public class Recommend extends BaseEntity {
+@DynamicUpdate
+public class PuzzlePiece extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "recommend_id")
+	@Column(name = "puzzle_piece_id")
 	private Long id;
 
-	@Lob
-	private String content;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "puzzle_id")
+	private Puzzle puzzle;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member member;
+	@ColumnDefault("0")
+	private Integer originalX;
+
+	@ColumnDefault("0")
+	private Integer originalY;
+
+	@ColumnDefault("0")
+	private Integer currentX;
+
+	@ColumnDefault("0")
+	private Integer currentY;
+
+	private boolean isPlaced;
 }

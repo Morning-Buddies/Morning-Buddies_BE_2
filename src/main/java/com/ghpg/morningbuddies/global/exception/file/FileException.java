@@ -1,11 +1,11 @@
-package com.ghpg.morningbuddies.global.exception.member;
+package com.ghpg.morningbuddies.global.exception.file;
 
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
 
-public class MemberException extends GeneralException {
+public class FileException extends GeneralException {
 
-	public MemberException(BaseErrorCode errorCode) {
+	public FileException(BaseErrorCode errorCode) {
 		super(errorCode);
 	}
 }

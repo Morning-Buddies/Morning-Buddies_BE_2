@@ -12,7 +12,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.domain.file.service.FileCommandService;
+
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
@@ -37,7 +37,6 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	private final MemberRepository memberRepository;
 	private final GroupRepository groupRepository;
-	private final FileCommandService fileCommandService;
 	private final GroupJoinRequestRepository groupJoinRequestRepository;
 
 	private final NotificationCommandService notificationCommandService;
@@ -63,11 +62,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		String uploadedGroupImageUrl = null;
 		if (file != null && !file.isEmpty()) {
-			try {
-				uploadedGroupImageUrl = fileCommandService.saveFile(file);
-			} catch (Exception e) {
-				throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
-			}
+      
 		}
 
 		Groups group = Groups.builder()
@@ -127,11 +122,6 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		String uploadedGroupImageUrl = group.getGroupImage();
 		if (file != null && !file.isEmpty()) {
-			try {
-				uploadedGroupImageUrl = fileCommandService.saveFile(file);
-			} catch (Exception e) {
-				throw new GroupException(GlobalErrorCode.FILE_UPLOAD_FAILED);
-			}
 		}
 
 		group.setGroupName(request.getGroupName());

@@ -117,10 +117,11 @@ public class Groups extends BaseEntity {
 	}
 
 	// 그룹에 가입된 회원 불러오기 (Member 엔터티를 반환)
-	public List<Member> getMemberEntities(){
+	public List<Member> getMemberEntities() {
 		return memberGroups.stream()
-				.map(MemberGroup::getMember)
-				.collect(Collectors.toList());
+			.map(MemberGroup::getMember)
+			.collect(Collectors.toList());
+
 	}
 
 }

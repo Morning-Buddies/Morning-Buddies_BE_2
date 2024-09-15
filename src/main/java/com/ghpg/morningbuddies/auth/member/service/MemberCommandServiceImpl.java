@@ -1,19 +1,22 @@
 package com.ghpg.morningbuddies.auth.member.service;
 
-import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
-import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
-import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
-import com.ghpg.morningbuddies.global.exception.group.GroupException;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+
+import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
+import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
+
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
@@ -68,17 +71,18 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 	// 그룹 탈퇴
 	@Override
-	public void leaveGroup(Long groupId){
+	public void leaveGroup(Long groupId) {
 		Member member = memberRepository.findByEmail(SecurityUtil.getCurrentMemberEmail())
-				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		Groups group = groupRepository.findById(groupId)
-				.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
 		MemberGroup memberGroup = memberGroupRepository.findByMemberAndGroup(member, group)
-				.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
+			.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
 
-		if(group.getLeader().equals(member)){
+		if (group.getLeader().equals(member)) {
+
 			throw new GroupException(GlobalErrorCode.LEADER_CANNOT_LEAVE_GROUP);
 		}
 
