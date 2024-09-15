@@ -1,7 +1,6 @@
 package com.ghpg.morningbuddies.global.exception.common;
 
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

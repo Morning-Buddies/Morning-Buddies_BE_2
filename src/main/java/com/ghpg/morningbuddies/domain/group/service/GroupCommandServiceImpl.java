@@ -20,7 +20,6 @@ import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
 import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
 import com.ghpg.morningbuddies.domain.notification.service.NotificationCommandService;
-import com.ghpg.morningbuddies.global.aws.s3.S3Service;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
@@ -42,8 +41,6 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final NotificationCommandService notificationCommandService;
 	private final MemberGroupRepository memberGroupRepository;
 
-	private final S3Service s3Service;
-
 	/**
 	 * 그룹 생성
 	 * @param requestDto
@@ -63,10 +60,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		}
 
 		String uploadedGroupImageUrl = null;
-
 		if (file != null && !file.isEmpty()) {
-			uploadedGroupImageUrl = s3Service.uploadImage(file);
-
 		}
 
 		Groups group = Groups.builder()
@@ -126,7 +120,6 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		String uploadedGroupImageUrl = group.getGroupImage();
 		if (file != null && !file.isEmpty()) {
-			uploadedGroupImageUrl = s3Service.uploadImage(file);
 		}
 
 		group.setGroupName(request.getGroupName());

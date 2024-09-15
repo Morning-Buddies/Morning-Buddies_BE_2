@@ -1,80 +1,57 @@
 package com.ghpg.morningbuddies.global.security.jwt;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
 
-	private SecretKey secretKey;
+	private final SecretKey secretKey;
 
 	public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
-
-		secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
-			Jwts.SIG.HS256.key().build().getAlgorithm());
+		this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
 	}
 
 	public String getUsername(String token) {
-
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.get("username", String.class);
+		return getClaim(token, "email");
 	}
 
 	public String getEmail(String token) {
-
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.get("email", String.class);
+		return getClaim(token, "email");
 	}
 
 	public String getRole(String token) {
-
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.get("role", String.class);
+		return getClaim(token, "role");
 	}
 
 	public Boolean isExpired(String token) {
-
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.getExpiration()
-			.before(new Date());
+		try {
+			return Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload()
+				.getExpiration()
+				.before(new Date());
+		} catch (JwtException e) {
+			return true;
+		}
 	}
 
 	public String getCategory(String token) {
-
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.get("category", String.class);
+		return getClaim(token, "category");
 	}
 
 	public String createJwt(String category, String email, String role, Long expiredMs) {
-
 		return Jwts.builder()
 			.claim("category", category)
 			.claim("email", email)
@@ -83,5 +60,18 @@ public class JwtUtil {
 			.expiration(new Date(System.currentTimeMillis() + expiredMs))
 			.signWith(secretKey)
 			.compact();
+	}
+
+	private String getClaim(String token, String claimName) {
+		try {
+			Claims claims = Jwts.parser()
+				.verifyWith(secretKey)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
+			return claims.get(claimName, String.class);
+		} catch (JwtException e) {
+			return null;
+		}
 	}
 }

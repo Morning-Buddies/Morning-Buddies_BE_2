@@ -14,7 +14,6 @@ import com.ghpg.morningbuddies.auth.member.entity.enums.SocialType;
 import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
-import com.ghpg.morningbuddies.domain.game.gameparticipant.GameParticipant;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
@@ -82,10 +81,6 @@ public class Member extends BaseEntity {
 	private boolean isActivated;
 
 	private UserRole userRole;
-
-	@Builder.Default
-	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<GameParticipant> gameParticipants = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)

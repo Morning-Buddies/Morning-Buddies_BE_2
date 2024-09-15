@@ -80,5 +80,4 @@ public enum GlobalErrorCode implements BaseErrorCode {
 			.isSuccess(false)
 			.build();
 	}
-
 }

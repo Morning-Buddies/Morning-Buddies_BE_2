@@ -14,7 +14,6 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
-import com.ghpg.morningbuddies.domain.game.Game;
 import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
@@ -32,7 +31,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -100,9 +98,6 @@ public class Groups extends BaseEntity {
 	@Builder.Default
 	@OneToMany(mappedBy = "groups", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Notification> notifications = new ArrayList<>();
-
-	@OneToOne(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Game game;
 
 	/*
 	 * 편의 메서드
