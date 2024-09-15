@@ -12,6 +12,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
@@ -61,6 +62,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		String uploadedGroupImageUrl = null;
 		if (file != null && !file.isEmpty()) {
+      
 		}
 
 		Groups group = Groups.builder()

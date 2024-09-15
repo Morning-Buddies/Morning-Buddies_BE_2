@@ -1,14 +1,17 @@
 package com.ghpg.morningbuddies.auth.member.service;
 
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
+
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
@@ -79,6 +82,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 			.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
 
 		if (group.getLeader().equals(member)) {
+
 			throw new GroupException(GlobalErrorCode.LEADER_CANNOT_LEAVE_GROUP);
 		}
 

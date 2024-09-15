@@ -121,6 +121,7 @@ public class Groups extends BaseEntity {
 		return memberGroups.stream()
 			.map(MemberGroup::getMember)
 			.collect(Collectors.toList());
+
 	}
 
 }

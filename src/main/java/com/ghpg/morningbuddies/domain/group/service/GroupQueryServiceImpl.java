@@ -105,6 +105,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 				.build())
 			.collect(Collectors.toList());
 
+
 	}
 
 	// 생성된 모든 그룹 리스트 가져오기
@@ -125,6 +126,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 핫한 그룹 기준
 	@Override
 	public Page<GroupResponseDto.GroupSummaryDTO> getHotGroups(Integer page, Integer size) {
+
 		PageRequest pageRequest = PageRequest.of(page, size);
 		Page<Groups> hotGroups = groupRepository.getHotGroups(pageRequest);
 
@@ -141,6 +143,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 일찍 일어나는 그룹 기준
 	@Override
 	public Page<GroupResponseDto.GroupSummaryDTO> getEarlyMorningGroups(Integer page, Integer size) {
+
 		PageRequest pageRequest = PageRequest.of(page, size);
 		LocalTime earlyMorningTime = LocalTime.of(6, 0);
 		Page<Groups> earlyMorningGroups = groupRepository.getGroupsByEarlyMorning(earlyMorningTime, pageRequest);
@@ -153,11 +156,13 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.maxParticipantCount(group.getMaxParticipantCount())
 			.groupImage(group.getGroupImage())
 			.build());
+
 	}
 
 	// 늦게 일어나는 그룹 기준
 	@Override
 	public Page<GroupResponseDto.GroupSummaryDTO> getGroupsByLateEvening(Integer page, Integer size) {
+
 		PageRequest pageRequest = PageRequest.of(page, size);
 		LocalTime lateEveningTime = LocalTime.of(18, 0);
 		Page<Groups> lateEveningGroups = groupRepository.getGroupsByLateEvening(lateEveningTime, pageRequest);

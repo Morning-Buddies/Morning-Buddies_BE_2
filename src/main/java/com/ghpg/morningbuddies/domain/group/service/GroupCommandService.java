@@ -28,4 +28,5 @@ public interface GroupCommandService {
 
 	// 리더 교체
 	void changeLeaderAuthority(Long groupId, Long newLeaderId);
+
 }
