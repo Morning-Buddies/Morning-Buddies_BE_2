@@ -4,6 +4,9 @@ spring:
   jwt:
 
   datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -38,3 +41,11 @@ logging:
         controller: DEBUG
         service: DEBUG
         repository: DEBUG
+
+aws:
+  access_key: ${AWS_ACCESS_KEY}
+  secret_key: ${AWS_SECRET_KEY}
+  s3:
+    bucket_name: ${AWS_S3_BUCKET_NAME}
+    url: ${AWS_S3_URL}
+  region: ${AWS_REGION}
