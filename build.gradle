@@ -56,6 +56,9 @@ dependencies {
     // AWS
     implementation 'software.amazon.awssdk:s3:2.17.100'
 
+    // OPEN AI
+    
+    implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
 
 
 }
