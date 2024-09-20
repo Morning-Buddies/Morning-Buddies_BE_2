@@ -31,6 +31,6 @@ public class ChatMessageResponseDto {
 	public static class Sender {
 		private Long memberId;
 		private String name;
-		private byte[] profileImage;
+		private String profileImageUrl;
 	}
 }

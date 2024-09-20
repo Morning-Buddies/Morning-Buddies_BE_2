@@ -51,7 +51,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.currentParticipantCount(group.getCurrentParticipantCount())
 			.maxParticipantCount(group.getMaxParticipantCount())
 			.description(group.getDescription())
-			.imageUrl(group.getGroupImage())
+			.imageUrl(group.getGroupImageUrl())
 			.leader(GroupResponseDto.LeaderDTO.from(group.getLeader()))
 			.members(allMemberInGroup.stream()
 				.map(MemberResponseDto.MemberSummaryDTO::from)
@@ -105,7 +105,6 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 				.build())
 			.collect(Collectors.toList());
 
-
 	}
 
 	// 생성된 모든 그룹 리스트 가져오기
@@ -119,7 +118,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.wakeupTime(group.getWakeupTime())
 			.currentParticipantCount(group.getCurrentParticipantCount())
 			.maxParticipantCount(group.getMaxParticipantCount())
-			.groupImage(group.getGroupImage())
+			.groupImage(group.getGroupImageUrl())
 			.build());
 	}
 
@@ -136,7 +135,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.wakeupTime(group.getWakeupTime())
 			.currentParticipantCount(group.getCurrentParticipantCount())
 			.maxParticipantCount(group.getMaxParticipantCount())
-			.groupImage(group.getGroupImage())
+			.groupImage(group.getGroupImageUrl())
 			.build());
 	}
 
@@ -154,7 +153,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.wakeupTime(group.getWakeupTime())
 			.currentParticipantCount(group.getCurrentParticipantCount())
 			.maxParticipantCount(group.getMaxParticipantCount())
-			.groupImage(group.getGroupImage())
+			.groupImage(group.getGroupImageUrl())
 			.build());
 
 	}
@@ -173,7 +172,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.wakeupTime(group.getWakeupTime())
 			.currentParticipantCount(group.getCurrentParticipantCount())
 			.maxParticipantCount(group.getMaxParticipantCount())
-			.groupImage(group.getGroupImage())
+			.groupImage(group.getGroupImageUrl())
 			.build());
 	}
 

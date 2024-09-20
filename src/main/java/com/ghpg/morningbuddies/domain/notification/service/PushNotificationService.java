@@ -7,6 +7,9 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class PushNotificationService {
 
@@ -22,6 +25,8 @@ public class PushNotificationService {
 			.build();
 
 		String response = FirebaseMessaging.getInstance().send(message);
-		System.out.println("Successfully sent message: " + response);
+
+		log.info("Successfully sent message: " + response);
+
 	}
 }

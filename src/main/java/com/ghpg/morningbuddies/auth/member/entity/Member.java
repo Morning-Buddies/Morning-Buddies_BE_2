@@ -27,7 +27,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
@@ -68,8 +67,7 @@ public class Member extends BaseEntity {
 	@ColumnDefault("0")
 	private Integer age;
 
-	@Lob
-	private byte[] profileImage;
+	private String profileImageUrl;
 
 	LocalTime preferredWakeupTime;
 

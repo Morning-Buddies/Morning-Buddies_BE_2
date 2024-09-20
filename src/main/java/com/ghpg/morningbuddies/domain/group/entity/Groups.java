@@ -64,8 +64,7 @@ public class Groups extends BaseEntity {
 	@ColumnDefault("0")
 	private Integer successCount;
 
-	@Lob
-	private String groupImage;
+	private String groupImageUrl;
 
 	private boolean isActivated;
 
