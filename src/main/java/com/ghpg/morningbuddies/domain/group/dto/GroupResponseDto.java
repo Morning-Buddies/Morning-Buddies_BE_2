@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-
 import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,7 +75,7 @@ public class GroupResponseDto {
 		private String lastName;
 		private String email;
 		private RequestStatus status;
-  }
+	}
 
 	@Getter
 	@Builder
@@ -96,7 +96,7 @@ public class GroupResponseDto {
 	@AllArgsConstructor
 	public static class SearchedGroupInfo {
 		private Long id;
-		private byte[] image;
+		private String imageUrl;
 		private String name;
 		private String description;
 		private LocalTime wakeupTime;
@@ -109,7 +109,7 @@ public class GroupResponseDto {
 	@Builder
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
-	public static class GroupSummaryDTO{
+	public static class GroupSummaryDTO {
 		private Long id;
 		private String groupName;
 		private LocalTime wakeupTime;

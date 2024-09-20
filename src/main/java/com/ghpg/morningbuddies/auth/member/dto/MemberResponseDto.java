@@ -21,7 +21,7 @@ public class MemberResponseDto {
 	public static class MemberInfo {
 		private Long id;
 
-		private byte[] profileImage;
+		private String profileImage;
 
 		private String firstName;
 

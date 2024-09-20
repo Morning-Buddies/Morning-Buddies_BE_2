@@ -57,7 +57,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
 		return MemberResponseDto.MemberInfo.builder()
 			.id(foundMember.getId())
-			.profileImage(foundMember.getProfileImage())
+			.profileImage(foundMember.getProfileImageUrl())
 			.firstName(foundMember.getFirstName())
 			.lastName(foundMember.getLastName())
 			.preferredWakeupTime(foundMember.getPreferredWakeupTime())

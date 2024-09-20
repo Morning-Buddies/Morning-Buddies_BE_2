@@ -49,7 +49,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
 			.memberId(currentMember.getId())
 			.name(currentMember.getFirstName() + " " + currentMember.getLastName())
-			.profileImage(currentMember.getProfileImage())
+			.profileImageUrl(currentMember.getProfileImageUrl())
 			.build();
 
 		return ChatMessageResponseDto.Message.builder()
@@ -113,7 +113,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
 			.memberId(chatMessage.getSender().getId())
 			.name(chatMessage.getSender().getFirstName() + " " + chatMessage.getSender().getLastName())
-			.profileImage(chatMessage.getSender().getProfileImage())
+			.profileImageUrl(chatMessage.getSender().getProfileImageUrl())
 			.build();
 
 		return ChatMessageResponseDto.Message.builder()

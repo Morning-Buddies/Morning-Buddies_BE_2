@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain.game.puzzle.repository;
+package com.ghpg.morningbuddies.domain.puzzle.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

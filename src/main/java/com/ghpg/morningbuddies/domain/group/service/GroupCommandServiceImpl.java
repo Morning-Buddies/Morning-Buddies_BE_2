@@ -76,7 +76,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 			.leader(leader)
 			.maxParticipantCount(requestDto.getMaxParticipantCount())
 			.isActivated(true)
-			.groupImage(uploadedGroupImageUrl)
+			.groupImageUrl(uploadedGroupImageUrl)
 			.build();
 
 		group.addMember(leader);
@@ -94,7 +94,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 			.maxParticipantCount(
 				requestDto.getMaxParticipantCount() != null ? requestDto.getMaxParticipantCount() : 0) // Null 체크
 			.description(savedGroup.getDescription())
-			.imageUrl(savedGroup.getGroupImage())
+			.imageUrl(savedGroup.getGroupImageUrl())
 			.members(members.stream().map(MemberResponseDto.MemberSummaryDTO::from).collect(Collectors.toList()))
 			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
 			.build();
@@ -123,7 +123,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
 		}
 
-		String uploadedGroupImageUrl = group.getGroupImage();
+		String uploadedGroupImageUrl = group.getGroupImageUrl();
 		if (file != null && !file.isEmpty()) {
 			uploadedGroupImageUrl = s3Service.uploadImage(file);
 		}
@@ -132,7 +132,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		group.setWakeupTime(request.getWakeUpTime());
 		group.setMaxParticipantCount(request.getMaxParticipantCount());
 		group.setDescription(request.getDescription());
-		group.setGroupImage(uploadedGroupImageUrl);
+		group.setGroupImageUrl(uploadedGroupImageUrl);
 
 		Groups savedGroup = groupRepository.save(group);
 

@@ -12,18 +12,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
-		config.enableSimpleBroker("/sub");
-		config.setApplicationDestinationPrefixes("/pub");
+		// Enable a simple in-memory broker with multiple destination prefixes
+		config.enableSimpleBroker("/sub", "/topic", "/queue");
+
+		// Set application destination prefixes for messages bound for @MessageMapping
+		config.setApplicationDestinationPrefixes("/pub", "/app");
 	}
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		// Common endpoint for both chat and game functionalities
 		registry.addEndpoint("/ws-stomp")
-			.setAllowedOrigins("https://apic.app", "http://localhost:3000") // 필요한 오리진만 명시적으로 허용
+			.setAllowedOriginPatterns("*") // Replace with specific origins in production
 			.withSockJS();
 
-		// SockJS를 사용하지 않는 일반 WebSocket 엔드포인트 추가
+		// Non-SockJS WebSocket endpoint
 		registry.addEndpoint("/ws-stomp")
-			.setAllowedOrigins("https://apic.app", "http://localhost:3000");
+			.setAllowedOrigins("https://websocketking.com", "http://localhost:3000");
 	}
 }

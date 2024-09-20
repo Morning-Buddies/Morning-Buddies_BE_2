@@ -13,4 +13,18 @@ public interface S3Service {
 	 * @throws IOException
 	 */
 	String uploadImage(MultipartFile file);
+
+	/**
+	 * URL에서 이미지 다운로드 후 S3에 업로드
+	 * @param imageUrl
+	 * @return
+	 */
+	String transferImageToS3(String imageUrl);
+
+	/**
+	 * S3에서 이미지 다운로드
+	 * @param imageUrl
+	 * @return
+	 */
+	String downloadImageFromS3(String imageUrl);
 }
