@@ -57,7 +57,12 @@ public enum GlobalErrorCode implements BaseErrorCode {
 
 	//File
 	FILE_UPLOAD_FAILED(CONFLICT, "FILE409_1", "파일 업로드에 실패하였습니다."),
-	FILE_DOWNLOAD_FAILED(CONFLICT, "FILE409_2", "파일 다운로드에 실패하였습니다.");
+	FILE_DOWNLOAD_FAILED(CONFLICT, "FILE409_2", "파일 다운로드에 실패하였습니다."),
+
+	//Puzzle
+	PUZZLE_NOT_FOUND(NOT_FOUND, "PUZZLE404_1", "퍼즐을 찾을 수 없습니다."),
+	PUZZLE_PIECE_SAVE_FAILED(CONFLICT, "PUZZLE409_1", "퍼즐 조각 저장에 실패하였습니다."),
+	;
 
 	private final HttpStatus httpStatus;
 	private final String code;
