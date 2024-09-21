@@ -36,6 +36,7 @@ import com.ghpg.morningbuddies.global.aws.s3.S3Service;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.file.FileException;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
+import com.ghpg.morningbuddies.global.exception.puzzle.PuzzleException;
 import com.ghpg.morningbuddies.global.util.MockMultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -124,7 +125,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 	public PuzzleStateMessageResponseDto.PuzzleState getCurrentState(Long puzzleId) {
 		// Fetch the puzzle by ID
 		Puzzle puzzle = puzzleRepository.findById(puzzleId)
-			.orElseThrow(() -> new RuntimeException("Puzzle not found with ID: " + puzzleId));
+			.orElseThrow(() -> new PuzzleException(GlobalErrorCode.PUZZLE_NOT_FOUND));
 
 		// Get the list of puzzle pieces
 		List<PuzzlePiece> pieces = puzzlePieceRepository.findByPuzzleId(puzzleId);
@@ -141,12 +142,10 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 		}).collect(Collectors.toList());
 
 		// Build the PuzzleState DTO
-		PuzzleStateMessageResponseDto.PuzzleState puzzleState = PuzzleStateMessageResponseDto.PuzzleState.builder()
+		return PuzzleStateMessageResponseDto.PuzzleState.builder()
 			.puzzleId(puzzleId)
 			.pieceStates(pieceStates)
 			.build();
-
-		return puzzleState;
 	}
 
 	private List<PuzzlePiece> generateIrregularPuzzlePieces(Mat originalImage, Puzzle puzzle) {
@@ -361,7 +360,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 			return pieceImageUrl;
 		} catch (IOException e) {
 			log.error("Failed to save and upload piece image", e);
-			throw new RuntimeException("Failed to save and upload piece image", e);
+			throw new FileException(GlobalErrorCode.PUZZLE_PIECE_SAVE_FAILED);
 		}
 	}
 
