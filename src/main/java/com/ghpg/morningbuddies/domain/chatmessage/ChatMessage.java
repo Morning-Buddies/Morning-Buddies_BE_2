@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.domain.chatmessage;
 
 import java.time.LocalDateTime;
 
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -55,6 +56,10 @@ public class ChatMessage extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member sender;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="chatroom_id")
+	private ChatRoom chatRoom;
 
 
 	/*
