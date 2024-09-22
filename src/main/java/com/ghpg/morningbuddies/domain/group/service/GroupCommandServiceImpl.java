@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.ghpg.morningbuddies.auth.member.entity.MemberChatRoom;
+import com.ghpg.morningbuddies.auth.member.repository.MemberChatRoomRepository;
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
+import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
+import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,11 +43,12 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final MemberRepository memberRepository;
 	private final GroupRepository groupRepository;
 	private final GroupJoinRequestRepository groupJoinRequestRepository;
-
 	private final NotificationCommandService notificationCommandService;
-	private final MemberGroupRepository memberGroupRepository;
+	private final ChatRoomCommandService chatRoomCommandService;
 
 	private final S3Service s3Service;
+	private final ChatRoomRepository chatRoomRepository;
+	private final MemberChatRoomRepository memberChatRoomRepository;
 
 	/**
 	 * 그룹 생성
@@ -85,6 +91,18 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		ArrayList<Member> members = new ArrayList<>();
 		members.add(leader);
+
+		// 채팅방 생성
+		ChatRoomRequestDto chatRoomDto = chatRoomCommandService.createChatRoom(savedGroup.getId(), leader);
+
+		// MemberChatRoom 엔터티 생성
+		MemberChatRoom memberChatRoom = MemberChatRoom.builder()
+				.member(leader)
+				.chatRoom(chatRoomRepository.findById(chatRoomDto.getChatRoomId())
+						.orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다")))
+				.build();
+
+		memberChatRoomRepository.save(memberChatRoom);
 
 		return GroupResponseDto.GroupDetailDTO.builder()
 			.groupId(savedGroup.getId())
