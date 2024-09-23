@@ -28,6 +28,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 		// Non-SockJS WebSocket endpoint
 		registry.addEndpoint("/ws-stomp")
-			.setAllowedOrigins("https://websocketking.com", "http://localhost:3000");
+			.setAllowedOrigins("http://localhost:5500", "http://localhost:3000");
 	}
 }
