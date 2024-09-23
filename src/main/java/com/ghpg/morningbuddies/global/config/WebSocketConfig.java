@@ -21,13 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		// Common endpoint for both chat and game functionalities
 		registry.addEndpoint("/ws-stomp")
-			.setAllowedOriginPatterns("*") // Replace with specific origins in production
+			.setAllowedOriginPatterns("*") // 프로덕션 환경에서는 특정 도메인으로 제한하세요
 			.withSockJS();
-
-		// Non-SockJS WebSocket endpoint
-		registry.addEndpoint("/ws-stomp")
-			.setAllowedOrigins("http://localhost:5500", "http://localhost:3000");
 	}
+
 }
