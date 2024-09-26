@@ -107,6 +107,9 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Notification> notifications = new ArrayList<>();
 
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MemberChatRoom> chatRooms = new ArrayList<>();
+
 	/*
 	 * 사용자 편의 메서드
 	 * */

@@ -3,7 +3,12 @@ package com.ghpg.morningbuddies.auth.member.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,5 +91,21 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 		}
 
 		return groupInfos;
+	}
+
+	// 회원이 가입한 채팅방 리스트 가져오기
+	@Override
+	public List<ChatRoomResponseDto.AllChatRoomByMemberId> findAllChatroomsByMemberId(Long memberId){
+		List<ChatRoom> chatRooms = memberRepository.findAllChatroomsByMemberId(memberId);
+
+		Member member = memberRepository.findById(memberId)
+				.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		return chatRooms.stream()
+				.map(chatRoom -> ChatRoomResponseDto.AllChatRoomByMemberId.builder()
+						.id(chatRoom.getId())
+						.groupName(chatRoom.getGroup().getGroupName())
+						.build())
+				.collect(Collectors.toList());
 	}
 }
