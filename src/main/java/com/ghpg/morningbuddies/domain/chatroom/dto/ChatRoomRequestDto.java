@@ -2,7 +2,7 @@ package com.ghpg.morningbuddies.domain.chatroom.dto;
 
 import lombok.*;
 
-@Getter
+@Data
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor

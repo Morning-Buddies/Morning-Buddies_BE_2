@@ -2,6 +2,8 @@ package com.ghpg.morningbuddies.auth.member.controller;
 
 import java.util.List;
 
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,9 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberController {
 
 	private final MemberQueryService memberQueryService;
-
 	private final MemberCommandService memberCommandService;
-	private final MemberRepository memberRepository;
 
 	@GetMapping("/me")
 	public CommonResponse<MemberResponseDto.MemberInfo> getMemberInfo(
@@ -72,5 +72,13 @@ public class MemberController {
 	public CommonResponse<String> deleteGroup(@PathVariable("groupId") Long groupId) {
 		memberCommandService.leaveGroup(groupId);
 		return CommonResponse.onSuccess("그룹에서 탈퇴하였습니다.");
+	}
+
+	// 회원이 가입한 채팅방 리스트 가져오기
+	@GetMapping("/me/{memberId}/chatRooms")
+	public CommonResponse<List<ChatRoomResponseDto.AllChatRoomByMemberId>> findAllChatroomsByMemberId(@PathVariable("memberId") Long memberId) {
+		List<ChatRoomResponseDto.AllChatRoomByMemberId> chatRooms = memberQueryService.findAllChatroomsByMemberId(memberId);
+		return CommonResponse.onSuccess(chatRooms);
+
 	}
 }
