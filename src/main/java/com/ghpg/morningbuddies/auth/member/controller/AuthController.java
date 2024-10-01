@@ -22,6 +22,8 @@ import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
+@Tag(name = "Auth API", description = "인증.인가 API")
 public class AuthController {
 
 	private final JwtUtil jwtUtil;
@@ -42,6 +45,7 @@ public class AuthController {
 	private final MemberRepository memberRepository;
 
 	@GetMapping("/currentMember")
+	@Operation(summary = "현재 로그인한 사용자 정보 조회", description = "현재 로그인한 사용자의 이메일을 조회합니다.")
 	public CommonResponse<String> currentMember() {
 
 		String currentMember = SecurityUtil.getCurrentMemberEmail();
@@ -51,6 +55,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/join")
+	@Operation(summary = "회원가입", description = "회원가입을 진행합니다.")
 	public CommonResponse<String> join(@Valid @RequestBody MemberRequestDto.JoinDto request) {
 
 		memberCommandService.join(request);
@@ -59,6 +64,7 @@ public class AuthController {
 	}
 
 	@PostMapping("/reissue")
+	@Operation(summary = "토큰 재발급", description = "Access Token이 만료되었을 때, Refresh Token을 이용하여 새로운 Access Token을 발급합니다.")
 	public ResponseEntity<CommonResponse<String>> reissue(HttpServletRequest request, HttpServletResponse response) {
 
 		//get refresh token
