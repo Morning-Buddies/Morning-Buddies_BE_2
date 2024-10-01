@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
+import com.ghpg.morningbuddies.domain.chatmessage.MessageType;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
 import com.ghpg.morningbuddies.domain.chatmessage.repository.ChatMessageRepository;
@@ -39,6 +40,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
 		ChatMessage sendedMessage = ChatMessage.builder()
 			.message(message.getMessage())
+			.messageType(MessageType.CHAT)
 			.group(currentParticipatedGroup)
 			.sender(currentMember)
 			.sendTime(message.getTime())
@@ -54,6 +56,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
 		return ChatMessageResponseDto.Message.builder()
 			.groupId(currentParticipatedGroup.getId())
+			.type(MessageType.CHAT)
 			.sender(sender)
 			.message(savedMessage.getMessage())
 			.time(savedMessage.getSendTime())
@@ -72,9 +75,12 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
 		// Add user to group logic here
 		// This might involve updating a GroupMember entity or similar
+		group.addMember(member);
+		groupRepository.save(group);
 
 		ChatMessage joinMessage = ChatMessage.builder()
 			.message(member.getFirstName() + " " + member.getLastName() + " has joined the group.")
+			.messageType(MessageType.ENTER)
 			.group(group)
 			.sender(member)
 			.sendTime(message.getTime())
@@ -97,8 +103,12 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 		// Remove user from group logic here
 		// This might involve updating a GroupMember entity or similar
 
+		group.removeMember(member);
+		groupRepository.save(group);
+
 		ChatMessage leaveMessage = ChatMessage.builder()
 			.message(member.getFirstName() + " " + member.getLastName() + " has left the group.")
+			.messageType(MessageType.LEAVE)
 			.group(group)
 			.sender(member)
 			.sendTime(message.getTime())
@@ -118,6 +128,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
 		return ChatMessageResponseDto.Message.builder()
 			.groupId(chatMessage.getGroup().getId())
+			.type(chatMessage.getMessageType())
 			.sender(sender)
 			.message(chatMessage.getMessage())
 			.time(chatMessage.getSendTime())
