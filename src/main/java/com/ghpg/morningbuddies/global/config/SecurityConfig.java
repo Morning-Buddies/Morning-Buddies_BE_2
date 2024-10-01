@@ -63,6 +63,7 @@ public class SecurityConfig {
 			.httpBasic((auth) -> auth.disable())
 			.authorizeHttpRequests((auth) -> auth
 				.requestMatchers("/", "/health", "/auth/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
 				.requestMatchers("/admin").hasRole("ADMIN")
 				.anyRequest().authenticated())
 			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
