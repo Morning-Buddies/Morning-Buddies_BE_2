@@ -17,6 +17,8 @@ import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
+import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -106,6 +108,16 @@ public class Groups extends BaseEntity {
 		MemberGroup memberGroup = MemberGroup.createMemberGroup(member, this);
 		memberGroups.add(memberGroup);
 		member.getMemberGroups().add(memberGroup);
+	}
+
+	public void removeMember(Member member) {
+		MemberGroup memberGroup = memberGroups.stream()
+			.filter(mg -> mg.getMember().getId().equals(member.getId()))
+			.findFirst()
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		memberGroups.remove(memberGroup);
+		member.getMemberGroups().remove(memberGroup);
 	}
 
 	// 그룹에 가입된 회원 불러오기
