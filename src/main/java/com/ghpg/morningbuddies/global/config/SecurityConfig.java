@@ -62,7 +62,7 @@ public class SecurityConfig {
 			.formLogin((auth) -> auth.disable())
 			.httpBasic((auth) -> auth.disable())
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/**", "/health", "/auth/**")
+				.requestMatchers("/", "/health", "/auth/**")
 				.permitAll()
 				.requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/v3/api-docs/**")
 				.permitAll() // 이 줄 수정
@@ -85,7 +85,8 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
+		configuration.setAllowedOrigins(
+			Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000", "https://dev.morningbuddies.shop"));
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowCredentials(true);
 		configuration.setAllowedHeaders(Arrays.asList("*"));
