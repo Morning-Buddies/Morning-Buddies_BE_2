@@ -62,10 +62,14 @@ public class SecurityConfig {
 			.formLogin((auth) -> auth.disable())
 			.httpBasic((auth) -> auth.disable())
 			.authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/", "/health", "/auth/**").permitAll()
-				.requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-				.requestMatchers("/admin").hasRole("ADMIN")
-				.anyRequest().authenticated())
+				.requestMatchers("/", "/health", "/auth/**")
+				.permitAll()
+				.requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/v3/api-docs/**")
+				.permitAll() // 이 줄 수정
+				.requestMatchers("/admin")
+				.hasRole("ADMIN")
+				.anyRequest()
+				.authenticated())
 			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository, objectMapper), LogoutFilter.class)
