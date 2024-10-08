@@ -15,4 +15,9 @@ public class RootController {
 		return CommonResponse.onSuccess("I'm Healthy!");
 	}
 
+	@GetMapping("/")
+	public CommonResponse<String> root() {
+		return CommonResponse.onSuccess("Hello, Morning Buddies!");
+	}
+
 }
