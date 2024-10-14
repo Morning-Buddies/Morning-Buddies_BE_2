@@ -38,6 +38,7 @@ jobs:
           AWS_S3_BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
           AWS_S3_URL: ${{ secrets.AWS_S3_URL }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 
       - name: Get current time
