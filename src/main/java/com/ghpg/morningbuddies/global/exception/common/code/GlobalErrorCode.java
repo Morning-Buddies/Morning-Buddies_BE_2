@@ -62,6 +62,9 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	//Puzzle
 	PUZZLE_NOT_FOUND(NOT_FOUND, "PUZZLE404_1", "퍼즐을 찾을 수 없습니다."),
 	PUZZLE_PIECE_SAVE_FAILED(CONFLICT, "PUZZLE409_1", "퍼즐 조각 저장에 실패하였습니다."),
+
+	//Game
+	GAME_NOT_FOUND(NOT_FOUND, "GAME404_1", "게임을 찾을 수 없습니다.")
 	;
 
 	private final HttpStatus httpStatus;
