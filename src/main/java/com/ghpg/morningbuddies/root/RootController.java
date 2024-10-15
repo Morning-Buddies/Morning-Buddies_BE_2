@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.root;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,8 +12,8 @@ import com.ghpg.morningbuddies.global.common.CommonResponse;
 public class RootController {
 
 	@GetMapping("/health")
-	public CommonResponse<String> healthCheck() {
-		return CommonResponse.onSuccess("I'm Healthy!");
+	public ResponseEntity<String> healthCheck() {
+		return ResponseEntity.ok("OK");
 	}
 
 	@GetMapping("/")
