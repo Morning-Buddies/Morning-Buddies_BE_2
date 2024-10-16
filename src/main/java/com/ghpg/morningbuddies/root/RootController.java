@@ -3,8 +3,6 @@ package com.ghpg.morningbuddies.root;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ghpg.morningbuddies.global.common.CommonResponse;
-
 @RestController
 public class RootController {
 
@@ -14,8 +12,8 @@ public class RootController {
 	}
 
 	@GetMapping("/")
-	public CommonResponse<String> root() {
-		return CommonResponse.onSuccess("Hello, Morning Buddies!");
+	public String root() {
+		return "Hello, MorningBuddies!";
 	}
 
 }
