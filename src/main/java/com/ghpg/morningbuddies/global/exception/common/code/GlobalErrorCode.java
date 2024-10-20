@@ -49,6 +49,9 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	GROUP_FULL(CONFLICT, "GROUP409_4", "인원이 다 찼습니다."),
 	LEADER_CANNOT_LEAVE_GROUP(CONFLICT, "GROUP409_5", "반장은 그룹에서 나갈 수 없습니다."),
 
+	// ChatRoom
+	CHATROOM_NOT_FOUND(NOT_FOUND, "CHATROOM404_1", "채팅방을 찾을 수 없습니다."),
+
 	//MemberGroup
 	MEMBER_NOT_IN_GROUP(CONFLICT, "MEMBERGROUP409_1", "해당 회원은 그룹에 없습니다."),
 
@@ -64,8 +67,7 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	PUZZLE_PIECE_SAVE_FAILED(CONFLICT, "PUZZLE409_1", "퍼즐 조각 저장에 실패하였습니다."),
 
 	//Game
-	GAME_NOT_FOUND(NOT_FOUND, "GAME404_1", "게임을 찾을 수 없습니다.")
-	;
+	GAME_NOT_FOUND(NOT_FOUND, "GAME404_1", "게임을 찾을 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

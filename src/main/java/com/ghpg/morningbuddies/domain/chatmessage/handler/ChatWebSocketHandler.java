@@ -33,25 +33,25 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	private final Map<WebSocketSession, Long> sessionGroupMap = new ConcurrentHashMap<>();
 
 	// 그룹 ID와 해당 그룹의 세션들을 매핑하기 위한 맵
-	private final Map<Long, Map<WebSocketSession, Long>> groupSessions = new ConcurrentHashMap<>();
+	private final Map<Long, Map<WebSocketSession, Long>> chatRoomSessions = new ConcurrentHashMap<>();
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		// URI에서 groupId와 memberId를 추출
-		Long groupId = getGroupId(session);
+		Long groupId = getChatRoomId(session);
 		Long memberId = getMemberId(session);
 
 		// 세션 저장
 		sessionGroupMap.put(session, groupId);
 
-		groupSessions.computeIfAbsent(groupId, k -> new ConcurrentHashMap<>()).put(session, memberId);
+		chatRoomSessions.computeIfAbsent(groupId, k -> new ConcurrentHashMap<>()).put(session, memberId);
 
 		// 필요한 경우 사용자 추가 로직 처리
 	}
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		Long groupId = sessionGroupMap.get(session);
+		Long chatRoomId = sessionGroupMap.get(session);
 		Long memberId = getMemberId(session);
 		String payload = message.getPayload();
 
@@ -62,22 +62,24 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
 		if ("sendMessage".equalsIgnoreCase(action)) {
 			ChatMessageRequestDto.Message chatMessage = clientMessage.getMessage();
-			ChatMessageResponseDto.Message responseMessage = chatMessageCommandService.saveAndConvert(memberId, groupId,
+			ChatMessageResponseDto.Message responseMessage = chatMessageCommandService.saveAndConvert(memberId,
+				chatRoomId,
 				chatMessage);
 			String response = convertToJson(responseMessage);
-			broadcastToGroup(groupId, response);
+			broadcastToChatRoom(chatRoomId, response);
 		} else if ("addUser".equalsIgnoreCase(action)) {
 			ChatMessageRequestDto.Message chatMessage = clientMessage.getMessage();
-			ChatMessageResponseDto.Message responseMessage = chatMessageCommandService.addUserToGroup(memberId, groupId,
+			ChatMessageResponseDto.Message responseMessage = chatMessageCommandService.addUserToGroup(memberId,
+				chatRoomId,
 				chatMessage);
 			String response = convertToJson(responseMessage);
-			broadcastToGroup(groupId, response);
+			broadcastToChatRoom(chatRoomId, response);
 		} else if ("removeUser".equalsIgnoreCase(action)) {
 			ChatMessageRequestDto.Message chatMessage = clientMessage.getMessage();
 			ChatMessageResponseDto.Message responseMessage = chatMessageCommandService.removeUserFromGroup(memberId,
-				groupId, chatMessage);
+				chatRoomId, chatMessage);
 			String response = convertToJson(responseMessage);
-			broadcastToGroup(groupId, response);
+			broadcastToChatRoom(chatRoomId, response);
 		} else {
 			log.warn("Unknown action: {}", action);
 		}
@@ -87,19 +89,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
 		Long groupId = sessionGroupMap.remove(session);
 		if (groupId != null) {
-			Map<WebSocketSession, Long> sessions = groupSessions.get(groupId);
+			Map<WebSocketSession, Long> sessions = chatRoomSessions.get(groupId);
 			if (sessions != null) {
 				sessions.remove(session);
 				if (sessions.isEmpty()) {
-					groupSessions.remove(groupId);
+					chatRoomSessions.remove(groupId);
 				}
 			}
 		}
 		// 필요한 경우 사용자 제거 로직 처리
 	}
 
-	private void broadcastToGroup(Long groupId, String message) {
-		Map<WebSocketSession, Long> sessions = groupSessions.get(groupId);
+	private void broadcastToChatRoom(Long chatRoomId, String message) {
+		Map<WebSocketSession, Long> sessions = chatRoomSessions.get(chatRoomId);
 		if (sessions != null) {
 			sessions.keySet().forEach(session -> {
 				try {
@@ -111,17 +113,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 		}
 	}
 
-	private Long getGroupId(WebSocketSession session) {
+	private Long getChatRoomId(WebSocketSession session) {
 		String uri = session.getUri().toString();
-		// URI에서 groupId 추출, 예: /chat/{groupId}/{memberId}
+		// URI에서 groupId 추출, 예: /chat/{chatRoomId}/{memberId}
 		String[] parts = uri.split("/");
-		// groupId는 배열의 길이에서 두 번째 마지막 요소라고 가정
+		// chatRoomId는 배열의 길이에서 두 번째 마지막 요소라고 가정
 		return Long.valueOf(parts[parts.length - 2]);
 	}
 
 	private Long getMemberId(WebSocketSession session) {
 		String uri = session.getUri().toString();
-		// URI에서 memberId 추출, 예: /chat/{groupId}/{memberId}
+		// URI에서 memberId 추출, 예: /chat/{chatRoomId}/{memberId}
 		String[] parts = uri.split("/");
 		// memberId는 배열의 길이에서 마지막 요소라고 가정
 		return Long.valueOf(parts[parts.length - 1]);

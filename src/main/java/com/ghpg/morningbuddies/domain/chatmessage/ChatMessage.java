@@ -2,12 +2,11 @@ package com.ghpg.morningbuddies.domain.chatmessage;
 
 import java.time.LocalDateTime;
 
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -45,20 +44,17 @@ public class ChatMessage extends BaseEntity {
 	private String message;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "message_type", length = 10, nullable = false)
 	private MessageType messageType;
 
 	private LocalDateTime sendTime;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "group_id")
-	private Groups group;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
+	@JoinColumn(name = "sender_id")
 	private Member sender;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="chatroom_id")
+	@JoinColumn(name = "chatroom_id")
 	private ChatRoom chatRoom;
 
 

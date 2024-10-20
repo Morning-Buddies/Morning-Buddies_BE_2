@@ -18,7 +18,7 @@ public class ChatMessageResponseDto {
 	@AllArgsConstructor
 	public static class Message {
 		private MessageType type; // 메세지 타입
-		private Long groupId;// 방 번호
+		private Long chatRoomId;// 방 번호
 		private Sender sender;//채팅을 보낸 사람
 		private String message;// 메세지
 		private LocalDateTime time; // 채팅 발송 시간
