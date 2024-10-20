@@ -27,10 +27,13 @@ public class ChatRoomCommandServiceImpl implements ChatRoomCommandService{
         Groups group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
-        ChatRoom chatRoom = new ChatRoom(group);
-        chatRoomRepository.save(chatRoom);
+        ChatRoom chatroom = ChatRoom.builder()
+                        .group(group)
+                        .build();
 
-        return new ChatRoomRequestDto(chatRoom.getId(), chatRoom.getGroup().getGroupName());
+        chatRoomRepository.save(chatroom);
+
+        return new ChatRoomRequestDto(chatroom.getId(), chatroom.getGroup().getGroupName());
 
     }
 }
