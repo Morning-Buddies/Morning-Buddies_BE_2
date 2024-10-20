@@ -10,8 +10,11 @@ import com.ghpg.morningbuddies.domain.chatmessage.MessageType;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
 import com.ghpg.morningbuddies.domain.chatmessage.repository.ChatMessageRepository;
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
+import com.ghpg.morningbuddies.global.exception.chatroom.ChatRoomException;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
@@ -29,24 +32,26 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 
 	private final MemberRepository memberRepository;
 
+	private final ChatRoomRepository chatRoomRepository;
+
 	@Override
-	public ChatMessageResponseDto.Message saveAndConvert(Long memberId, Long groupId,
+	public ChatMessageResponseDto.Message saveAndConvert(Long memberId, Long chatRoomId,
 		ChatMessageRequestDto.Message message) {
-		Groups currentParticipatedGroup = groupRepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+		ChatRoom currentParticipantChatRoom = chatRoomRepository.findById(chatRoomId)
+			.orElseThrow(() -> new ChatRoomException(GlobalErrorCode.CHATROOM_NOT_FOUND));
 
 		Member currentMember = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		ChatMessage sendedMessage = ChatMessage.builder()
+		ChatMessage sentMessage = ChatMessage.builder()
 			.message(message.getMessage())
 			.messageType(MessageType.CHAT)
-			.group(currentParticipatedGroup)
+			.chatRoom(currentParticipantChatRoom)
 			.sender(currentMember)
 			.sendTime(message.getTime())
 			.build();
 
-		ChatMessage savedMessage = chatMessageRepository.save(sendedMessage);
+		ChatMessage savedMessage = chatMessageRepository.save(sentMessage);
 
 		ChatMessageResponseDto.Sender sender = ChatMessageResponseDto.Sender.builder()
 			.memberId(currentMember.getId())
@@ -55,7 +60,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 			.build();
 
 		return ChatMessageResponseDto.Message.builder()
-			.groupId(currentParticipatedGroup.getId())
+			.chatRoomId(currentParticipantChatRoom.getId())
 			.type(MessageType.CHAT)
 			.sender(sender)
 			.message(savedMessage.getMessage())
@@ -81,7 +86,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 		ChatMessage joinMessage = ChatMessage.builder()
 			.message(member.getFirstName() + " " + member.getLastName() + " has joined the group.")
 			.messageType(MessageType.ENTER)
-			.group(group)
+			.chatRoom(group.getChatRoom())
 			.sender(member)
 			.sendTime(message.getTime())
 			.build();
@@ -109,7 +114,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 		ChatMessage leaveMessage = ChatMessage.builder()
 			.message(member.getFirstName() + " " + member.getLastName() + " has left the group.")
 			.messageType(MessageType.LEAVE)
-			.group(group)
+			.chatRoom(group.getChatRoom())
 			.sender(member)
 			.sendTime(message.getTime())
 			.build();
@@ -127,7 +132,7 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 			.build();
 
 		return ChatMessageResponseDto.Message.builder()
-			.groupId(chatMessage.getGroup().getId())
+			.chatRoomId(chatMessage.getChatRoom().getId())
 			.type(chatMessage.getMessageType())
 			.sender(sender)
 			.message(chatMessage.getMessage())

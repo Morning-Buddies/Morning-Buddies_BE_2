@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
-import jakarta.persistence.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -15,13 +13,28 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
-import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -74,10 +87,6 @@ public class Groups extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	private AlarmSound alarmSound;
-
-	@Builder.Default
-	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ChatMessage> chatMessages = new ArrayList<>();
 
 	@Builder.Default
 	@OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
