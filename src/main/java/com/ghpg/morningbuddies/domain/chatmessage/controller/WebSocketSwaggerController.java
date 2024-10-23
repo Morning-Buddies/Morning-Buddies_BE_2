@@ -17,7 +17,7 @@ public class WebSocketSwaggerController {
 
 	@Operation(summary = "WebSocket 연결", description = "채팅을 위한 WebSocket 연결을 설정합니다.")
 	@GetMapping("/{chatRoomId}/{memberId}")
-	public void connectWebSocket(@PathVariable Long groupId, @PathVariable Long memberId) {
+	public void connectWebSocket(@PathVariable Long chatRoomId, @PathVariable Long memberId) {
 		// 이 메서드는 실제로 호출되지 않습니다. Swagger 문서화를 위한 더미 메서드입니다.
 	}
 

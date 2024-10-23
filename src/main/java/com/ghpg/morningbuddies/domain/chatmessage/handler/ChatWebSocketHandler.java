@@ -25,12 +25,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
 	private final ChatMessageCommandService chatMessageCommandService;
 
-	private final MemberRepository memberRepository;
-
 	private final ObjectMapper objectMapper;
 
 	// 세션과 그룹 ID를 매핑하기 위한 맵
-	private final Map<WebSocketSession, Long> sessionGroupMap = new ConcurrentHashMap<>();
+	private final Map<WebSocketSession, Long> sessionChatRoomMap = new ConcurrentHashMap<>();
 
 	// 그룹 ID와 해당 그룹의 세션들을 매핑하기 위한 맵
 	private final Map<Long, Map<WebSocketSession, Long>> chatRoomSessions = new ConcurrentHashMap<>();
@@ -38,20 +36,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 		// URI에서 groupId와 memberId를 추출
-		Long groupId = getChatRoomId(session);
+		Long chatRoomId = getChatRoomId(session);
 		Long memberId = getMemberId(session);
 
 		// 세션 저장
-		sessionGroupMap.put(session, groupId);
+		sessionChatRoomMap.put(session, chatRoomId);
 
-		chatRoomSessions.computeIfAbsent(groupId, k -> new ConcurrentHashMap<>()).put(session, memberId);
+		chatRoomSessions.computeIfAbsent(chatRoomId, k -> new ConcurrentHashMap<>()).put(session, memberId);
 
 		// 필요한 경우 사용자 추가 로직 처리
 	}
 
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-		Long chatRoomId = sessionGroupMap.get(session);
+		Long chatRoomId = sessionChatRoomMap.get(session);
 		Long memberId = getMemberId(session);
 		String payload = message.getPayload();
 
@@ -87,13 +85,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-		Long groupId = sessionGroupMap.remove(session);
-		if (groupId != null) {
-			Map<WebSocketSession, Long> sessions = chatRoomSessions.get(groupId);
+		Long chatRoomId = sessionChatRoomMap.remove(session);
+		if (chatRoomId != null) {
+			Map<WebSocketSession, Long> sessions = chatRoomSessions.get(chatRoomId);
 			if (sessions != null) {
 				sessions.remove(session);
 				if (sessions.isEmpty()) {
-					chatRoomSessions.remove(groupId);
+					chatRoomSessions.remove(chatRoomId);
 				}
 			}
 		}
