@@ -11,30 +11,30 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/websocket")
+@RequestMapping("/chat")
 @Tag(name = "WebSocket API", description = "WebSocket 채팅 API")
 public class WebSocketSwaggerController {
 
 	@Operation(summary = "WebSocket 연결", description = "채팅을 위한 WebSocket 연결을 설정합니다.")
-	@GetMapping("/chat/{groupId}/{memberId}")
-	public void connectWebSocket(@PathVariable Long groupId, @PathVariable Long memberId) {
+	@GetMapping("/{chatRoomId}/{memberId}")
+	public void connectWebSocket(@PathVariable Long chatRoomId, @PathVariable Long memberId) {
 		// 이 메서드는 실제로 호출되지 않습니다. Swagger 문서화를 위한 더미 메서드입니다.
 	}
 
 	@Operation(summary = "메시지 전송", description = "WebSocket을 통해 채팅 메시지를 전송합니다.")
-	@GetMapping("/chat/send")
+	@GetMapping("/send")
 	public void sendMessage(ChatMessageRequestDto.Message message) {
 		// 이 메서드는 실제로 호출되지 않습니다. Swagger 문서화를 위한 더미 메서드입니다.
 	}
 
 	@Operation(summary = "사용자 추가", description = "채팅 그룹에 사용자를 추가합니다.")
-	@GetMapping("/chat/addUser")
+	@GetMapping("/addUser")
 	public void addUser(ChatMessageRequestDto.Message message) {
 		// 이 메서드는 실제로 호출되지 않습니다. Swagger 문서화를 위한 더미 메서드입니다.
 	}
 
 	@Operation(summary = "사용자 제거", description = "채팅 그룹에서 사용자를 제거합니다.")
-	@GetMapping("/chat/removeUser")
+	@GetMapping("/removeUser")
 	public void removeUser(ChatMessageRequestDto.Message message) {
 		// 이 메서드는 실제로 호출되지 않습니다. Swagger 문서화를 위한 더미 메서드입니다.
 	}
