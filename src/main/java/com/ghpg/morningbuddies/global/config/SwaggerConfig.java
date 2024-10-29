@@ -27,5 +27,6 @@ public class SwaggerConfig {
 				.description("Morning Buddies API 명세서")
 				.version("v1.0.0"))
 			.addServersItem(server);
+
 	}
 }
