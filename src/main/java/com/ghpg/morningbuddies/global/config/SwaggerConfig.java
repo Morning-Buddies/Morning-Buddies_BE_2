@@ -7,12 +7,17 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI openAPI() {
+
+		Server server = new Server();
+		server.setUrl("https://dev.morningbuddies.shop");
+
 		return new OpenAPI()
 			.components(new Components().addSecuritySchemes("bearer-jwt",
 				new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
@@ -20,6 +25,7 @@ public class SwaggerConfig {
 			.info(new Info()
 				.title("Morning Buddies API")
 				.description("Morning Buddies API 명세서")
-				.version("v1.0.0"));
+				.version("v1.0.0"))
+			.addServersItem(server);
 	}
 }
