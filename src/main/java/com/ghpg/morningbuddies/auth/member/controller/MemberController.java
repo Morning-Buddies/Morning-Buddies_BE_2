@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
-import com.ghpg.morningbuddies.auth.member.service.MemberCommandService;
-import com.ghpg.morningbuddies.auth.member.service.MemberQueryService;
+import com.ghpg.morningbuddies.auth.member.service.command.MemberCommandService;
+import com.ghpg.morningbuddies.auth.member.service.query.MemberQueryService;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.common.CommonResponse;

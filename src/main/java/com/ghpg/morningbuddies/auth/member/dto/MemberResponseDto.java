@@ -33,7 +33,6 @@ public class MemberResponseDto {
 
 		private List<GroupResponseDto.GroupInfo> groups;
 
-		private LocalTime wakeupTime;
 	}
 
 	@Getter

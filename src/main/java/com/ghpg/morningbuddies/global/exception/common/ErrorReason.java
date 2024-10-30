@@ -14,4 +14,5 @@ public class ErrorReason {
 	private final boolean isSuccess;
 	private final String code;
 	private final String message;
+	private final Object data;
 }

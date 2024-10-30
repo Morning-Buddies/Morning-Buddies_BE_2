@@ -12,15 +12,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
-import com.ghpg.morningbuddies.global.security.jwt.CustomLogoutFilter;
+import com.ghpg.morningbuddies.auth.member.service.RefreshTokenService;
 import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 import com.ghpg.morningbuddies.global.security.jwt.LoginFilter;
@@ -32,11 +30,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+	//Swagger 경로
+	private static final String[] SWAGGER_PATHS = {
+		"/swagger-ui.html",
+		"/swagger-ui/**",
+		"/api-docs/**",
+		"/api-docs",
+		"/v3/api-docs/**",
+		"/v3/api-docs",
+		"/swagger-resources/**",
+		"/webjars/**"
+	};
+
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtil jwtUtil;
 	private final ObjectMapper objectMapper;
-	private final RefreshTokenRepository refreshTokenRepository;
-	private final MemberRepository memberRepository;
+	private final RefreshTokenService refreshTokenService;
+	private final JwtFilter jwtFilter;
 
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -50,11 +60,14 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration,
-		MemberRepository memberRepository) throws Exception {
-		AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
+		MemberRepository memberRepository, JwtFilter jwtFilter) throws Exception {
 
-		LoginFilter loginFilter = new LoginFilter(authenticationManager, jwtUtil, objectMapper, refreshTokenRepository,
-			memberRepository);
+		LoginFilter loginFilter = new LoginFilter(
+			authenticationManager(authenticationConfiguration),
+			objectMapper,
+			jwtUtil,
+			refreshTokenService);
+
 		loginFilter.setFilterProcessesUrl("/auth/login");
 
 		http
@@ -70,9 +83,8 @@ public class SecurityConfig {
 				.hasRole("ADMIN")
 				.anyRequest()
 				.authenticated())
-			.addFilterBefore(new JwtFilter(jwtUtil), LoginFilter.class)
+			.addFilterBefore(jwtFilter, LoginFilter.class)
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
-			.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshTokenRepository, objectMapper), LogoutFilter.class)
 			.sessionManagement((session) -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

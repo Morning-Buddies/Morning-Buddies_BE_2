@@ -100,9 +100,8 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
 	private ResponseEntity<Object> handleExceptionInternal(
 		Exception e, ErrorReason reason, HttpHeaders headers, HttpServletRequest request) {
-
 		CommonResponse<Object> body =
-			CommonResponse.onFailure(reason.getCode(), reason.getMessage(), null);
+			CommonResponse.onFailure(reason.getCode(), reason.getMessage(), reason.getData());  // data 필드 사용
 		e.printStackTrace();
 
 		WebRequest webRequest = new ServletWebRequest(request);

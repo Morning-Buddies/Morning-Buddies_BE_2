@@ -4,21 +4,19 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.ghpg.morningbuddies.auth.member.entity.MemberChatRoom;
-import com.ghpg.morningbuddies.auth.member.repository.MemberChatRoomRepository;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
-import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
-import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
-import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
+import com.ghpg.morningbuddies.auth.member.entity.MemberChatRoom;
+import com.ghpg.morningbuddies.auth.member.repository.MemberChatRoomRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
+import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
+import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
@@ -52,7 +50,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final MemberChatRoomRepository memberChatRoomRepository;
 
-    /**
+	/**
 	 * 그룹 생성
 	 * @param requestDto
 	 * @param file
@@ -61,7 +59,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
 
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -99,13 +97,13 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		// 생성된 채팅방 조회
 		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomDto.getChatRoomId())
-				.orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+			.orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
 
 		// MemberChatRoom 엔터티 생성
 		MemberChatRoom memberChatRoom = MemberChatRoom.builder()
-				.member(leader)
-				.chatRoom(chatRoom)
-				.build();
+			.member(leader)
+			.chatRoom(chatRoom)
+			.build();
 
 		memberChatRoomRepository.save(memberChatRoom);
 
@@ -135,7 +133,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request,
 		MultipartFile file) {
 
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -178,7 +176,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void deleteGroup(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -198,7 +196,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void requestJoinGroup(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -226,7 +224,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
 
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -276,7 +274,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void rejectJoinGroup(Long groupId, Long requestId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
@@ -308,7 +306,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void changeLeaderAuthority(Long groupId, Long newLeaderId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member currentLeader = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 

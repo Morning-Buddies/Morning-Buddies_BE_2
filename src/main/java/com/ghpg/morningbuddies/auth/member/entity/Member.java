@@ -78,7 +78,7 @@ public class Member extends BaseEntity {
 
 	private boolean isActivated;
 
-	private UserRole userRole;
+	private UserRole role;
 
 	@Builder.Default
 	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -120,5 +120,9 @@ public class Member extends BaseEntity {
 	public void updateFcmToken(String fcmToken, String deviceId) {
 		this.fcmToken = fcmToken;
 		this.deviceId = deviceId;
+	}
+
+	public void setRefreshToken(RefreshToken refreshToken) {
+		this.refreshToken = refreshToken;
 	}
 }

@@ -80,7 +80,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 그룹 가입 요청 리스트
 	@Override
 	public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 

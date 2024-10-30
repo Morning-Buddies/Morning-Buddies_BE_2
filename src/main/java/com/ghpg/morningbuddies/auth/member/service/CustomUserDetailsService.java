@@ -1,11 +1,10 @@
 package com.ghpg.morningbuddies.auth.member.service;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.ghpg.morningbuddies.auth.member.dto.CustomMemberDetails;
+import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
@@ -15,12 +14,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class CustomMemberDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
 	private final MemberRepository memberRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+	public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String email) throws
+		UsernameNotFoundException {
 
 		//DB에서 조회
 		Member member = memberRepository.findByEmail(email)
@@ -29,7 +29,7 @@ public class CustomMemberDetailsService implements UserDetailsService {
 
 			);
 
-		return new CustomMemberDetails(member);
+		return new CustomUserDetails(member);
 
 	}
 }
