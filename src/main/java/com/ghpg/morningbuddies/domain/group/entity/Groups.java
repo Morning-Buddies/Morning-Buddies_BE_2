@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
+import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.notification.Notification;
@@ -123,7 +124,7 @@ public class Groups extends BaseEntity {
 	// 그룹에 가입된 회원 불러오기
 	public List<MemberResponseDto.MemberSummaryDTO> getMembers() {
 		return memberGroups.stream()
-			.map(memberGroup -> MemberResponseDto.MemberSummaryDTO.from(memberGroup.getMember()))
+			.map(memberGroup -> MemberMapper.toMemberSummaryDTO(memberGroup.getMember()))
 			.collect(Collectors.toList());
 	}
 

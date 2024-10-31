@@ -1,4 +1,10 @@
 spring:
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    date-format: "HH:mm:ss"
+    time-zone: "Asia/Seoul"  # 한국 시간대 설정
+
   profiles:
     active: dev
   jwt:

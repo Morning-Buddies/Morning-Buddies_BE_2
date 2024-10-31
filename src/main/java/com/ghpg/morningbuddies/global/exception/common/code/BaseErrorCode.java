@@ -7,4 +7,6 @@ public interface BaseErrorCode {
 	public ErrorReason getReason();
 
 	public ErrorReason getReasonHttpStatus();
+
+	ErrorReason getReasonHttpStatus(Object data);
 }

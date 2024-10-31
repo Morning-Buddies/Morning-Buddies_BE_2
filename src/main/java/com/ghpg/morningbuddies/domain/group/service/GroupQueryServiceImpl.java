@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.group.converter.GroupConverter;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
@@ -54,7 +54,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.imageUrl(group.getGroupImageUrl())
 			.leader(GroupResponseDto.LeaderDTO.from(group.getLeader()))
 			.members(allMemberInGroup.stream()
-				.map(MemberResponseDto.MemberSummaryDTO::from)
+				.map(MemberMapper::toMemberSummaryDTO)
 				.collect(Collectors.toList())).build();
 	}
 
@@ -80,7 +80,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 그룹 가입 요청 리스트
 	@Override
 	public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentMemberEmail();
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 

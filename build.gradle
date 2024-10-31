@@ -67,7 +67,7 @@ dependencies {
     implementation 'org.openpnp:opencv:4.5.1-2'
 
     // Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
 }
 

@@ -1,149 +1,183 @@
 package com.ghpg.morningbuddies.global.security.jwt;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.time.Duration;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ghpg.morningbuddies.auth.member.dto.CustomMemberDetails;
+import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
+import com.ghpg.morningbuddies.auth.member.service.RefreshTokenService;
+import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
+import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-@AllArgsConstructor
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+	private static final String EMAIL_PARAMETER = "email";
+	private static final String COOKIE_NAME = "refresh_token";
+	private static final String BEARER_PREFIX = "Bearer ";
+	private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
+
 	private final AuthenticationManager authenticationManager;
-	//JWTUtil 주입
-	private final JwtUtil jwtUtil;
-
 	private final ObjectMapper objectMapper;
+	private final JwtUtil jwtUtil;
+	private final RefreshTokenService refreshTokenService;
 
-	private final RefreshTokenRepository refreshRepository;
+	public LoginFilter(
+		AuthenticationManager authenticationManager,
+		ObjectMapper objectMapper,
+		JwtUtil jwtUtil,
+		RefreshTokenService refreshTokenService) {
+		this.authenticationManager = authenticationManager;
+		this.objectMapper = objectMapper;
+		this.jwtUtil = jwtUtil;
+		this.refreshTokenService = refreshTokenService;
+		setUsernameParameter(EMAIL_PARAMETER);
+	}
 
-	private final MemberRepository memberRepository;
-
-	@SneakyThrows
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
-		AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+		throws AuthenticationException {
+		try {
+			MemberRequestDto.LoginDto loginRequest = parseLoginRequest(request);
+			return authenticateUser(loginRequest);
+		} catch (IOException e) {
+			throw new MemberException(GlobalErrorCode.INVALID_LOGIN_REQUEST);
+		}
+	}
 
-		// 요청에서 email과 password를 가져옴
-		MemberRequestDto.LoginDto loginDto = objectMapper.readValue(request.getInputStream(),
-			MemberRequestDto.LoginDto.class
-		);
+	private MemberRequestDto.LoginDto parseLoginRequest(HttpServletRequest request) throws IOException {
+		return objectMapper.readValue(request.getInputStream(), MemberRequestDto.LoginDto.class);
+	}
 
-		String email = loginDto.getEmail();
-		String password = loginDto.getPassword();
-
-		log.info("Attempting authentication for email: {}", email);
-
-		//스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
-
-		//token에 담은 검증을 위한 AuthenticationManager로 전달
+	private Authentication authenticateUser(MemberRequestDto.LoginDto loginRequest) {
+		UsernamePasswordAuthenticationToken authToken =
+			new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
 		return authenticationManager.authenticate(authToken);
 	}
 
-	//로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
 	@Override
-	@Transactional
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		Authentication authentication) throws IOException, ServletException {
-		CustomMemberDetails customMemberDetails = (CustomMemberDetails)authentication.getPrincipal();
+	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+		FilterChain chain, Authentication authentication) throws IOException {
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		Member member = userDetails.getMember();
 
-		String email = customMemberDetails.getEmail();
+		String userEmail = userDetails.getUsername();
+		String userRole = extractUserRole(userDetails);
 
-		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-		Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-		GrantedAuthority auth = iterator.next();
-
-		String role = auth.getAuthority();
-
-		//토큰 생성
-		String access = jwtUtil.createJwt("access", email, role, 600000L);
-		String refresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
-
-		//refresh을 데이터베이스에 저장
-		addRefreshEntity(email, refresh, 86400000L);
-
-		//응답 설정
-		response.setHeader("access", access);
-		response.addCookie(createCookie("refresh", refresh));
-		response.setStatus(HttpStatus.OK.value());
-
-		CommonResponse<String> successResponse = CommonResponse.onSuccess("AUTH_SUCCESS");
-
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(objectMapper.writeValueAsString(successResponse));
+		handleTokenGeneration(response, userEmail, userRole);
+		writeMemberInfoResponse(response, member);
 	}
 
-	//로그인 실패시 실행하는 메소드
+	private String extractUserRole(CustomUserDetails userDetails) {
+		return userDetails.getAuthorities().stream()
+			.findFirst()
+			.orElseThrow()
+			.getAuthority();
+	}
+
+	private void handleTokenGeneration(HttpServletResponse response, String userEmail, String userRole) {
+		String accessToken = jwtUtil.createAccessToken(userEmail, userRole);
+		String refreshToken = jwtUtil.createRefreshToken(userEmail, userRole);
+
+		refreshTokenService.saveNewRefreshToken(userEmail, refreshToken);
+		setTokenHeaders(response, accessToken, refreshToken);
+	}
+
+	private void setTokenHeaders(HttpServletResponse response, String accessToken, String refreshToken) {
+		ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken);
+		response.addHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + accessToken);
+		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+	}
+
+	private ResponseCookie createRefreshTokenCookie(String refreshToken) {
+		return ResponseCookie.from(COOKIE_NAME, refreshToken)
+			.httpOnly(true)
+			.secure(true)
+			.sameSite("Strict")
+			.path("/")
+			.maxAge(REFRESH_TOKEN_DURATION)
+			.build();
+	}
+
+	private void writeMemberInfoResponse(HttpServletResponse response, Member member) throws IOException {
+		MemberResponseDto.MemberInfo memberInfo = createMemberInfo(member);
+		setResponseProperties(response);
+		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(memberInfo));
+	}
+
+	private MemberResponseDto.MemberInfo createMemberInfo(Member member) {
+		return MemberResponseDto.MemberInfo.builder()
+			.id(member.getId())
+			.profileImage(member.getProfileImageUrl())
+			.firstName(member.getFirstName())
+			.lastName(member.getLastName())
+			.preferredWakeupTime(member.getPreferredWakeupTime())
+			.groups(member.getGroups().stream().map(GroupMapper::toGroupInfo).toList())
+			.successGameCount(GroupMapper.getCountSuccessGame(member))
+			.build();
+	}
+
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
-		AuthenticationException failed) throws IOException, ServletException {
-		CommonResponse<String> failureResponse = CommonResponse.onFailure("AUTH_FAILED", "Authentication failed", null);
+		AuthenticationException failed) throws IOException {
+		BaseErrorCode errorCode = determineErrorCode(failed);
+		writeErrorResponse(response, errorCode, failed);
+	}
 
+	private BaseErrorCode determineErrorCode(AuthenticationException exception) {
+		if (exception instanceof BadCredentialsException)
+			return GlobalErrorCode.INVALID_CREDENTIALS;
+		if (exception instanceof UsernameNotFoundException)
+			return GlobalErrorCode.MEMBER_NOT_FOUND;
+		if (exception instanceof DisabledException)
+			return GlobalErrorCode.ACCOUNT_DISABLED;
+		if (exception instanceof LockedException)
+			return GlobalErrorCode.ACCOUNT_LOCKED;
+		if (exception instanceof AccountExpiredException)
+			return GlobalErrorCode.ACCOUNT_EXPIRED;
+		return GlobalErrorCode.LOGIN_FAILED;
+	}
+
+	private void writeErrorResponse(HttpServletResponse response, BaseErrorCode errorCode,
+		AuthenticationException exception) throws IOException {
+		setResponseProperties(response);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+		CommonResponse<?> errorResponse = CommonResponse.onFailure(
+			errorCode.getReason().getCode(),
+			errorCode.getReason().getMessage(),
+			exception.getMessage()
+		);
+
+		objectMapper.writeValue(response.getOutputStream(), errorResponse);
+	}
+
+	private void setResponseProperties(HttpServletResponse response) {
+		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().write(objectMapper.writeValueAsString(failureResponse));
-	}
-
-	private Cookie createCookie(String key, String value) {
-
-		Cookie cookie = new Cookie(key, value);
-		cookie.setMaxAge(24 * 60 * 60);
-		cookie.setSecure(true);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
-
-		return cookie;
-	}
-
-	private void addRefreshEntity(String email, String refresh, Long expiredMs) {
-
-		Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-
-		refreshRepository.deleteByEmail(email);
-
-		RefreshToken refreshToken = RefreshToken.builder()
-			.member(member)
-			.email(email)
-			.refresh(refresh)
-			.expiration(date.toString())
-			.build();
-
-		refreshRepository.save(refreshToken);
 	}
 }
