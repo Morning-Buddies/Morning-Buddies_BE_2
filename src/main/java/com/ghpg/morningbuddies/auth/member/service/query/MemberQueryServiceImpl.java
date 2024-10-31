@@ -2,7 +2,6 @@ package com.ghpg.morningbuddies.auth.member.service.query;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -10,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
 import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
@@ -30,49 +30,21 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final MemberRepository memberRepository;
+	private final MemberMapper memberMapper;
 
 	@Override
-	public MemberResponseDto.MemberInfo getMemberInfo(String refreshToken) {
-		Member foundMember = refreshTokenRepository.findByRefreshWithMemberAndGroup(refreshToken)
-			.orElseThrow(() -> new RefreshException(GlobalErrorCode.INVALID_TOKEN))
-			.getMember();
+	public MemberResponseDto.MemberInfo getMyInfo() {
+		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
 
-		List<Groups> foundGroups = foundMember.getGroups();
+		Member currentMember = memberRepository.findMemberAndGroupsByEmail(currentUserEmail)
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		// 그룹 총 성공 횟수를 멤버의 회원 정보에 저장
-		int totalSuccessCount = Optional.ofNullable(foundGroups)
-			.map(groups -> groups.stream()
-				.mapToInt(Groups::getSuccessCount)
-				.sum())
-			.orElse(0);
-
-		// 그룹 정보 저장
-		List<GroupResponseDto.GroupInfo> groupInfos = new ArrayList<>();
-
-		// 그룹 정보가 존재할 경우 그룹 정보 저장
-		if (foundGroups != null) {
-			for (Groups foundGroup : foundGroups) {
-				groupInfos.add(GroupResponseDto.GroupInfo.builder()
-					.name(foundGroup.getGroupName())
-					.wakeupTime(foundGroup.getWakeupTime())
-					.build());
-			}
-		}
-
-		return MemberResponseDto.MemberInfo.builder()
-			.id(foundMember.getId())
-			.profileImage(foundMember.getProfileImageUrl())
-			.firstName(foundMember.getFirstName())
-			.lastName(foundMember.getLastName())
-			.preferredWakeupTime(foundMember.getPreferredWakeupTime())
-			.successGameCount(totalSuccessCount)
-			.groups(groupInfos)
-			.build();
+		return memberMapper.toMemberInfo(currentMember);
 	}
 
 	@Override
 	public List<GroupResponseDto.GroupInfo> getMyGroups() {
-		Member currentMember = memberRepository.findGroupsByEmail(SecurityUtil.getCurrentUserEmail())
+		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new RefreshException(GlobalErrorCode.INVALID_TOKEN));
 
 		List<Groups> foundGroups = currentMember.getGroups();

@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Member", description = "회원 관리 API")
+@Tag(name = "Auth", description = "회원 인증/인가 관리 API")
 @RestController
 @RequestMapping("/auth")
 @SecurityRequirements
@@ -30,6 +30,11 @@ public class AuthController {
 
 	private final MemberCommandService memberCommandService;
 
+	/**
+	 * 회원 가입
+	 * @param joinDto
+	 * @return
+	 */
 	@Operation(summary = "회원 가입", description = "새로운 회원을 등록합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "회원 가입 성공",
@@ -43,11 +48,15 @@ public class AuthController {
 	public CommonResponse<MemberResponseDto.MemberInfo> join(
 		@RequestBody @Valid MemberRequestDto.JoinDto joinDto
 	) {
-		// 회원가입 로직
 
 		return CommonResponse.onSuccess(memberCommandService.join(joinDto));
 	}
 
+	/**
+	 * 로그인
+	 * @param loginDto
+	 * @return
+	 */
 	@Operation(summary = "로그인", description = "이메일과 비밀번호를 사용하여 로그인합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "로그인 성공",

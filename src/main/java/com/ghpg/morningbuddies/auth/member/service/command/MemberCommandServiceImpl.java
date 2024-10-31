@@ -33,9 +33,6 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 	@Override
 	public MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto request) {
-		if (memberRepository.existsByEmail(request.getEmail())) {
-			throw new MemberException(GlobalErrorCode.MEMBER_ALREADY_EXIST);
-		}
 
 		Member member = memberMapper.toMember(request);
 

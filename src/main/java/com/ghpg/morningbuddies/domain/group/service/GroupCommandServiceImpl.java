@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberChatRoom;
+import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberChatRoomRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
@@ -116,7 +116,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 				requestDto.getMaxParticipantCount() != null ? requestDto.getMaxParticipantCount() : 0) // Null 체크
 			.description(savedGroup.getDescription())
 			.imageUrl(savedGroup.getGroupImageUrl())
-			.members(members.stream().map(MemberResponseDto.MemberSummaryDTO::from).collect(Collectors.toList()))
+			.members(members.stream().map(MemberMapper::toMemberSummaryDTO).collect(Collectors.toList()))
 			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
 			.build();
 

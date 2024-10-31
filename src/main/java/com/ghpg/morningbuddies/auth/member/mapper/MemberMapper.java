@@ -7,6 +7,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
+import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,6 +29,18 @@ public class MemberMapper {
 			.build();
 	}
 
+	public MemberResponseDto.MemberInfo toMemberInfo(Member member) {
+		return MemberResponseDto.MemberInfo.builder()
+			.id(member.getId())
+			.profileImage(member.getProfileImageUrl())
+			.firstName(member.getFirstName())
+			.lastName(member.getLastName())
+			.preferredWakeupTime(member.getPreferredWakeupTime())
+			.successGameCount(GroupMapper.getCountSuccessGame(member))
+			.groups(null)
+			.build();
+	}
+
 	public MemberResponseDto.MemberInfo toNewMemberInfo(Member member) {
 		return MemberResponseDto.MemberInfo.builder()
 			.id(member.getId())
@@ -37,6 +50,15 @@ public class MemberMapper {
 			.preferredWakeupTime(member.getPreferredWakeupTime())
 			.successGameCount(0)
 			.groups(null)
+			.build();
+	}
+
+	public static MemberResponseDto.MemberSummaryDTO toMemberSummaryDTO(Member member) {
+		return MemberResponseDto.MemberSummaryDTO.builder()
+			.id(member.getId())
+			.firstName(member.getFirstName())
+			.lastName(member.getLastName())
+			.email(member.getEmail())
 			.build();
 	}
 

@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.group.converter.GroupConverter;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
@@ -54,7 +54,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 			.imageUrl(group.getGroupImageUrl())
 			.leader(GroupResponseDto.LeaderDTO.from(group.getLeader()))
 			.members(allMemberInGroup.stream()
-				.map(MemberResponseDto.MemberSummaryDTO::from)
+				.map(MemberMapper::toMemberSummaryDTO)
 				.collect(Collectors.toList())).build();
 	}
 

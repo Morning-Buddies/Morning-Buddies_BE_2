@@ -2,7 +2,6 @@ package com.ghpg.morningbuddies.auth.member.controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,9 +18,12 @@ import com.ghpg.morningbuddies.auth.member.service.query.MemberQueryService;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +39,14 @@ public class MemberController {
 	private final MemberQueryService memberQueryService;
 	private final MemberCommandService memberCommandService;
 
-	@GetMapping("/me")
 	@Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")
-	public CommonResponse<MemberResponseDto.MemberInfo> getMemberInfo(
-		@CookieValue(name = "refresh") String refreshToken) {
-		if (refreshToken == null) {
-			return CommonResponse.onFailure(GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getCode(),
-				GlobalErrorCode.REFRESH_TOKEN_REQUIRED.getMessage(), null);
-		}
-		log.info("refreshToken: {}", refreshToken);
-
-		return CommonResponse.onSuccess(memberQueryService.getMemberInfo(refreshToken));
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "내 정보 조회 성공",
+			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class)))
+	})
+	@GetMapping("/me")
+	public CommonResponse<MemberResponseDto.MemberInfo> getMyInfo() {
+		return CommonResponse.onSuccess(memberQueryService.getMyInfo());
 	}
 
 	@PatchMapping("/me/password")

@@ -36,12 +36,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+	private static final String EMAIL_PARAMETER = "email";
+	private static final String COOKIE_NAME = "refresh_token";
+	private static final String BEARER_PREFIX = "Bearer ";
+	private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
+
 	private final AuthenticationManager authenticationManager;
 	private final ObjectMapper objectMapper;
 	private final JwtUtil jwtUtil;
 	private final RefreshTokenService refreshTokenService;
 
-	//생성자 주입
 	public LoginFilter(
 		AuthenticationManager authenticationManager,
 		ObjectMapper objectMapper,
@@ -51,59 +55,82 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		this.objectMapper = objectMapper;
 		this.jwtUtil = jwtUtil;
 		this.refreshTokenService = refreshTokenService;
-		this.setUsernameParameter("email");
+		setUsernameParameter(EMAIL_PARAMETER);
 	}
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 		throws AuthenticationException {
-
 		try {
-			// JSON 요청을 처리하기 위한 LoginRequest DTO 사용
-			MemberRequestDto.LoginDto loginRequest = objectMapper.readValue(request.getInputStream(),
-				MemberRequestDto.LoginDto.class);
-
-			// email과 password로 인증 토큰 생성
-			UsernamePasswordAuthenticationToken authToken =
-				new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword(), null);
-
-			// AuthenticationManager로 인증 처리
-			return authenticationManager.authenticate(authToken);
-
+			MemberRequestDto.LoginDto loginRequest = parseLoginRequest(request);
+			return authenticateUser(loginRequest);
 		} catch (IOException e) {
 			throw new MemberException(GlobalErrorCode.INVALID_LOGIN_REQUEST);
 		}
 	}
 
-	//로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
+	private MemberRequestDto.LoginDto parseLoginRequest(HttpServletRequest request) throws IOException {
+		return objectMapper.readValue(request.getInputStream(), MemberRequestDto.LoginDto.class);
+	}
+
+	private Authentication authenticateUser(MemberRequestDto.LoginDto loginRequest) {
+		UsernamePasswordAuthenticationToken authToken =
+			new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+		return authenticationManager.authenticate(authToken);
+	}
+
 	@Override
-	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		Authentication authentication) throws IOException {
+	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+		FilterChain chain, Authentication authentication) throws IOException {
+		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+		Member member = userDetails.getMember();
 
-		CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
-		Member member = customUserDetails.getMember();
+		String userEmail = userDetails.getUsername();
+		String userRole = extractUserRole(userDetails);
 
-		String userEmail = customUserDetails.getUsername();
-		String userRole = customUserDetails.getAuthorities().stream()
+		handleTokenGeneration(response, userEmail, userRole);
+		writeMemberInfoResponse(response, member);
+	}
+
+	private String extractUserRole(CustomUserDetails userDetails) {
+		return userDetails.getAuthorities().stream()
 			.findFirst()
 			.orElseThrow()
 			.getAuthority();
+	}
 
+	private void handleTokenGeneration(HttpServletResponse response, String userEmail, String userRole) {
 		String accessToken = jwtUtil.createAccessToken(userEmail, userRole);
 		String refreshToken = jwtUtil.createRefreshToken(userEmail, userRole);
 
 		refreshTokenService.saveNewRefreshToken(userEmail, refreshToken);
+		setTokenHeaders(response, accessToken, refreshToken);
+	}
 
-		// 쿠키로 refresh_token 설정
-		ResponseCookie refreshTokenCookie = ResponseCookie.from("refresh_token", refreshToken)
+	private void setTokenHeaders(HttpServletResponse response, String accessToken, String refreshToken) {
+		ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken);
+		response.addHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + accessToken);
+		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+	}
+
+	private ResponseCookie createRefreshTokenCookie(String refreshToken) {
+		return ResponseCookie.from(COOKIE_NAME, refreshToken)
 			.httpOnly(true)
 			.secure(true)
 			.sameSite("Strict")
 			.path("/")
-			.maxAge(Duration.ofDays(14))
+			.maxAge(REFRESH_TOKEN_DURATION)
 			.build();
+	}
 
-		MemberResponseDto.MemberInfo memberInfo = MemberResponseDto.MemberInfo.builder()
+	private void writeMemberInfoResponse(HttpServletResponse response, Member member) throws IOException {
+		MemberResponseDto.MemberInfo memberInfo = createMemberInfo(member);
+		setResponseProperties(response);
+		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(memberInfo));
+	}
+
+	private MemberResponseDto.MemberInfo createMemberInfo(Member member) {
+		return MemberResponseDto.MemberInfo.builder()
 			.id(member.getId())
 			.profileImage(member.getProfileImageUrl())
 			.firstName(member.getFirstName())
@@ -112,50 +139,45 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			.groups(member.getGroups().stream().map(GroupMapper::toGroupInfo).toList())
 			.successGameCount(GroupMapper.getCountSuccessGame(member))
 			.build();
-
-		// Bearer 토큰 헤더 설정
-		response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-		response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-
-		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(
-			memberInfo
-		));
 	}
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException failed) throws IOException {
+		BaseErrorCode errorCode = determineErrorCode(failed);
+		writeErrorResponse(response, errorCode, failed);
+	}
 
+	private BaseErrorCode determineErrorCode(AuthenticationException exception) {
+		if (exception instanceof BadCredentialsException)
+			return GlobalErrorCode.INVALID_CREDENTIALS;
+		if (exception instanceof UsernameNotFoundException)
+			return GlobalErrorCode.MEMBER_NOT_FOUND;
+		if (exception instanceof DisabledException)
+			return GlobalErrorCode.ACCOUNT_DISABLED;
+		if (exception instanceof LockedException)
+			return GlobalErrorCode.ACCOUNT_LOCKED;
+		if (exception instanceof AccountExpiredException)
+			return GlobalErrorCode.ACCOUNT_EXPIRED;
+		return GlobalErrorCode.LOGIN_FAILED;
+	}
+
+	private void writeErrorResponse(HttpServletResponse response, BaseErrorCode errorCode,
+		AuthenticationException exception) throws IOException {
+		setResponseProperties(response);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-
-		BaseErrorCode errorCode;
-
-		// 예외 종류에 따른 에러 코드 설정
-		if (failed instanceof BadCredentialsException) {
-			errorCode = GlobalErrorCode.INVALID_CREDENTIALS;
-		} else if (failed instanceof UsernameNotFoundException) {
-			errorCode = GlobalErrorCode.MEMBER_NOT_FOUND;
-		} else if (failed instanceof DisabledException) {
-			errorCode = GlobalErrorCode.ACCOUNT_DISABLED;
-		} else if (failed instanceof LockedException) {
-			errorCode = GlobalErrorCode.ACCOUNT_LOCKED;
-		} else if (failed instanceof AccountExpiredException) {
-			errorCode = GlobalErrorCode.ACCOUNT_EXPIRED;
-		} else {
-			errorCode = GlobalErrorCode.LOGIN_FAILED;
-		}
 
 		CommonResponse<?> errorResponse = CommonResponse.onFailure(
 			errorCode.getReason().getCode(),
 			errorCode.getReason().getMessage(),
-			failed.getMessage()
+			exception.getMessage()
 		);
 
 		objectMapper.writeValue(response.getOutputStream(), errorResponse);
 	}
 
+	private void setResponseProperties(HttpServletResponse response) {
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+	}
 }

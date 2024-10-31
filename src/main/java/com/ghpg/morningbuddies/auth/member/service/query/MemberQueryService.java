@@ -7,7 +7,7 @@ import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 
 public interface MemberQueryService {
-	MemberResponseDto.MemberInfo getMemberInfo(String refreshToken);
+	MemberResponseDto.MemberInfo getMyInfo();
 
 	List<GroupResponseDto.GroupInfo> getMyGroups();
 
