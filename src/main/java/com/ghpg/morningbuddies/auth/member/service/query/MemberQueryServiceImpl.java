@@ -18,7 +18,7 @@ import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
-import com.ghpg.morningbuddies.global.exception.refresh.RefreshException;
+import com.ghpg.morningbuddies.global.exception.refresh.RefreshTokenException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 	@Override
 	public List<GroupResponseDto.GroupInfo> getMyGroups() {
 		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new RefreshException(GlobalErrorCode.INVALID_TOKEN));
+			.orElseThrow(() -> new RefreshTokenException(GlobalErrorCode.INVALID_TOKEN));
 
 		List<Groups> foundGroups = currentMember.getGroups();
 

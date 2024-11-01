@@ -17,7 +17,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 	@EntityGraph(attributePaths = {"groups"})
 	Optional<Member> findByEmail(String email);
 
-	@EntityGraph(attributePaths = {"memberGroup", "memberGroup.groups"})
+	@EntityGraph(attributePaths = {"memberGroups", "memberGroups.group"})
 	Optional<Member> findMemberAndGroupsByEmail(String email);
 
 	// 해당 그룹에 속한 멤버 가져오기

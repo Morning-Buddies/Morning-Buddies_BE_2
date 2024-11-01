@@ -11,7 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.service.CustomUserDetailsService;
+import com.ghpg.morningbuddies.auth.member.service.query.CustomUserDetailsService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.JwtException.JwtException;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;

@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.auth.member.service.command;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 
 public interface MemberCommandService {
 	MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto joinDto);
@@ -12,4 +13,7 @@ public interface MemberCommandService {
 
 	// 그룹 탈퇴
 	void leaveGroup(Long groupId);
+
+	TokenDto.ReissueDto reissue(String oldRefreshToken);
+
 }

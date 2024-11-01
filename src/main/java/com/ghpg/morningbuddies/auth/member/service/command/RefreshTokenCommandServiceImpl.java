@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.auth.member.service;
+package com.ghpg.morningbuddies.auth.member.service.command;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
-public class RefreshTokenServiceImpl implements RefreshTokenService {
+public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandService {
 
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final MemberRepository memberRepository;

@@ -1,6 +1,5 @@
 package com.ghpg.morningbuddies.auth.member.controller;
 
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +9,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.service.command.MemberCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
+import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -40,9 +40,9 @@ public class AuthController {
 		@ApiResponse(responseCode = "200", description = "회원 가입 성공",
 			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class))),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			content = @Content(schema = @Schema(implementation = ErrorReason.class))),
 		@ApiResponse(responseCode = "409", description = "이미 존재하는 회원",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+			content = @Content(schema = @Schema(implementation = ErrorReason.class)))
 	})
 	@PostMapping("/join")
 	public CommonResponse<MemberResponseDto.MemberInfo> join(
@@ -62,9 +62,9 @@ public class AuthController {
 		@ApiResponse(responseCode = "200", description = "로그인 성공",
 			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class))),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+			content = @Content(schema = @Schema(implementation = ErrorReason.class))),
 		@ApiResponse(responseCode = "401", description = "인증 실패",
-			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+			content = @Content(schema = @Schema(implementation = ErrorReason.class)))
 	})
 	@PostMapping("/login")
 	public CommonResponse<MemberResponseDto.MemberInfo> login(

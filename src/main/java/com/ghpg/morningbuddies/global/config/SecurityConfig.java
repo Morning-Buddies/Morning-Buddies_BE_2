@@ -18,7 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.auth.member.service.RefreshTokenService;
+import com.ghpg.morningbuddies.auth.member.service.command.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 import com.ghpg.morningbuddies.global.security.jwt.LoginFilter;
@@ -45,7 +45,7 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtil jwtUtil;
 	private final ObjectMapper objectMapper;
-	private final RefreshTokenService refreshTokenService;
+	private final RefreshTokenCommandService refreshTokenService;
 	private final JwtFilter jwtFilter;
 
 	@Bean

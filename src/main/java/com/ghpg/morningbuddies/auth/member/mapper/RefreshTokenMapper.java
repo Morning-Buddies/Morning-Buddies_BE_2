@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.mapper;
 
+import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.RefreshToken;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
@@ -16,6 +17,13 @@ public class RefreshTokenMapper {
 			.refreshToken(refreshToken)
 			.expiration(JwtUtil.REFRESH_TOKEN_EXPIRATION_MS)
 			.member(member)
+			.build();
+	}
+
+	public static TokenDto.ReissueDto toTokenDto(String accessToken, String refreshToken) {
+		return TokenDto.ReissueDto.builder()
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
 			.build();
 	}
 }
