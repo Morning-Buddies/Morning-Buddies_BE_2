@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.google.firebase.database.annotations.Nullable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
@@ -74,6 +76,36 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
 		return handleExceptionInternalArgs(
 			ex, HttpHeaders.EMPTY, GlobalErrorCode.valueOf("BAD_ARGS_ERROR"), request, errors);
+	}
+
+	@Override
+	protected ResponseEntity<Object> handleExceptionInternal(
+		Exception ex,
+		@Nullable Object body,
+		HttpHeaders headers,
+		HttpStatusCode statusCode,
+		WebRequest request
+	) {
+		if (ex instanceof HandlerMethodValidationException) {
+			HandlerMethodValidationException validationEx = (HandlerMethodValidationException)ex;
+
+			// 첫 번째 에러 메시지 가져오기
+			String errorMessage = validationEx.getAllValidationResults().stream()
+				.flatMap(vr -> vr.getResolvableErrors().stream())
+				.map(error -> error.getDefaultMessage())
+				.findFirst()
+				.orElse(GlobalErrorCode.BAD_ARGS_ERROR.getMessage());
+
+			return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(CommonResponse.onFailure(
+					GlobalErrorCode.BAD_ARGS_ERROR.getCode(),
+					errorMessage,
+					null  // data를 null로 설정
+				));
+		}
+
+		return super.handleExceptionInternal(ex, body, headers, statusCode, request);
 	}
 
 	@ExceptionHandler

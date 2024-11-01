@@ -21,7 +21,7 @@ import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.service.RefreshTokenService;
+import com.ghpg.morningbuddies.auth.member.service.command.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
@@ -44,13 +44,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private final AuthenticationManager authenticationManager;
 	private final ObjectMapper objectMapper;
 	private final JwtUtil jwtUtil;
-	private final RefreshTokenService refreshTokenService;
+	private final RefreshTokenCommandService refreshTokenService;
 
 	public LoginFilter(
 		AuthenticationManager authenticationManager,
 		ObjectMapper objectMapper,
 		JwtUtil jwtUtil,
-		RefreshTokenService refreshTokenService) {
+		RefreshTokenCommandService refreshTokenService) {
 		this.authenticationManager = authenticationManager;
 		this.objectMapper = objectMapper;
 		this.jwtUtil = jwtUtil;

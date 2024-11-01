@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.auth.member.controller;
 
 import java.util.List;
 
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,22 +40,28 @@ public class MemberController {
 	private final MemberQueryService memberQueryService;
 	private final MemberCommandService memberCommandService;
 
-	@Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")
-	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "내 정보 조회 성공",
-			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class)))
-	})
-	@GetMapping("/me")
-	public CommonResponse<MemberResponseDto.MemberInfo> getMyInfo() {
-		return CommonResponse.onSuccess(memberQueryService.getMyInfo());
-	}
-
-	@PatchMapping("/me/password")
 	@Operation(summary = "비밀번호 변경", description = "비밀번호를 변경합니다.")
+	@PatchMapping("/me/password")
 	public CommonResponse<String> changePassword(@Valid @RequestBody MemberRequestDto.PasswordDto request) {
 		memberCommandService.changePassword(request);
 
 		return CommonResponse.onSuccess("비밀번호 변경 성공");
+	}
+
+	@Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "내 정보 조회 성공",
+			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class))),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "401", description = "인증 실패",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+		@ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음",
+			content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+	})
+	@GetMapping("/me")
+	public CommonResponse<MemberResponseDto.MemberInfo> getMyInfo() {
+		return CommonResponse.onSuccess(memberQueryService.getMyInfo());
 	}
 
 	@GetMapping("/me/groups")

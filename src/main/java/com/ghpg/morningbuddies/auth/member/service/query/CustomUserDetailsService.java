@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.auth.member.service;
+package com.ghpg.morningbuddies.auth.member.service.query;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
