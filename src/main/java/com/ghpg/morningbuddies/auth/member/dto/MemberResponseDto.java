@@ -42,7 +42,7 @@ public class MemberResponseDto {
 		private Integer successGameCount;
 
 		@Schema(description = "속한 그룹 목록")
-		private List<GroupResponseDto.GroupInfo> groups;
+		private GroupResponseDto.GroupListResponseDTO groups;
 	}
 
 	@Getter
@@ -63,5 +63,18 @@ public class MemberResponseDto {
 		@Schema(description = "이메일", example = "test@example.com")
 		private String email;
 
+	}
+
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
+	@Schema(description = "회원 요약 정보 리스트")
+	public static class MemberListResponseDTO {
+		@Schema(description = "전체 회원 수", example = "5")
+		private int totalCount;
+
+		@Schema(description = "회원 목록")
+		private List<MemberSummaryDTO> members;
 	}
 }

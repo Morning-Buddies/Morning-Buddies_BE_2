@@ -8,7 +8,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghpg.morningbuddies.auth.member.entity.enums.Gender;
 import com.ghpg.morningbuddies.auth.member.entity.enums.SocialType;
 import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
@@ -78,37 +77,38 @@ public class Member extends BaseEntity {
 
 	private boolean isActivated;
 
+	@Enumerated(EnumType.STRING)
 	private UserRole role;
 
-	@Builder.Default
 	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<Groups> groups = new ArrayList<>();
 
-	@Builder.Default
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<MemberAllowance> memberAllowances = new ArrayList<>();
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Recommend recommend;
 
-	@Builder.Default
 	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<ChatMessage> chatMessages = new ArrayList<>();
 
 	@OneToOne(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	private RefreshToken refreshToken;
 
-	@Builder.Default
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-	@JsonManagedReference // 순환 참조 방지
+	@Builder.Default
 	private List<MemberGroup> memberGroups = new ArrayList<>();
 
-	@Builder.Default
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<Notification> notifications = new ArrayList<>();
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<MemberChatRoom> chatRooms = new ArrayList<>();
+	@Builder.Default
+	private List<MemberChatRoom> memberChatRooms = new ArrayList<>();
 
 	/*
 	 * 사용자 편의 메서드

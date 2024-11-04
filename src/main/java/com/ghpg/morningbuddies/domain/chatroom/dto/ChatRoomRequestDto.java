@@ -1,14 +1,26 @@
 package com.ghpg.morningbuddies.domain.chatroom.dto;
 
-import lombok.*;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ChatRoomRequestDto {
 
-    private Long chatRoomId;
-    private String chatRoomName;
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
+	public static class ChatRoomInfo {
+
+		@Schema(description = "채팅방 ID", example = "1")
+		private Long id;
+
+		@Schema(description = "채팅방 이름", example = "아침형 인간 모임")
+		private String name;
+	}
 
 }

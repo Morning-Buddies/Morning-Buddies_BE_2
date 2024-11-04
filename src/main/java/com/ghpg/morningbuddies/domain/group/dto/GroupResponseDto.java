@@ -3,16 +3,19 @@ package com.ghpg.morningbuddies.domain.group.dto;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GroupResponseDto {
 
 	// 그룹 정보 DTO
@@ -21,14 +24,33 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class GroupDetailDTO {
+
+		@Schema(description = "그룹 ID", example = "1")
 		private Long groupId;
+
+		@Schema(description = "그룹 이름", example = "아침형 인간 모임")
 		private String groupName;
+
+		@Schema(description = "그룹 설명", example = "아침형 인간 모임입니다.")
 		private String description;
+
+		@Schema(description = "그룹 선호 기상 시간", example = "07:00", type = "string")
+		@JsonFormat(pattern = "HH:mm")
 		private LocalTime wakeUpTime;
+
+		@Schema(description = "그룹 최대 인원 수", example = "5")
 		private int currentParticipantCount;
+
+		@Schema(description = "그룹 최대 인원 수", example = "5")
 		private int maxParticipantCount;
+
+		@Schema(description = "그룹 이미지 URL", example = "https://example.com/group.jpg")
 		private String imageUrl;
-		private List<MemberResponseDto.MemberSummaryDTO> members;
+
+		@Schema(description = "그룹 멤버 목록")
+		private MemberResponseDto.MemberListResponseDTO members;
+
+		@Schema(description = "그룹 리더 정보")
 		private LeaderDTO leader;
 	}
 
@@ -53,6 +75,18 @@ public class GroupResponseDto {
 		}
 	}
 
+	// 내가 속한 그룹 리스트 응답 DTO
+	@Getter
+	@Builder
+	@NoArgsConstructor(access = AccessLevel.PROTECTED)
+	@AllArgsConstructor
+	public static class GroupListResponseDTO {
+		private int totalCount;
+
+		@Schema(description = "내가 속한 그룹 목록")
+		private List<GroupResponseDto.GroupInfo> groups;
+	}
+
 	@Getter
 	@Builder
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,6 +94,9 @@ public class GroupResponseDto {
 	public static class GroupInfo {
 		private Long id;
 		private String name;
+
+		@Schema(description = "그룹 선호 기상 시간", example = "07:00", type = "string")
+		@JsonFormat(pattern = "HH:mm")
 		private LocalTime wakeupTime;
 	}
 

@@ -136,7 +136,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			.firstName(member.getFirstName())
 			.lastName(member.getLastName())
 			.preferredWakeupTime(member.getPreferredWakeupTime())
-			.groups(member.getGroups().stream().map(GroupMapper::toGroupInfo).toList())
+			.groups(GroupMapper.toGroupListResponseDTO(member.getGroups()))
 			.successGameCount(GroupMapper.getCountSuccessGame(member))
 			.build();
 	}

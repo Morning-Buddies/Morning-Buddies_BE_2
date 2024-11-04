@@ -1,20 +1,12 @@
 package com.ghpg.morningbuddies.domain.group.service;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.entity.MemberChatRoom;
-import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberChatRoomRepository;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
-import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomRequestDto;
 import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
 import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
 import com.ghpg.morningbuddies.domain.group.dto.GroupRequestDto;
@@ -22,6 +14,7 @@ import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.GroupJoinRequest;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.group.entity.enums.RequestStatus;
+import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
 import com.ghpg.morningbuddies.domain.group.repository.GroupJoinRequestRepository;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
 import com.ghpg.morningbuddies.domain.notification.service.NotificationCommandService;
@@ -50,75 +43,29 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final ChatRoomRepository chatRoomRepository;
 	private final MemberChatRoomRepository memberChatRoomRepository;
 
-	/**
-	 * 그룹 생성
-	 * @param requestDto
-	 * @param file
-	 * @return GroupResponseDto.GroupDetailDTO
-	 */
 	@Override
 	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
 
+		// 현재 로그인한 사용자 정보 가져오기
 		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberRepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		Optional<Groups> existingGroup = groupRepository.findByGroupName(requestDto.getGroupName());
-		if (existingGroup.isPresent()) {
-			throw new GroupException(GlobalErrorCode.GROUP_ALREADY_CREATED);
-		}
-
+		// 이미지 업로드
 		String uploadedGroupImageUrl = null;
 		if (file != null && !file.isEmpty()) {
 			uploadedGroupImageUrl = s3Service.uploadImage(file);
 
 		}
 
-		Groups group = Groups.builder()
-			.groupName(requestDto.getGroupName())
-			.description(requestDto.getDescription())
-			.wakeupTime(requestDto.getWakeUpTime())
-			.currentParticipantCount(1)
-			.leader(leader)
-			.maxParticipantCount(requestDto.getMaxParticipantCount())
-			.isActivated(true)
-			.groupImageUrl(uploadedGroupImageUrl)
-			.build();
-
-		group.addMember(leader);
-
-		Groups savedGroup = groupRepository.save(group);
-
-		ArrayList<Member> members = new ArrayList<>();
-		members.add(leader);
+		// 그룹 생성
+		Groups newGroup = GroupMapper.toNewGroup(requestDto, leader, uploadedGroupImageUrl);
+		newGroup = groupRepository.save(newGroup);
 
 		// 채팅방 생성
-		ChatRoomRequestDto chatRoomDto = chatRoomCommandService.createChatRoom(savedGroup.getId(), leader);
+		chatRoomCommandService.createNewChatRoom(newGroup, leader);
 
-		// 생성된 채팅방 조회
-		ChatRoom chatRoom = chatRoomRepository.findById(chatRoomDto.getChatRoomId())
-			.orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
-
-		// MemberChatRoom 엔터티 생성
-		MemberChatRoom memberChatRoom = MemberChatRoom.builder()
-			.member(leader)
-			.chatRoom(chatRoom)
-			.build();
-
-		memberChatRoomRepository.save(memberChatRoom);
-
-		return GroupResponseDto.GroupDetailDTO.builder()
-			.groupId(savedGroup.getId())
-			.groupName(savedGroup.getGroupName())
-			.wakeUpTime(savedGroup.getWakeupTime())
-			.currentParticipantCount(savedGroup.getCurrentParticipantCount())
-			.maxParticipantCount(
-				requestDto.getMaxParticipantCount() != null ? requestDto.getMaxParticipantCount() : 0) // Null 체크
-			.description(savedGroup.getDescription())
-			.imageUrl(savedGroup.getGroupImageUrl())
-			.members(members.stream().map(MemberMapper::toMemberSummaryDTO).collect(Collectors.toList()))
-			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
-			.build();
+		return GroupMapper.toGroupDetailDto(newGroup, uploadedGroupImageUrl);
 
 	}
 
@@ -133,41 +80,12 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request,
 		MultipartFile file) {
 
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member member = memberRepository.findByEmail(currentEmail)
+		// 현재 로그인한 사용자 정보 가져오기
+		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
+		Member currentMember = memberRepository.findByEmail(currentUserEmail)
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		Groups group = groupRepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
-
-		if (!group.getLeader().equals(member)) {
-			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-		}
-
-		String uploadedGroupImageUrl = group.getGroupImageUrl();
-		if (file != null && !file.isEmpty()) {
-			uploadedGroupImageUrl = s3Service.uploadImage(file);
-		}
-
-		group.setGroupName(request.getGroupName());
-		group.setWakeupTime(request.getWakeUpTime());
-		group.setMaxParticipantCount(request.getMaxParticipantCount());
-		group.setDescription(request.getDescription());
-		group.setGroupImageUrl(uploadedGroupImageUrl);
-
-		Groups savedGroup = groupRepository.save(group);
-
-		return GroupResponseDto.GroupDetailDTO.builder()
-			.groupId(savedGroup.getId())
-			.groupName(savedGroup.getGroupName())
-			.description(savedGroup.getDescription())
-			.wakeUpTime(savedGroup.getWakeupTime())
-			.currentParticipantCount(savedGroup.getCurrentParticipantCount())
-			.maxParticipantCount(savedGroup.getMaxParticipantCount())
-			.imageUrl(uploadedGroupImageUrl)
-			.members(savedGroup.getMembers())
-			.leader(GroupResponseDto.LeaderDTO.from(savedGroup.getLeader()))
-			.build();
+		return null;
 	}
 
 	/**

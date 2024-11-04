@@ -2,8 +2,6 @@ package com.ghpg.morningbuddies.domain.group.controller;
 
 import java.util.List;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -27,6 +25,13 @@ import com.ghpg.morningbuddies.domain.group.service.GroupCommandService;
 import com.ghpg.morningbuddies.domain.group.service.GroupQueryService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -42,19 +47,43 @@ public class GroupController {
 	private final ObjectMapper objectMapper;
 
 	// 그룹 생성
-	@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@Operation(summary = "그룹 생성", description = "그룹을 생성합니다.")
-	public CommonResponse<GroupResponseDto.GroupDetailDTO> createGroup(@RequestPart("request") String requestJson,
-		@RequestPart(value = "file", required = false) MultipartFile file) throws JsonProcessingException {
-
-		GroupRequestDto.CreateGroupDto request = objectMapper.readValue(requestJson,
+	@Parameters({
+		@Parameter(
+			name = "request",
+			description = "그룹 생성 정보",
+			required = true,
+			content = @Content(
+				mediaType = MediaType.APPLICATION_JSON_VALUE,
+				schema = @Schema(implementation = GroupRequestDto.CreateGroupDto.class),
+				examples = @ExampleObject(
+					name = "기본 예시",
+					value = """
+						{
+						    "groupName": "아침 일찍 일어나기",
+						    "wakeUpTime": "06:00",
+						    "maxParticipantCount": 5,
+						    "description": "아침 일찍 일어나서 운동하고 싶은 사람들을 위한 그룹입니다."
+						}
+						"""
+				)
+			)
+		),
+		@Parameter(
+			name = "image",
+			description = "그룹 이미지",
+			content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+				schema = @Schema(type = "string", format = "binary"))
+		)
+	})
+	@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public CommonResponse<GroupResponseDto.GroupDetailDTO> createGroup(
+		@RequestPart("request") String requestString,
+		@RequestPart(value = "image", required = false) MultipartFile file
+	) throws JsonProcessingException {
+		GroupRequestDto.CreateGroupDto request = objectMapper.readValue(requestString,
 			GroupRequestDto.CreateGroupDto.class);
-
-		log.info("request: {}", request);
-
-		GroupResponseDto.GroupDetailDTO group = groupCommandService.createGroup(request, file);
-
-		return CommonResponse.onSuccess(group);
+		return CommonResponse.onSuccess(groupCommandService.createGroup(request, file));
 	}
 
 	// 그룹 정보 가져오기

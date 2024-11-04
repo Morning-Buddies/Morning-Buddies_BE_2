@@ -1,6 +1,5 @@
 package com.ghpg.morningbuddies.auth.member.service.query;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,10 +11,11 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
+import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.exception.refresh.RefreshTokenException;
@@ -43,25 +43,13 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 	}
 
 	@Override
-	public List<GroupResponseDto.GroupInfo> getMyGroups() {
+	public GroupResponseDto.GroupListResponseDTO getMyGroups() {
 		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new RefreshTokenException(GlobalErrorCode.INVALID_TOKEN));
 
 		List<Groups> foundGroups = currentMember.getGroups();
 
-		List<GroupResponseDto.GroupInfo> groupInfos = new ArrayList<>();
-
-		if (foundGroups != null) {
-			for (Groups foundGroup : foundGroups) {
-				groupInfos.add(GroupResponseDto.GroupInfo.builder()
-					.id(foundGroup.getId())
-					.name(foundGroup.getGroupName())
-					.wakeupTime(foundGroup.getWakeupTime())
-					.build());
-			}
-		}
-
-		return groupInfos;
+		return GroupMapper.toGroupListResponseDTO(foundGroups);
 	}
 
 	// 회원이 가입한 채팅방 리스트 가져오기

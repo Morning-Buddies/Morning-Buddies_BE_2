@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.group.converter.GroupConverter;
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
@@ -39,23 +38,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 그룹 정보 가져오기
 	@Override
 	public GroupResponseDto.GroupDetailDTO getGroupDetailById(Long groupId) {
-		Groups group = groupRepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
-
-		List<Member> allMemberInGroup = memberRepository.findAllMemberByGroupId(groupId);
-
-		return GroupResponseDto.GroupDetailDTO.builder()
-			.groupId(groupId)
-			.groupName(group.getGroupName())
-			.wakeUpTime(group.getWakeupTime())
-			.currentParticipantCount(group.getCurrentParticipantCount())
-			.maxParticipantCount(group.getMaxParticipantCount())
-			.description(group.getDescription())
-			.imageUrl(group.getGroupImageUrl())
-			.leader(GroupResponseDto.LeaderDTO.from(group.getLeader()))
-			.members(allMemberInGroup.stream()
-				.map(MemberMapper::toMemberSummaryDTO)
-				.collect(Collectors.toList())).build();
+		return null;
 	}
 
 	@Override

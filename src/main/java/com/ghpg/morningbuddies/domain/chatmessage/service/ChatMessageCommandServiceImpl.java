@@ -10,7 +10,7 @@ import com.ghpg.morningbuddies.domain.chatmessage.MessageType;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
 import com.ghpg.morningbuddies.domain.chatmessage.repository.ChatMessageRepository;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
 import com.ghpg.morningbuddies.domain.group.entity.Groups;
 import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
