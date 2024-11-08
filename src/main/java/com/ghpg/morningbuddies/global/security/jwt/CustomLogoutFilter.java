@@ -62,7 +62,7 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 			String userEmail = jwtUtil.getEmail(accessToken);
 
 			// Perform logout operations
-			performLogout(response, userEmail, refreshToken);
+			performLogout(response, refreshToken);
 			writeSuccessResponse(response);
 
 		} catch (JwtException e) {
@@ -72,15 +72,15 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private void performLogout(HttpServletResponse response, String userEmail, String refreshToken) {
+	private void performLogout(HttpServletResponse response, String refreshToken) {
 		// Remove refresh token from database if exists
 		if (refreshToken != null) {
 			try {
 				if (jwtUtil.validateToken(refreshToken) && jwtUtil.isRefreshToken(refreshToken)) {
-					refreshTokenService.removeRefreshToken(userEmail);
+					refreshTokenService.removeRefreshToken(refreshToken);
 				}
 			} catch (Exception e) {
-				log.warn("Failed to remove refresh token for user: {}", userEmail);
+				log.error("Failed to remove refresh token from database: {}", e.getMessage());
 			}
 		}
 
