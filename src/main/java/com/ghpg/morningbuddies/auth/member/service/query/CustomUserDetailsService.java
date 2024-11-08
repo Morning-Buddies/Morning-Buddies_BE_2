@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.service.query;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private final MemberRepository memberRepository;
 
 	@Override
-	public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String email) throws
+	public UserDetails loadUserByUsername(String email) throws
 		UsernameNotFoundException {
 
 		//DB에서 조회

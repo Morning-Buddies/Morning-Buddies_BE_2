@@ -14,7 +14,7 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
 import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.group.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
@@ -70,8 +70,10 @@ public class Groups extends BaseEntity {
 
 	private String groupImageUrl;
 
-	private boolean isActivated;
+	@ColumnDefault("true")
+	private Boolean isActivated;
 
+	@Column(nullable = false, columnDefinition = "TIME default '00:05:00'")
 	private LocalTime timeOut;
 
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

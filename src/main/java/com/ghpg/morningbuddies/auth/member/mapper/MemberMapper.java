@@ -41,6 +41,7 @@ public class MemberMapper {
 			.build();
 	}
 
+	// 회원 가입 시, 회원 정보를 반환하는 메서드
 	public MemberResponseDto.MemberInfo toNewMemberInfo(Member member) {
 		return MemberResponseDto.MemberInfo.builder()
 			.id(member.getId())
@@ -53,6 +54,7 @@ public class MemberMapper {
 			.build();
 	}
 
+	// 회원 정보를 요약해서 반환하는 메서드
 	public static MemberResponseDto.MemberSummaryDTO toMemberSummaryDTO(Member member) {
 		return MemberResponseDto.MemberSummaryDTO.builder()
 			.id(member.getId())

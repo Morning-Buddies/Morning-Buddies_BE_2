@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.chatroom.ChatRoom;
+import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 	boolean existsByEmail(String email);

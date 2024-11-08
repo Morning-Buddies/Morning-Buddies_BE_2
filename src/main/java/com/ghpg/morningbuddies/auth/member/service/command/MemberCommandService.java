@@ -7,7 +7,7 @@ import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 public interface MemberCommandService {
 	MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto joinDto);
 
-	void changePassword(MemberRequestDto.PasswordDto request);
+	Void changePassword(MemberRequestDto.PasswordDto request);
 
 	void updateFcmToken(MemberRequestDto.FcmTokenDto request);
 

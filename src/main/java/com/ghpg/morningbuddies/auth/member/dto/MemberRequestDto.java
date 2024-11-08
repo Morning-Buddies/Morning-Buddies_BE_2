@@ -85,6 +85,7 @@ public class MemberRequestDto {
 		@Schema(description = "비밀번호 (영문, 숫자, 특수문자 포함 8자 이상)",
 			example = "password1234!")
 		private String password;
+
 	}
 
 	@Getter

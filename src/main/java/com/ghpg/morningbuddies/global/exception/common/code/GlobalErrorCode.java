@@ -40,7 +40,8 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	LOGIN_FAILED(UNAUTHORIZED, "AUTH401_17", "로그인에 실패하였습니다."),
 	INVALID_AUTHENTICATION(UNAUTHORIZED, "AUTH401_18", "인증 정보가 올바르지 않습니다."),
 	INVALID_LOGIN_REQUEST(BAD_REQUEST, "AUTH400_1", "로그인 요청이 올바르지 않습니다."),
-
+	LOGOUT_FAILED(UNAUTHORIZED, "AUTH401_19", "로그아웃에 실패하였습니다."),
+	
 	// 403 Forbidden - 인증 거부
 	AUTHENTICATION_DENIED(FORBIDDEN, "AUTH403_1", "인증이 거부 되었습니다."),
 

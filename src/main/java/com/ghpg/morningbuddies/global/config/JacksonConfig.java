@@ -25,9 +25,9 @@ public class JacksonConfig {
 		// JavaTimeModule 생성 및 LocalTime 포맷터 설정
 		JavaTimeModule javaTimeModule = new JavaTimeModule();
 		javaTimeModule.addSerializer(LocalTime.class,
-			new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
+			new LocalTimeSerializer(DateTimeFormatter.ofPattern("HH:mm")));
 		javaTimeModule.addDeserializer(LocalTime.class,
-			new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm:ss")));
+			new LocalTimeDeserializer(DateTimeFormatter.ofPattern("HH:mm")));
 
 		objectMapper.registerModule(javaTimeModule);
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

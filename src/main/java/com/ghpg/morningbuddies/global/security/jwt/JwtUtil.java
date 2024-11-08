@@ -7,6 +7,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import com.ghpg.morningbuddies.global.exception.JwtException.JwtException;
@@ -17,6 +18,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JwtUtil {
@@ -25,6 +28,7 @@ public class JwtUtil {
 	private static final String ROLE_CLAIM = "role";
 	private static final String TOKEN_TYPE_CLAIM = "tokenType";
 	private static final String BEARER_PREFIX = "Bearer ";
+	private static final String COOKIE_NAME = "refresh_token";
 
 	// Token expiration times
 	public static final long ACCESS_TOKEN_EXPIRATION_MS = 36000000; // 10시간
@@ -105,6 +109,26 @@ public class JwtUtil {
 			return bearerToken.substring(BEARER_PREFIX.length());
 		}
 		throw new JwtException(GlobalErrorCode.EMPTY_TOKEN);
+	}
+
+	public String extractAccessToken(HttpServletRequest request) {
+		String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+		if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
+			return bearerToken.substring(BEARER_PREFIX.length());
+		}
+		throw new JwtException(GlobalErrorCode.INVALID_ACCESS_TOKEN);
+	}
+
+	public String extractRefreshToken(HttpServletRequest request) {
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(COOKIE_NAME)) {
+					return cookie.getValue();
+				}
+			}
+		}
+		return null;
 	}
 
 	public boolean validateToken(String token) {

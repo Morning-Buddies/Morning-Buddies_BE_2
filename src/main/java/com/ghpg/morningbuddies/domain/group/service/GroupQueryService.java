@@ -1,11 +1,11 @@
 package com.ghpg.morningbuddies.domain.group.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
-
-import java.util.List;
 
 public interface GroupQueryService {
 
