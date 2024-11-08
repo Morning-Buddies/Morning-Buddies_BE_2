@@ -40,10 +40,9 @@ public class MemberController {
 
 	@Operation(summary = "비밀번호 변경", description = "비밀번호를 변경합니다.")
 	@PatchMapping("/me/password")
-	public CommonResponse<String> changePassword(@Valid @RequestBody MemberRequestDto.PasswordDto request) {
-		memberCommandService.changePassword(request);
+	public CommonResponse<Void> changePassword(@Valid @RequestBody MemberRequestDto.PasswordDto request) {
 
-		return CommonResponse.onSuccess("비밀번호 변경 성공");
+		return CommonResponse.onSuccess(memberCommandService.changePassword(request));
 	}
 
 	@Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")

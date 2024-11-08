@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.auth.member.service.command.RefreshTokenCommandService;
+import com.ghpg.morningbuddies.global.security.jwt.CustomLogoutFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtFilter;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 import com.ghpg.morningbuddies.global.security.jwt.LoginFilter;
@@ -62,13 +64,20 @@ public class SecurityConfig {
 	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authenticationConfiguration,
 		MemberRepository memberRepository, JwtFilter jwtFilter) throws Exception {
 
+		// 로그인 필터 설정
 		LoginFilter loginFilter = new LoginFilter(
 			authenticationManager(authenticationConfiguration),
 			objectMapper,
 			jwtUtil,
 			refreshTokenService);
-
 		loginFilter.setFilterProcessesUrl("/auth/login");
+
+		// 로그아웃 필터 생성
+		CustomLogoutFilter logoutFilter = new CustomLogoutFilter(
+			jwtUtil,
+			refreshTokenService,
+			objectMapper
+		);
 
 		http
 			.csrf((auth) -> auth.disable())
@@ -85,6 +94,7 @@ public class SecurityConfig {
 				.authenticated())
 			.addFilterBefore(jwtFilter, LoginFilter.class)
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(logoutFilter, LogoutFilter.class)
 			.sessionManagement((session) -> session
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

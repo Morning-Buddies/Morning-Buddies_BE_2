@@ -34,5 +34,11 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
 		log.info("Refresh Token saved for email: {}", email);
 
 	}
+
+	@Override
+	public void removeRefreshToken(String refreshToken) {
+		refreshTokenRepository.deleteByRefreshToken(refreshToken);
+
+	}
 }
 

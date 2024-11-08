@@ -50,12 +50,13 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	}
 
 	@Override
-	public void changePassword(MemberRequestDto.PasswordDto request) {
+	public Void changePassword(MemberRequestDto.PasswordDto request) {
 		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		currentMember.changePassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
+		return null;
 	}
 
 	@Override
@@ -92,7 +93,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	@Override
 	public TokenDto.ReissueDto reissue(String oldRefreshToken) {
 		// 검증은 Controller에서 함
-		
+
 		// 1. Token에서 정보 추출
 		String email = jwtUtil.getEmail(oldRefreshToken);
 		String role = jwtUtil.getRole(oldRefreshToken);
