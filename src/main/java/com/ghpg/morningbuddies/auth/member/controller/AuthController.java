@@ -62,4 +62,20 @@ public class AuthController {
 		return null;
 	}
 
+	@Operation(summary = "로그아웃", description = "로그아웃합니다.")
+	@ApiResponse(responseCode = "200", description = "로그아웃 성공",
+		content = @Content(schema = @Schema(implementation = Void.class)))
+	@PostMapping("/logout")
+	public CommonResponse<Void> logout() {
+		return null;
+	}
+
+	@Operation(summary = "회원 탈퇴", description = "회원을 탈퇴합니다.")
+	@ApiResponse(responseCode = "200", description = "회원 탈퇴 성공",
+		content = @Content(schema = @Schema(implementation = Void.class)))
+	@PostMapping("/withdraw")
+	public CommonResponse<Void> withdraw() {
+		return CommonResponse.onSuccess(memberCommandService.withdraw());
+	}
+
 }

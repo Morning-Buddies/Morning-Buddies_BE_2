@@ -9,7 +9,9 @@ public interface MemberCommandService {
 
 	Void changePassword(MemberRequestDto.PasswordDto request);
 
-	void updateFcmToken(MemberRequestDto.FcmTokenDto request);
+	Void withdraw();
+
+	Void updateFcmToken(MemberRequestDto.FcmTokenDto request);
 
 	// 그룹 탈퇴
 	void leaveGroup(Long groupId);

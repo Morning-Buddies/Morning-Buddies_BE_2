@@ -7,7 +7,6 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,7 +41,7 @@ public class RefreshToken extends BaseEntity {
 
 	private long expiration;
 
-	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
 

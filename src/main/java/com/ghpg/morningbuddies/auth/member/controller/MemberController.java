@@ -55,20 +55,22 @@ public class MemberController {
 	}
 
 	@Operation(summary = "내 그룹 조회", description = "내가 속한 그룹을 조회합니다.")
-	@GetMapping("/me/groups")
 	@ApiResponse(responseCode = "200", description = "내 그룹 조회 성공", content = {
 		@Content(schema = @Schema(implementation = GroupResponseDto.GroupListResponseDTO.class))
 	})
+	@GetMapping("/me/groups")
 	public CommonResponse<GroupResponseDto.GroupListResponseDTO> getMyGroups() {
 		return CommonResponse.onSuccess(memberQueryService.getMyGroups());
 	}
 
-	@PostMapping("/me/fcm-token")
 	@Operation(summary = "FCM 토큰 등록", description = "FCM 토큰을 등록합니다.")
-	public CommonResponse<String> updateFcmToken(@Valid @RequestBody MemberRequestDto.FcmTokenDto request) {
-		memberCommandService.updateFcmToken(request);
+	@ApiResponse(responseCode = "200", description = "FCM 토큰 등록 성공", content = {
+		@Content(schema = @Schema(implementation = String.class))
+	})
+	@PostMapping("/me/fcm-token")
+	public CommonResponse<Void> updateFcmToken(@Valid @RequestBody MemberRequestDto.FcmTokenDto request) {
 
-		return CommonResponse.onSuccess("FCM 토큰 갱신 성공");
+		return CommonResponse.onSuccess(memberCommandService.updateFcmToken(request));
 	}
 
 	// 그룹 탈퇴

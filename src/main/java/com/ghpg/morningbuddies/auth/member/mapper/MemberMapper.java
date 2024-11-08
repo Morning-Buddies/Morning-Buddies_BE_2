@@ -37,7 +37,7 @@ public class MemberMapper {
 			.lastName(member.getLastName())
 			.preferredWakeupTime(member.getPreferredWakeupTime())
 			.successGameCount(GroupMapper.getCountSuccessGame(member))
-			.groups(null)
+			.groups(GroupMapper.toGroupListResponseDTO(member.getGroups()))
 			.build();
 	}
 

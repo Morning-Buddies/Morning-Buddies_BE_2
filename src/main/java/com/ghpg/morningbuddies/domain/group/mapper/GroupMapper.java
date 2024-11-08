@@ -86,6 +86,7 @@ public class GroupMapper {
 			.totalCount(groups.size())
 			.groups(groups.stream()
 				.map(group -> GroupResponseDto.GroupInfo.builder()
+					.id(group.getId())
 					.name(group.getGroupName())
 					.wakeupTime(group.getWakeupTime())
 					.build())

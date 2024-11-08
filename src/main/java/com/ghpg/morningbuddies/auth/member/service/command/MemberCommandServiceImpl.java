@@ -60,11 +60,23 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	}
 
 	@Override
-	public void updateFcmToken(MemberRequestDto.FcmTokenDto request) {
+	public Void withdraw() {
+		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
+			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+
+		refreshTokenRepository.deleteByMemberId(currentMember.getId());
+		currentMember.delete();
+
+		return null;
+	}
+
+	@Override
+	public Void updateFcmToken(MemberRequestDto.FcmTokenDto request) {
 		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		currentMember.updateFcmToken(request.getFcmToken(), request.getDeviceId());
+		return null;
 	}
 
 	// 그룹 탈퇴

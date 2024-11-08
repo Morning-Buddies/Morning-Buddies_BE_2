@@ -31,4 +31,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
 	void deleteByEmail(String email);
 
 	Optional<RefreshToken> findByRefreshToken(String refreshToken);
+
+	boolean existsByMemberId(Long memberId);
 }

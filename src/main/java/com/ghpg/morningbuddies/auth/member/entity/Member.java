@@ -75,7 +75,7 @@ public class Member extends BaseEntity {
 
 	private String phoneNumber;
 
-	private boolean isActivated;
+	private boolean isDeleted;
 
 	@Enumerated(EnumType.STRING)
 	private UserRole role;
@@ -124,5 +124,9 @@ public class Member extends BaseEntity {
 
 	public void setRefreshToken(RefreshToken refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+
+	public void delete() {
+		this.isDeleted = true;
 	}
 }

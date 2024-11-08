@@ -1,10 +1,12 @@
 package com.ghpg.morningbuddies.auth.member.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +32,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
 	// 회원 전화번호로 회원 찾기
 	Optional<Member> findByPhoneNumber(String phoneNumber);
+
+	// Soft delete된 회원들 중 특정 시간 이전에 수정된 회원들을 실제로 삭제하는 메서드
+	@Modifying
+	@Query("DELETE FROM Member m WHERE m.isDeleted = true AND m.updatedAt < :beforeDate")
+	int deleteAllByIsDeletedTrueAndUpdatedAtBefore(@Param("beforeDate") LocalDateTime beforeDate);
+
 }
