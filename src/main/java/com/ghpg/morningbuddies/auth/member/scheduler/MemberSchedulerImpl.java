@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberSchedulerImpl implements MemberScheduler {
 
 	private final MemberRepository memberRepository;
-	private static final int RETENTION_HOURS = 24; // 삭제 마크 후 24시간 유지
+	private static final int RETENTION_HOURS = 24 * 7; // 1주일
 
 	@Scheduled(cron = "0 0 * * * *") // 매 시간 0분 0초에 실행
 	@Transactional
