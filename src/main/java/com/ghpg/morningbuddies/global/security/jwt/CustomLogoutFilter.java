@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ghpg.morningbuddies.auth.member.service.command.RefreshTokenCommandService;
+import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.JwtException.JwtException;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class CustomLogoutFilter extends OncePerRequestFilter {
 
-	private static final String LOGOUT_URL = "/auth/logout";
+	private static final String LOGOUT_URL = "/api/v1/auth/logout";
 	private static final String COOKIE_NAME = "refresh_token";
 
 	private final JwtUtil jwtUtil;

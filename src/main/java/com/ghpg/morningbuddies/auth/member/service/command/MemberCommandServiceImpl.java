@@ -8,16 +8,12 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.entity.MemberGroup;
-import com.ghpg.morningbuddies.auth.member.mapper.MemberMapper;
-import com.ghpg.morningbuddies.auth.member.mapper.RefreshTokenMapper;
-import com.ghpg.morningbuddies.auth.member.repository.MemberGroupRepository;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.auth.member.repository.RefreshTokenRepository;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
-import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
+import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
+import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
+import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
+import com.ghpg.morningbuddies.domain.membergroup.repository.MemberGroupJPARepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
-import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
@@ -30,28 +26,27 @@ import lombok.RequiredArgsConstructor;
 public class MemberCommandServiceImpl implements MemberCommandService {
 
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	private final MemberRepository memberRepository;
-	private final GroupRepository groupRepository;
-	private final MemberGroupRepository memberGroupRepository;
-	private final MemberMapper memberMapper;
+	private final MemberJPARepository memberJPARepository;
+	private final GroupJPARepository groupJPARepository;
+	private final MemberGroupJPARepository memberGroupJPARepository;
 	private final RefreshTokenCommandService refreshTokenCommandService;
 	private final JwtUtil jwtUtil;
-	private final RefreshTokenRepository refreshTokenRepository;
+	private final RefreshTokenJPARepository refreshTokenJPARepository;
 
 	@Override
 	public MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto request) {
 
-		Member member = memberMapper.toMember(request);
+		Member member = Member.createMember(request, bCryptPasswordEncoder);
 
-		memberRepository.save(member);
+		memberJPARepository.save(member);
 
-		return memberMapper.toNewMemberInfo(member);
+		return MemberResponseDto.MemberInfo.of(member);
 
 	}
 
 	@Override
 	public Void changePassword(MemberRequestDto.PasswordDto request) {
-		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
+		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		currentMember.changePassword(bCryptPasswordEncoder.encode(request.getPassword()));
@@ -61,10 +56,10 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 	@Override
 	public Void withdraw() {
-		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
+		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		refreshTokenRepository.deleteByMemberId(currentMember.getId());
+		refreshTokenJPARepository.deleteByMemberId(currentMember.getId());
 		currentMember.delete();
 
 		return null;
@@ -72,7 +67,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 	@Override
 	public Void updateFcmToken(MemberRequestDto.FcmTokenDto request) {
-		Member currentMember = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
+		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
 		currentMember.updateFcmToken(request.getFcmToken(), request.getDeviceId());
@@ -82,23 +77,23 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	// 그룹 탈퇴
 	@Override
 	public void leaveGroup(Long groupId) {
-		Member member = memberRepository.findByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-
-		Groups group = groupRepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
-
-		MemberGroup memberGroup = memberGroupRepository.findByMemberAndGroup(member, group)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
-
-		if (group.getLeader().equals(member)) {
-
-			throw new GroupException(GlobalErrorCode.LEADER_CANNOT_LEAVE_GROUP);
-		}
-
-		memberGroupRepository.delete(memberGroup);
-
-		group.setCurrentParticipantCount(group.getCurrentParticipantCount() - 1);
+		// Member member = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
+		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		//
+		// Groups group = groupJPARepository.findById(groupId)
+		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+		//
+		// MemberGroup memberGroup = memberGroupJPARepository.findByMemberAndGroup(member, group)
+		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
+		//
+		// if (group.getLeader().equals(member)) {
+		//
+		// 	throw new GroupException(GlobalErrorCode.LEADER_CANNOT_LEAVE_GROUP);
+		// }
+		//
+		// memberGroupJPARepository.delete(memberGroup);
+		//
+		// group.setCurrentParticipantCount(group.getCurrentParticipantCount() - 1);
 
 	}
 
@@ -117,6 +112,6 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 		// 새로운 refresh token 저장
 		refreshTokenCommandService.saveNewRefreshToken(email, newRefreshToken);
 
-		return RefreshTokenMapper.toTokenDto(newAccessToken, newRefreshToken);
+		return TokenDto.ReissueDto.from(newAccessToken, newRefreshToken);
 	}
 }

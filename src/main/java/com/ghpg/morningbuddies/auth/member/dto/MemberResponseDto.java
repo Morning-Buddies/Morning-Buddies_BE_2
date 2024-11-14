@@ -4,7 +4,8 @@ import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -43,6 +44,18 @@ public class MemberResponseDto {
 
 		@Schema(description = "속한 그룹 목록")
 		private GroupResponseDto.GroupListResponseDTO groups;
+
+		public static MemberInfo of(Member member) {
+			return MemberInfo.builder()
+				.id(member.getId())
+				.profileImage(member.getProfileImageUrl())
+				.firstName(member.getFirstName())
+				.lastName(member.getLastName())
+				.preferredWakeupTime(member.getPreferredWakeupTime())
+				.successGameCount(member.getSuccessGameCount())
+				.groups(GroupResponseDto.GroupListResponseDTO.of(member.getGroups()))
+				.build();
+		}
 	}
 
 	@Getter
@@ -63,6 +76,15 @@ public class MemberResponseDto {
 		@Schema(description = "이메일", example = "test@example.com")
 		private String email;
 
+		public static MemberSummaryDTO of(Member member) {
+			return MemberSummaryDTO.builder()
+				.id(member.getId())
+				.firstName(member.getFirstName())
+				.lastName(member.getLastName())
+				.email(member.getEmail())
+				.build();
+		}
+
 	}
 
 	@Getter
@@ -75,6 +97,15 @@ public class MemberResponseDto {
 		private int totalCount;
 
 		@Schema(description = "회원 목록")
-		private List<MemberSummaryDTO> members;
+		private List<MemberSummaryDTO> memberSummaryDTOS;
+
+		public static MemberListResponseDTO of(List<Member> members) {
+			return MemberListResponseDTO.builder()
+				.totalCount(members.size())
+				.memberSummaryDTOS(members.stream()
+					.map(MemberSummaryDTO::of)
+					.toList())
+				.build();
+		}
 	}
 }

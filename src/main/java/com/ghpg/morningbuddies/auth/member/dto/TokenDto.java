@@ -19,5 +19,12 @@ public class TokenDto {
 
 		private String refreshToken;
 
+		public static ReissueDto from(String accessToken, String refreshToken) {
+			return ReissueDto.builder()
+				.accessToken(accessToken)
+				.refreshToken(refreshToken)
+				.build();
+		}
+
 	}
 }

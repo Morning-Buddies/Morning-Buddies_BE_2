@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
-import com.ghpg.morningbuddies.domain.group.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 
 public interface MemberQueryService {
 	MemberResponseDto.MemberInfo getMyInfo();

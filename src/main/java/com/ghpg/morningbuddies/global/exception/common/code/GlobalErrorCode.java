@@ -33,7 +33,7 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	EMPTY_TOKEN(UNAUTHORIZED, "AUTH401_10", "토큰이 비어있습니다."),
 	INVALID_SIGNATURE(UNAUTHORIZED, "AUTH401_11", "토큰의 서명이 유효하지 않습니다."),
 	UNSUPPORTED_TOKEN(UNAUTHORIZED, "AUTH401_12", "지원되지 않는 토큰입니다."),
-	INVALID_CREDENTIALS(UNAUTHORIZED, "AUTH401_13", "인증 정보가 올바르지 않습니다."),
+	INVALID_CREDENTIALS(UNAUTHORIZED, "AUTH401_13", "로그인 정보가 올바르지 않습니다."),
 	ACCOUNT_DISABLED(UNAUTHORIZED, "AUTH401_14", "계정이 비활성화 되었습니다."),
 	ACCOUNT_LOCKED(UNAUTHORIZED, "AUTH401_15", "계정이 잠겼습니다."),
 	ACCOUNT_EXPIRED(UNAUTHORIZED, "AUTH401_16", "계정이 만료되었습니다."),
@@ -41,7 +41,7 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	INVALID_AUTHENTICATION(UNAUTHORIZED, "AUTH401_18", "인증 정보가 올바르지 않습니다."),
 	INVALID_LOGIN_REQUEST(BAD_REQUEST, "AUTH400_1", "로그인 요청이 올바르지 않습니다."),
 	LOGOUT_FAILED(UNAUTHORIZED, "AUTH401_19", "로그아웃에 실패하였습니다."),
-	
+
 	// 403 Forbidden - 인증 거부
 	AUTHENTICATION_DENIED(FORBIDDEN, "AUTH403_1", "인증이 거부 되었습니다."),
 
@@ -60,9 +60,11 @@ public enum GlobalErrorCode implements BaseErrorCode {
 	GROUP_PERMISSION_DENIED(CONFLICT, "GROUP409_3", "그룹에 대한 권한이 없습니다."),
 	GROUP_FULL(CONFLICT, "GROUP409_4", "인원이 다 찼습니다."),
 	LEADER_CANNOT_LEAVE_GROUP(CONFLICT, "GROUP409_5", "반장은 그룹에서 나갈 수 없습니다."),
+	MEMBER_ALREADY_JOINED(CONFLICT, "GROUP409_6", "이미 가입한 그룹입니다."),
 
 	// ChatRoom
 	CHATROOM_NOT_FOUND(NOT_FOUND, "CHATROOM404_1", "채팅방을 찾을 수 없습니다."),
+	MEMBER_NOT_IN_CHATROOM(CONFLICT, "CHATROOM409_1", "해당 회원은 채팅방에 없습니다."),
 
 	//MemberGroup
 	MEMBER_NOT_IN_GROUP(CONFLICT, "MEMBERGROUP409_1", "해당 회원은 그룹에 없습니다."),

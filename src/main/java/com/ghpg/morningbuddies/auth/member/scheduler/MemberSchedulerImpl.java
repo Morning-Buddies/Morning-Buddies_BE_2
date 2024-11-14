@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class MemberSchedulerImpl implements MemberScheduler {
 
-	private final MemberRepository memberRepository;
+	private final MemberJPARepository memberJPARepository;
 	private static final int RETENTION_HOURS = 24 * 7; // 1주일
 
 	@Scheduled(cron = "0 0 * * * *") // 매 시간 0분 0초에 실행
@@ -25,7 +25,7 @@ public class MemberSchedulerImpl implements MemberScheduler {
 		try {
 			LocalDateTime deletionCutoff = LocalDateTime.now().minusHours(RETENTION_HOURS);
 
-			int deletedCount = memberRepository.deleteAllByIsDeletedTrueAndUpdatedAtBefore(deletionCutoff);
+			int deletedCount = memberJPARepository.deleteAllByIsDeletedTrueAndUpdatedAtBefore(deletionCutoff);
 
 			if (deletedCount > 0) {
 				log.info("Cleaned up {} deleted member(s) marked for deletion before {}",

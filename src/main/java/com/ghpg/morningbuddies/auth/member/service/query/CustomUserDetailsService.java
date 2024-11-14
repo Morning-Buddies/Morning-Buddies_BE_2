@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
-import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,17 +16,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	private final MemberRepository memberRepository;
+	private final MemberJPARepository memberJPARepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String email) throws
-		UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		//DB에서 조회
-		Member member = memberRepository.findByEmail(email)
+		Member member = memberJPARepository.findByEmail(email)
 			.orElseThrow(
-				() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND)
-
+				() -> new UsernameNotFoundException(GlobalErrorCode.MEMBER_NOT_FOUND.getMessage())
 			);
 
 		return new CustomUserDetails(member);

@@ -10,7 +10,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
 import com.ghpg.morningbuddies.domain.chatmessage.service.ChatMessageCommandService;

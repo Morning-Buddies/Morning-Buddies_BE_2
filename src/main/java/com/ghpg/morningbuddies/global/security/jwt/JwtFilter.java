@@ -34,16 +34,14 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final ObjectMapper objectMapper;
 	private final CustomUserDetailsService customUserDetailsService;
 
+	private static final String JOIN_URL = "/api/v1/auth/join";
+	private static final String LOGIN_URL = "/api/v1/auth/login";
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
 
 		String authorization = request.getHeader("Authorization");
-
-		if (request.getRequestURI().equals("/auth/join") || request.getRequestURI().equals("/auth/login")) {
-			filterChain.doFilter(request, response);
-			return;
-		}
 
 		// Authorization 헤더가 없거나 Bearer로 시작하지 않는 경우
 		if (authorization == null || !authorization.startsWith("Bearer ")) {

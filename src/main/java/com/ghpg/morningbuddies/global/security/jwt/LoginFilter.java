@@ -21,8 +21,7 @@ import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.service.command.RefreshTokenCommandService;
-import com.ghpg.morningbuddies.domain.group.mapper.GroupMapper;
+import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
@@ -39,6 +38,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private static final String EMAIL_PARAMETER = "email";
 	private static final String COOKIE_NAME = "refresh_token";
 	private static final String BEARER_PREFIX = "Bearer ";
+	private static final String LOGIN_URL = "/api/v1/auth/login";
 	private static final Duration REFRESH_TOKEN_DURATION = Duration.ofDays(14);
 
 	private final AuthenticationManager authenticationManager;
@@ -56,6 +56,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		this.jwtUtil = jwtUtil;
 		this.refreshTokenService = refreshTokenService;
 		setUsernameParameter(EMAIL_PARAMETER);
+		setFilterProcessesUrl(LOGIN_URL);
 	}
 
 	@Override
@@ -63,6 +64,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		throws AuthenticationException {
 		try {
 			MemberRequestDto.LoginDto loginRequest = parseLoginRequest(request);
+
 			return authenticateUser(loginRequest);
 		} catch (IOException e) {
 			throw new MemberException(GlobalErrorCode.INVALID_LOGIN_REQUEST);
@@ -124,21 +126,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	private void writeMemberInfoResponse(HttpServletResponse response, Member member) throws IOException {
-		MemberResponseDto.MemberInfo memberInfo = createMemberInfo(member);
+		MemberResponseDto.MemberInfo memberInfo = MemberResponseDto.MemberInfo.of(member);
 		setResponseProperties(response);
 		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(memberInfo));
-	}
-
-	private MemberResponseDto.MemberInfo createMemberInfo(Member member) {
-		return MemberResponseDto.MemberInfo.builder()
-			.id(member.getId())
-			.profileImage(member.getProfileImageUrl())
-			.firstName(member.getFirstName())
-			.lastName(member.getLastName())
-			.preferredWakeupTime(member.getPreferredWakeupTime())
-			.groups(GroupMapper.toGroupListResponseDTO(member.getGroups()))
-			.successGameCount(GroupMapper.getCountSuccessGame(member))
-			.build();
 	}
 
 	@Override
@@ -149,10 +139,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	private BaseErrorCode determineErrorCode(AuthenticationException exception) {
+		if (exception instanceof UsernameNotFoundException ||
+			exception.getCause() instanceof MemberException)  // 이 부분 추가
+			return GlobalErrorCode.MEMBER_NOT_FOUND;
 		if (exception instanceof BadCredentialsException)
 			return GlobalErrorCode.INVALID_CREDENTIALS;
-		if (exception instanceof UsernameNotFoundException)
-			return GlobalErrorCode.MEMBER_NOT_FOUND;
 		if (exception instanceof DisabledException)
 			return GlobalErrorCode.ACCOUNT_DISABLED;
 		if (exception instanceof LockedException)
