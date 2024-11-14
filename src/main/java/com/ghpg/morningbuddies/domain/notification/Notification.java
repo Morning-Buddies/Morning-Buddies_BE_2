@@ -4,7 +4,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
 import jakarta.persistence.Column;

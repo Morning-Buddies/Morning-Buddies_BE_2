@@ -1,7 +1,7 @@
 package com.ghpg.morningbuddies.domain.chatroom.mapper;
 
 import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

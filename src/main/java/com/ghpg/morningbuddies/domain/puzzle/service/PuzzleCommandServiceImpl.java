@@ -24,8 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.domain.game.Game;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
-import com.ghpg.morningbuddies.domain.group.repository.GroupRepository;
+import com.ghpg.morningbuddies.domain.groups.entity.Groups;
+import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.domain.puzzle.Puzzle;
 import com.ghpg.morningbuddies.domain.puzzle.PuzzlePiece;
 import com.ghpg.morningbuddies.domain.puzzle.dto.PuzzleStateMessageResponseDto;
@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 
-	private final GroupRepository groupRepository;
+	private final GroupJPARepository groupJPARepository;
 	private final GameRepository gameRepository;
 
 	private final S3Service s3Service;
@@ -59,7 +59,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 
 	@Override
 	public PuzzleStateMessageResponseDto.PuzzleState startNewGame(Long groupId) {
-		Groups currentGroup = groupRepository.findById(groupId).orElseThrow(
+		Groups currentGroup = groupJPARepository.findById(groupId).orElseThrow(
 			() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
 
 		Game createdGame = Game.builder()

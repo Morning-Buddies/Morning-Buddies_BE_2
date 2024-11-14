@@ -25,7 +25,7 @@ public class OpenAIServiceImpl implements OpenAIService {
 
 	private final RestTemplate restTemplate;
 
-	@Value("${openai.api.key}")
+	@Value("${openai.api-key}")
 	private String apiKey;
 
 	@PostConstruct

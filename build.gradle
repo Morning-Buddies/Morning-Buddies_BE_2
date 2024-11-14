@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.3'
+    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -9,7 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -21,6 +21,11 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+// QueryDSL 설정 추가
+ext {
+    queryDslVersion = "5.0.0"
 }
 
 dependencies {
@@ -40,7 +45,6 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // H2
-    runtimeOnly 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Spring Security
@@ -69,6 +73,18 @@ dependencies {
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
+    // QueryDSL 의존성 수정
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+    annotationProcessor(
+            "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta",
+            "jakarta.persistence:jakarta.persistence-api",
+            "jakarta.annotation:jakarta.annotation-api"
+    )
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+    // P6Spy
+    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
 }
 
 tasks.named('test') {
@@ -77,4 +93,22 @@ tasks.named('test') {
 
 jar {
     enabled = false
+}
+
+// QueryDSL Q클래스 생성 경로
+def querydslDir = "$buildDir/generated/querydsl"
+
+// querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+}
+
+// java source set 에 querydsl QClass 위치 추가
+sourceSets {
+    main.java.srcDirs += [querydslDir]
+}
+
+// gradle clean 시에 QClass 디렉토리 삭제
+clean {
+    delete file(querydslDir)
 }

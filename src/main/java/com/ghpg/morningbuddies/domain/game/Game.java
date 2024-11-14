@@ -8,7 +8,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.ghpg.morningbuddies.domain.game.gamesession.GameSession;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.puzzle.Puzzle;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
@@ -42,7 +42,7 @@ public class Game extends BaseEntity {
 	@Column(name = "game_id")
 	private Long id;
 
-	@OneToOne(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(mappedBy = "game", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Puzzle puzzle;
 
 	@Builder.Default

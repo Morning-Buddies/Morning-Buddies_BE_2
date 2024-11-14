@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.group.entity.Groups;
+import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.domain.notification.repository.NotificationRepository;
 import com.google.firebase.messaging.FirebaseMessagingException;

@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.auth.member.validation.annotation.ExistingEmail;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExistingEmailValidator implements ConstraintValidator<ExistingEmail, String> {
 
-	private final MemberRepository memberRepository;
+	private final MemberJPARepository memberJPARepository;
 
 	@Override
 	public void initialize(ExistingEmail constraintAnnotation) {
@@ -28,7 +28,7 @@ public class ExistingEmailValidator implements ConstraintValidator<ExistingEmail
 
 	@Override
 	public boolean isValid(String email, ConstraintValidatorContext context) {
-		Optional<Member> existingMember = memberRepository.findByEmail(email);
+		Optional<Member> existingMember = memberJPARepository.findByEmail(email);
 
 		if (existingMember.isEmpty()) {
 			context.disableDefaultConstraintViolation();
