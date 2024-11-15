@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain.groups.service;
+package com.ghpg.morningbuddies.domain.groups.service.query;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.domain.groups.converter.GroupConverter;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.groups.entity.GroupJoinRequest;
@@ -34,6 +35,7 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	private final GroupJPARepository groupJPARepository;
 	private final MemberJPARepository memberJPARepository;
 	private final GroupJoinRequestRepository groupJoinRequestRepository;
+	private final MemberRepository memberRepository;
 
 	// 그룹 정보 가져오기
 	@Override

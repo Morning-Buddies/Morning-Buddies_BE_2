@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain.groups.service;
+package com.ghpg.morningbuddies.domain.groups.service.command;
 
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -218,29 +218,29 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void rejectJoinGroup(Long groupId, Long requestId) {
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member leader = memberJPARepository.findByEmail(currentEmail)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-
-		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
-
-		Groups group = joinRequest.getGroup();
-
-		if (!group.getId().equals(groupId)) {
-			throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
-		}
-
-		if (!group.getLeader().equals(leader)) {
-			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-		}
-
-		joinRequest.setStatus(RequestStatus.REJECTED);
-
-		groupJoinRequestRepository.save(joinRequest);
-
-		// 가입 요청이 거절되었다는 알림 전송
-		notificationCommandService.sendJoinRequestRejectedNotification(leader, group);
+		// String currentEmail = SecurityUtil.getCurrentUserEmail();
+		// Member leader = memberJPARepository.findByEmail(currentEmail)
+		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+		//
+		// GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
+		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
+		//
+		// Groups group = joinRequest.getGroup();
+		//
+		// if (!group.getId().equals(groupId)) {
+		// 	throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
+		// }
+		//
+		// if (!group.getLeader().equals(leader)) {
+		// 	throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+		// }
+		//
+		// joinRequest.setStatus(RequestStatus.REJECTED);
+		//
+		// groupJoinRequestRepository.save(joinRequest);
+		//
+		// // 가입 요청이 거절되었다는 알림 전송
+		// notificationCommandService.sendJoinRequestRejectedNotification(leader, group);
 
 	}
 

@@ -20,8 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
-import com.ghpg.morningbuddies.domain.groups.service.GroupCommandService;
-import com.ghpg.morningbuddies.domain.groups.service.GroupQueryService;
+import com.ghpg.morningbuddies.domain.groups.service.command.GroupCommandService;
+import com.ghpg.morningbuddies.domain.groups.service.query.GroupQueryService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
