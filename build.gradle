@@ -8,6 +8,8 @@ group = 'com.ghpg'
 version = '0.0.1-SNAPSHOT'
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
@@ -23,57 +25,58 @@ repositories {
     mavenCentral()
 }
 
-// QueryDSL 설정 추가
+// 버전 관리를 위한 전역 변수 설정
 ext {
     queryDslVersion = "5.0.0"
+    openApiVersion = "2.3.0"
+    jjwtVersion = "0.12.3"
+    awsSdkVersion = "2.17.100"
+    openAiVersion = "0.12.0"
+    openCvVersion = "4.5.1-2"
+    p6spyVersion = "1.9.0"
+    firebaseVersion = "9.2.0"
 }
 
 dependencies {
-    // Spring Boot
+    // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
-
-    // Database
-    // Mysql
-    runtimeOnly 'com.mysql:mysql-connector-j'
-
-    // H2
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-
-    // JWT
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-    // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // Development Tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:${p6spyVersion}"
+
+    // JWT
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
     // Firebase
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
+    implementation "com.google.firebase:firebase-admin:${firebaseVersion}"
 
     // AWS
-    implementation 'software.amazon.awssdk:s3:2.17.100'
+    implementation "software.amazon.awssdk:s3:${awsSdkVersion}"
 
-    // OPEN AI
-    implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
+    // OpenAI
+    implementation "com.theokanning.openai-gpt3-java:service:${openAiVersion}"
 
-    // Open CV
-    implementation 'org.openpnp:opencv:4.5.1-2'
+    // OpenCV
+    implementation "org.openpnp:opencv:${openCvVersion}"
 
-    // Swagger
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    // Swagger/OpenAPI
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${openApiVersion}"
 
-    // QueryDSL 의존성 수정
+    // QueryDSL
     implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
     annotationProcessor(
             "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta",
@@ -81,10 +84,10 @@ dependencies {
             "jakarta.annotation:jakarta.annotation-api"
     )
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
-
-    // P6Spy
-    implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
+    // Test Dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
@@ -95,29 +98,32 @@ jar {
     enabled = false
 }
 
-// QueryDSL Q클래스 생성 경로 설정
-def generated = 'src/main/generated'
+// QueryDSL Configuration
+def querydslDir = 'src/main/generated'
 
-// QueryDSL Q클래스 생성 위치를 지정
-tasks.withType(JavaCompile) {
-    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
-}
-
-// java source set 에 QueryDSL Q클래스 위치 추가
 sourceSets {
     main {
         java {
-            srcDirs += [generated]
+            srcDirs += [querydslDir]
         }
     }
 }
 
-// clean 태스크 실행 시 생성된 Q클래스 삭제
-clean {
-    delete file(generated)
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-parameters'  // Spring의 파라미터 이름 보존
+    options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
 
-// compile 전에 clean 실행하도록 설정
+clean {
+    delete file(querydslDir)
+}
+
+// Clean before compile
 compileJava {
     dependsOn clean
+}
+
+// Spring Boot Actuator 엔드포인트 활성화 (선택사항)
+springBoot {
+    buildInfo()
 }
