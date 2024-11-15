@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
+import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -16,12 +16,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-	private final MemberJPARepository memberJPARepository;
+	private final MemberRepository memberRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		Member member = memberJPARepository.findByEmail(email)
+		Member member = memberRepository.findMemberAndGroupsByEmail(email)
 			.orElseThrow(
 				() -> new UsernameNotFoundException(GlobalErrorCode.MEMBER_NOT_FOUND.getMessage())
 			);

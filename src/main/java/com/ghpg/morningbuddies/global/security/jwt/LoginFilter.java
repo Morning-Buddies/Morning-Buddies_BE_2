@@ -91,6 +91,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		String userRole = extractUserRole(userDetails);
 
 		handleTokenGeneration(response, userEmail, userRole);
+
 		writeMemberInfoResponse(response, member);
 	}
 

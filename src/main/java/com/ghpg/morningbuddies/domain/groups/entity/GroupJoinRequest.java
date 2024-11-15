@@ -18,11 +18,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -42,4 +40,5 @@ public class GroupJoinRequest {
 
 	@Enumerated(EnumType.STRING)
 	private RequestStatus status;
+	
 }

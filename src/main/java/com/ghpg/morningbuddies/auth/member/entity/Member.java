@@ -58,6 +58,7 @@ public class Member extends BaseEntity {
 
 	private String deviceId;
 
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	private String password;
@@ -79,21 +80,26 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private SocialType socialType;
 
+	@Column(nullable = false, unique = true)
 	private String phoneNumber;
 
 	@Builder.Default
+	@ColumnDefault("false")
 	private Boolean isDeleted = false;
 
 	@Builder.Default
+	@ColumnDefault("0")
 	private Integer successGameCount = 0;
 
 	@Enumerated(EnumType.STRING)
 	private UserRole role;
 
 	@Builder.Default
+	@ColumnDefault("0")
 	private Integer currentGroupCount = 0;
 
 	@Builder.Default
+	@ColumnDefault("2")
 	private Integer maxGroupCount = 2;
 
 	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -157,6 +163,14 @@ public class Member extends BaseEntity {
 
 	public void delete() {
 		this.isDeleted = true;
+	}
+
+	public void restore() {
+		this.isDeleted = false;
+	}
+
+	public void setCurrentGroupCount(Integer currentGroupCount) {
+		this.currentGroupCount = currentGroupCount;
 	}
 
 }

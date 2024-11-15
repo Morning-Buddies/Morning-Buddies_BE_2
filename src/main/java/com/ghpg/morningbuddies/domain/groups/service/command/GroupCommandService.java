@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain.groups.service;
+package com.ghpg.morningbuddies.domain.groups.service.command;
 
 import org.springframework.web.multipart.MultipartFile;
 
