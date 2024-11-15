@@ -95,20 +95,29 @@ jar {
     enabled = false
 }
 
-// QueryDSL Q클래스 생성 경로
-def querydslDir = "$buildDir/generated/querydsl"
+// QueryDSL Q클래스 생성 경로 설정
+def generated = 'src/main/generated'
 
-// querydsl QClass 파일 생성 위치를 지정
+// QueryDSL Q클래스 생성 위치를 지정
 tasks.withType(JavaCompile) {
-    options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
+    options.annotationProcessorGeneratedSourcesDirectory = file(generated)
 }
 
-// java source set 에 querydsl QClass 위치 추가
+// java source set 에 QueryDSL Q클래스 위치 추가
 sourceSets {
-    main.java.srcDirs += [querydslDir]
+    main {
+        java {
+            srcDirs += [generated]
+        }
+    }
 }
 
-// gradle clean 시에 QClass 디렉토리 삭제
+// clean 태스크 실행 시 생성된 Q클래스 삭제
 clean {
-    delete file(querydslDir)
+    delete file(generated)
+}
+
+// compile 전에 clean 실행하도록 설정
+compileJava {
+    dependsOn clean
 }
