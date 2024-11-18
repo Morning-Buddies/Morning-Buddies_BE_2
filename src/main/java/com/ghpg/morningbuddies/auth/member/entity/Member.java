@@ -88,6 +88,10 @@ public class Member extends BaseEntity {
 	private Boolean isDeleted = false;
 
 	@Builder.Default
+	@ColumnDefault("true")
+	private Boolean isActivated = true;
+
+	@Builder.Default
 	@ColumnDefault("0")
 	private Integer successGameCount = 0;
 
@@ -145,6 +149,7 @@ public class Member extends BaseEntity {
 			.preferredWakeupTime(request.getPreferredWakeupTime())
 			.phoneNumber(request.getPhoneNumber())
 			.role(UserRole.ROLE_USER)
+			.isActivated(true)
 			.build();
 	}
 
