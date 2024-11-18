@@ -157,4 +157,19 @@ public class Groups extends BaseEntity {
 		}
 	}
 
+	public void removeMember(Member member) {
+		MemberGroup memberGroup = this.memberGroups.stream()
+				.filter(mg -> mg.getMember().equals(member))
+				.findFirst()
+				.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
+
+		this.memberGroups.remove(memberGroup);
+		memberGroup.setGroup(null);
+		this.currentParticipantCount--;
+	}
+
+	public boolean isMemberInGroup(Member member) {
+		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
+	}
+
 }
