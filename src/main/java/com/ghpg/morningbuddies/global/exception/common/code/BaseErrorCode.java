@@ -4,9 +4,8 @@ import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 
 public interface BaseErrorCode {
 
-	public ErrorReason getReason();
+	ErrorReason getReason();
 
-	public ErrorReason getReasonHttpStatus();
+	ErrorReason getReasonHttpStatus();
 
-	ErrorReason getReasonHttpStatus(Object data);
 }

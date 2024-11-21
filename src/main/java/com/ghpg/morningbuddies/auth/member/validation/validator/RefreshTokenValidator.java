@@ -7,7 +7,7 @@ import com.ghpg.morningbuddies.auth.member.validation.annotation.ValidRefreshTok
 import com.ghpg.morningbuddies.auth.refreshtoken.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
@@ -29,7 +29,7 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 	@Override
 	public boolean isValid(String refreshToken, ConstraintValidatorContext context) {
 		if (refreshToken == null) {
-			setCustomMessage(context, GlobalErrorCode.REFRESH_TOKEN_NOT_FOUND.getMessage());
+			setCustomMessage(context, ErrorStatus.REFRESH_TOKEN_NOT_FOUND.getMessage());
 			return false;
 		}
 
@@ -37,14 +37,14 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 			validateRefreshToken(refreshToken);
 			return true;
 		} catch (JwtException e) {
-			setCustomMessage(context, GlobalErrorCode.INVALID_REFRESH_TOKEN.getMessage());
+			setCustomMessage(context, ErrorStatus.INVALID_REFRESH_TOKEN.getMessage());
 			return false;
 		} catch (GeneralException e) {
-			setCustomMessage(context, e.getErrorCode().getReason().getMessage());
+			setCustomMessage(context, e.getErrorReason().getMessage());
 			return false;
 		} catch (Exception e) {
 			log.error("Unexpected error during validation", e);
-			setCustomMessage(context, GlobalErrorCode.SERVER_ERROR.getMessage());
+			setCustomMessage(context, ErrorStatus.SERVER_ERROR.getMessage());
 			return false;
 		}
 	}
@@ -52,23 +52,23 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 	private void validateRefreshToken(String refreshToken) {
 		// JWT 토큰 유효성 검증
 		if (!jwtUtil.validateToken(refreshToken)) {
-			throw new GeneralException(GlobalErrorCode.INVALID_REFRESH_TOKEN);
+			throw new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN);
 		}
 
 		// DB에서 리프레시 토큰 조회
 		RefreshToken storedToken = refreshTokenJPARepository.findByRefreshToken(refreshToken)
-			.orElseThrow(() -> new GeneralException(GlobalErrorCode.INVALID_REFRESH_TOKEN));
+			.orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN));
 
 		// 현재 인증된 사용자 이메일 가져오기
 		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
 
 		// 현재 사용자 정보 조회
 		memberJPARepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new GeneralException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		// 토큰 소유자와 현재 사용자가 일치하는지 확인
 		if (!storedToken.getEmail().equals(currentUserEmail)) {
-			throw new GeneralException(GlobalErrorCode.INVALID_REFRESH_TOKEN);
+			throw new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN);
 		}
 	}
 

@@ -1,7 +1,5 @@
 package com.ghpg.morningbuddies.global.exception.common.handler;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -10,26 +8,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
-import com.google.firebase.database.annotations.Nullable;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,151 +31,98 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler
 	public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
-		String errorMessage =
-			e.getConstraintViolations().stream()
-				.map(constraintViolation -> constraintViolation.getMessage())
-				.findFirst()
-				.orElseThrow(
-					() ->
-						new RuntimeException(
-							"ConstraintViolationException 추출 도중 에러 발생"));
+		String errorMessage = e.getConstraintViolations().stream()
+			.map(constraintViolation -> constraintViolation.getMessage())
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 에러 발생"));
 
-		return handleExceptionInternalConstraint(
-			e, GlobalErrorCode.valueOf(errorMessage), HttpHeaders.EMPTY, request);
+		return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY, request);
 	}
 
 	@Override
-	@NotNull
-	public ResponseEntity<Object> handleMethodArgumentNotValid(
-		MethodArgumentNotValidException ex,
-		HttpHeaders headers,
-		HttpStatusCode status,
-		WebRequest request) {
+	public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers,
+		HttpStatusCode status, WebRequest request) {
 
 		Map<String, String> errors = new LinkedHashMap<>();
 
-		ex.getBindingResult().getFieldErrors().stream()
-			.forEach(
-				fieldError -> {
-					String fieldName = fieldError.getField();
-					String errorMessage =
-						Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
-					errors.merge(
-						fieldName,
-						errorMessage,
-						(existingErrorMessage, newErrorMessage) ->
-							existingErrorMessage + ", " + newErrorMessage);
-				});
+		e.getBindingResult().getFieldErrors().stream()
+			.forEach(fieldError -> {
+				String fieldName = fieldError.getField();
+				String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
+				errors.merge(fieldName, errorMessage,
+					(existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
+			});
 
-		return handleExceptionInternalArgs(
-			ex, HttpHeaders.EMPTY, GlobalErrorCode.valueOf("BAD_ARGS_ERROR"), request, errors);
-	}
-
-	@Override
-	protected ResponseEntity<Object> handleExceptionInternal(
-		Exception ex,
-		@Nullable Object body,
-		HttpHeaders headers,
-		HttpStatusCode statusCode,
-		WebRequest request
-	) {
-		if (ex instanceof HandlerMethodValidationException) {
-			HandlerMethodValidationException validationEx = (HandlerMethodValidationException)ex;
-
-			// 첫 번째 에러 메시지 가져오기
-			String errorMessage = validationEx.getAllValidationResults().stream()
-				.flatMap(vr -> vr.getResolvableErrors().stream())
-				.map(error -> error.getDefaultMessage())
-				.findFirst()
-				.orElse(GlobalErrorCode.BAD_ARGS_ERROR.getMessage());
-
-			return ResponseEntity
-				.status(HttpStatus.BAD_REQUEST)
-				.body(CommonResponse.onFailure(
-					GlobalErrorCode.BAD_ARGS_ERROR.getCode(),
-					errorMessage,
-					null  // data를 null로 설정
-				));
-		}
-
-		return super.handleExceptionInternal(ex, body, headers, statusCode, request);
+		return handleExceptionInternalArgs(e, HttpHeaders.EMPTY, ErrorStatus.valueOf("_BAD_REQUEST"), request, errors);
 	}
 
 	@ExceptionHandler
 	public ResponseEntity<Object> exception(Exception e, WebRequest request) {
 		e.printStackTrace();
 
-		return handleExceptionInternalFalse(
-			e,
-			GlobalErrorCode.SERVER_ERROR,
-			HttpHeaders.EMPTY,
-			GlobalErrorCode.SERVER_ERROR.getHttpStatus(),
-			request,
-			e.getMessage());
+		return handleExceptionInternalFalse(e, ErrorStatus._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY,
+			ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus(), request, e.getMessage());
 	}
 
 	@ExceptionHandler(value = GeneralException.class)
-	public ResponseEntity onThrowException(
-		GeneralException generalException,
-		@AuthenticationPrincipal User user,
-		HttpServletRequest request) {
+	public ResponseEntity onThrowException(GeneralException generalException, HttpServletRequest request) {
 		ErrorReason errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
 		return handleExceptionInternal(generalException, errorReasonHttpStatus, null, request);
 	}
 
-	private ResponseEntity<Object> handleExceptionInternal(
-		Exception e, ErrorReason reason, HttpHeaders headers, HttpServletRequest request) {
-		CommonResponse<Object> body =
-			CommonResponse.onFailure(reason.getCode(), reason.getMessage(), reason.getData());  // data 필드 사용
-		e.printStackTrace();
+	private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReason reason,
+		HttpHeaders headers, HttpServletRequest request) {
+
+		CommonResponse<Object> body = CommonResponse.onFailure(reason.getCode(), reason.getMessage(), null);
+		//        e.printStackTrace();
 
 		WebRequest webRequest = new ServletWebRequest(request);
 		return super.handleExceptionInternal(
-			e, body, headers, reason.getHttpStatus(), webRequest);
+			e,
+			body,
+			headers,
+			reason.getHttpStatus(),
+			webRequest
+		);
 	}
 
-	private ResponseEntity<Object> handleExceptionInternalFalse(
-		Exception e,
-		GlobalErrorCode errorCode,
-		HttpHeaders headers,
-		HttpStatus status,
-		WebRequest request,
-		String errorPoint) {
-		CommonResponse<Object> body =
-			CommonResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorPoint);
-		return super.handleExceptionInternal(e, body, headers, status, request);
+	private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, ErrorStatus errorCommonStatus,
+		HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
+		CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),
+			errorCommonStatus.getMessage(), errorPoint);
+		return super.handleExceptionInternal(
+			e,
+			body,
+			headers,
+			status,
+			request
+		);
 	}
 
-	private ResponseEntity<Object> handleExceptionInternalArgs(
-		Exception e,
-		HttpHeaders headers,
-		GlobalErrorCode errorCode,
-		WebRequest request,
-		Map<String, String> errorArgs) {
-		CommonResponse<Object> body =
-			CommonResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), errorArgs);
-		return super.handleExceptionInternal(e, body, headers, errorCode.getHttpStatus(), request);
+	private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers,
+		ErrorStatus errorCommonStatus,
+		WebRequest request, Map<String, String> errorArgs) {
+		CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),
+			errorCommonStatus.getMessage(), errorArgs);
+		return super.handleExceptionInternal(
+			e,
+			body,
+			headers,
+			errorCommonStatus.getHttpStatus(),
+			request
+		);
 	}
 
-	private ResponseEntity<Object> handleExceptionInternalConstraint(
-		Exception e, GlobalErrorCode errorCode, HttpHeaders headers, WebRequest request) {
-		CommonResponse<Object> body =
-			CommonResponse.onFailure(errorCode.getCode(), errorCode.getMessage(), null);
-		return super.handleExceptionInternal(e, body, headers, errorCode.getHttpStatus(), request);
-	}
-
-	private void getExceptionStackTrace(
-		Exception e, @AuthenticationPrincipal User user, HttpServletRequest request) {
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-
-		pw.append("\n==========================!!!ERROR TRACE!!!==========================\n");
-		pw.append("uri: " + request.getRequestURI() + " " + request.getMethod() + "\n");
-		if (user != null) {
-			pw.append("uid: " + user.getUsername() + "\n");
-		}
-		pw.append(e.getMessage());
-		pw.append("\n=====================================================================");
-		log.error(sw.toString());
+	private ResponseEntity<Object> handleExceptionInternalConstraint(Exception e, ErrorStatus errorCommonStatus,
+		HttpHeaders headers, WebRequest request) {
+		CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),
+			errorCommonStatus.getMessage(), null);
+		return super.handleExceptionInternal(
+			e,
+			body,
+			headers,
+			errorCommonStatus.getHttpStatus(),
+			request
+		);
 	}
 }

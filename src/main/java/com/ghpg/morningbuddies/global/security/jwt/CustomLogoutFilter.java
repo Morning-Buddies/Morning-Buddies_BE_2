@@ -9,7 +9,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
 
 import jakarta.servlet.FilterChain;
@@ -55,7 +55,7 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 
 			// Validate access token
 			if (!jwtUtil.validateToken(accessToken) || !jwtUtil.isAccessToken(accessToken)) {
-				throw new JwtException(GlobalErrorCode.INVALID_ACCESS_TOKEN);
+				throw new JwtException(ErrorStatus.INVALID_ACCESS_TOKEN);
 			}
 
 			// Get user email from access token
@@ -68,7 +68,7 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 		} catch (JwtException e) {
 			writeErrorResponse(response, e);
 		} catch (Exception e) {
-			writeErrorResponse(response, new JwtException(GlobalErrorCode.LOGOUT_FAILED));
+			writeErrorResponse(response, new JwtException(ErrorStatus.LOGOUT_FAILED));
 		}
 	}
 
@@ -109,13 +109,13 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 		setResponseProperties(response);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-		String code = GlobalErrorCode.LOGOUT_FAILED.getReason().getCode();
-		String message = GlobalErrorCode.LOGOUT_FAILED.getReason().getMessage();
+		String code = ErrorStatus.LOGOUT_FAILED.getReason().getCode();
+		String message = ErrorStatus.LOGOUT_FAILED.getReason().getMessage();
 
 		if (exception instanceof JwtException) {
 			JwtException jwtException = (JwtException)exception;
-			code = jwtException.getErrorCode().getReason().getCode();
-			message = jwtException.getErrorCode().getReason().getMessage();
+			code = jwtException.getCode().getReason().getCode();
+			message = jwtException.getCode().getReason().getMessage();
 		}
 
 		CommonResponse<?> errorResponse = CommonResponse.onFailure(

@@ -15,7 +15,7 @@ import com.ghpg.morningbuddies.auth.member.service.query.CustomUserDetailsServic
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
 
 import jakarta.servlet.FilterChain;
@@ -68,7 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 				// Role 검증
 				if (!member.getRole().name().equals(role)) {
-					handleException(new GeneralException(GlobalErrorCode.AUTHENTICATION_DENIED), response);
+					handleException(new GeneralException(ErrorStatus.AUTHENTICATION_DENIED), response);
 					return;
 				}
 
@@ -82,11 +82,11 @@ public class JwtFilter extends OncePerRequestFilter {
 			}
 
 		} catch (JwtException e) {
-			handleException(new GeneralException(e.getErrorCode()), response);
+			handleException(new GeneralException(e.getCode()), response);
 			return;
 		} catch (Exception e) {
 			log.error("JWT Filter Error", e);
-			handleException(new GeneralException(GlobalErrorCode.INVALID_TOKEN), response);
+			handleException(new GeneralException(ErrorStatus.INVALID_TOKEN), response);
 			return;
 		}
 
@@ -103,7 +103,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		CommonResponse<?> errorResponse = CommonResponse.onFailure(
 			errorReason.getCode(),
 			errorReason.getMessage(),
-			errorReason.getData()
+			null
 		);
 
 		objectMapper.writeValue(response.getOutputStream(), errorResponse);

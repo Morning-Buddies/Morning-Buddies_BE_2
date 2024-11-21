@@ -18,7 +18,7 @@ import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
@@ -38,7 +38,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
 
 		Member currentMember = memberRepository.findMemberAndGroupsByEmail(currentUserEmail)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		return MemberResponseDto.MemberInfo.of(currentMember);
 	}
@@ -46,7 +46,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 	@Override
 	public GroupResponseDto.GroupListResponseDTO getMyGroups() {
 		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		Set<Groups> currentMembersGroups = getCurrentMembersGroups(currentMember);
 
@@ -66,7 +66,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 		List<ChatRoom> chatRooms = memberJPARepository.findAllChatroomsByMemberId(memberId);
 
 		Member member = memberJPARepository.findById(memberId)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		return chatRooms.stream()
 			.map(chatRoom -> ChatRoomResponseDto.AllChatRoomByMemberId.builder()

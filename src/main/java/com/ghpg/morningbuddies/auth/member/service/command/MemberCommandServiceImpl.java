@@ -13,7 +13,7 @@ import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepos
 import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.domain.membergroup.repository.MemberGroupJPARepository;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
@@ -47,7 +47,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	@Override
 	public Void changePassword(MemberRequestDto.PasswordDto request) {
 		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		currentMember.changePassword(bCryptPasswordEncoder.encode(request.getPassword()));
 
@@ -57,7 +57,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	@Override
 	public Void withdraw() {
 		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		refreshTokenJPARepository.deleteByMemberId(currentMember.getId());
 		currentMember.delete();
@@ -68,7 +68,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	@Override
 	public Void updateFcmToken(MemberRequestDto.FcmTokenDto request) {
 		Member currentMember = memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		currentMember.updateFcmToken(request.getFcmToken(), request.getDeviceId());
 		return null;

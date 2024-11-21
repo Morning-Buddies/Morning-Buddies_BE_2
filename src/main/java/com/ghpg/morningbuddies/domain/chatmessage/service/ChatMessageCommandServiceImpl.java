@@ -14,7 +14,7 @@ import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.global.exception.chatroom.ChatRoomException;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import lombok.RequiredArgsConstructor;
@@ -36,10 +36,10 @@ public class ChatMessageCommandServiceImpl implements ChatMessageCommandService 
 	public ChatMessageResponseDto.Message saveAndConvert(Long memberId, Long chatRoomId,
 		ChatMessageRequestDto.Message message) {
 		ChatRoom currentParticipantChatRoom = chatRoomRepository.findById(chatRoomId)
-			.orElseThrow(() -> new ChatRoomException(GlobalErrorCode.CHATROOM_NOT_FOUND));
+			.orElseThrow(() -> new ChatRoomException(ErrorStatus.CHATROOM_NOT_FOUND));
 
 		Member currentMember = memberJPARepository.findById(memberId)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		ChatMessage sentMessage = ChatMessage.builder()
 			.message(message.getMessage())

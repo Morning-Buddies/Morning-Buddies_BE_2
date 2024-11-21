@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 		Member member = memberRepository.findMemberAndGroupsByEmail(email)
 			.orElseThrow(
-				() -> new UsernameNotFoundException(GlobalErrorCode.MEMBER_NOT_FOUND.getMessage())
+				() -> new UsernameNotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getMessage())
 			);
 
 		return new CustomUserDetails(member);

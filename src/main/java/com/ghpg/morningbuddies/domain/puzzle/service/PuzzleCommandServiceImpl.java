@@ -33,7 +33,7 @@ import com.ghpg.morningbuddies.domain.puzzle.repository.GameRepository;
 import com.ghpg.morningbuddies.domain.puzzle.repository.PuzzlePieceRepository;
 import com.ghpg.morningbuddies.domain.puzzle.repository.PuzzleRepository;
 import com.ghpg.morningbuddies.global.aws.s3.S3Service;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.file.FileException;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.puzzle.PuzzleException;
@@ -60,7 +60,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 	@Override
 	public PuzzleStateMessageResponseDto.PuzzleState startNewGame(Long groupId) {
 		Groups currentGroup = groupJPARepository.findById(groupId).orElseThrow(
-			() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+			() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
 		Game createdGame = Game.builder()
 			.name(currentGroup.getGroupName())
@@ -99,7 +99,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 
 		if (originalImage.empty()) {
 			log.error("Failed to load image: {}", localImagePath);
-			throw new FileException(GlobalErrorCode.FILE_DOWNLOAD_FAILED);
+			throw new FileException(ErrorStatus.FILE_DOWNLOAD_FAILED);
 		}
 		// 4. Generate irregular puzzle pieces
 		List<PuzzlePiece> pieces = generateIrregularPuzzlePieces(originalImage, createdPuzzle);
@@ -125,7 +125,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 	public PuzzleStateMessageResponseDto.PuzzleState getCurrentState(Long puzzleId) {
 		// Fetch the puzzle by ID
 		Puzzle puzzle = puzzleRepository.findById(puzzleId)
-			.orElseThrow(() -> new PuzzleException(GlobalErrorCode.PUZZLE_NOT_FOUND));
+			.orElseThrow(() -> new PuzzleException(ErrorStatus.PUZZLE_NOT_FOUND));
 
 		// Get the list of puzzle pieces
 		List<PuzzlePiece> pieces = puzzlePieceRepository.findByPuzzleId(puzzleId);
@@ -360,7 +360,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 			return pieceImageUrl;
 		} catch (IOException e) {
 			log.error("Failed to save and upload piece image", e);
-			throw new FileException(GlobalErrorCode.PUZZLE_PIECE_SAVE_FAILED);
+			throw new FileException(ErrorStatus.PUZZLE_PIECE_SAVE_FAILED);
 		}
 	}
 

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
 
 import io.jsonwebtoken.Claims;
@@ -49,7 +49,7 @@ public class JwtUtil {
 		try {
 			return getClaims(token).get(EMAIL_CLAIM, String.class);
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -57,7 +57,7 @@ public class JwtUtil {
 		try {
 			return getClaims(token).get(ROLE_CLAIM, String.class);
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -65,7 +65,7 @@ public class JwtUtil {
 		try {
 			return getClaims(token).get(TOKEN_TYPE_CLAIM, String.class);
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -75,9 +75,9 @@ public class JwtUtil {
 				.getExpiration()
 				.before(new Date());
 		} catch (ExpiredJwtException e) {
-			throw new JwtException(GlobalErrorCode.TOKEN_EXPIRED);
+			throw new JwtException(ErrorStatus.TOKEN_EXPIRED);
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -100,7 +100,7 @@ public class JwtUtil {
 				.signWith(secretKey)
 				.compact();
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -108,7 +108,7 @@ public class JwtUtil {
 		if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(BEARER_PREFIX.length());
 		}
-		throw new JwtException(GlobalErrorCode.EMPTY_TOKEN);
+		throw new JwtException(ErrorStatus.EMPTY_TOKEN);
 	}
 
 	public String extractAccessToken(HttpServletRequest request) {
@@ -116,7 +116,7 @@ public class JwtUtil {
 		if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(BEARER_PREFIX.length());
 		}
-		throw new JwtException(GlobalErrorCode.INVALID_ACCESS_TOKEN);
+		throw new JwtException(ErrorStatus.INVALID_ACCESS_TOKEN);
 	}
 
 	public String extractRefreshToken(HttpServletRequest request) {
@@ -139,15 +139,15 @@ public class JwtUtil {
 				.parseSignedClaims(token);
 			return true;
 		} catch (SignatureException e) {
-			throw new JwtException(GlobalErrorCode.INVALID_SIGNATURE);
+			throw new JwtException(ErrorStatus.INVALID_SIGNATURE);
 		} catch (ExpiredJwtException e) {
-			throw new JwtException(GlobalErrorCode.TOKEN_EXPIRED);
+			throw new JwtException(ErrorStatus.TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
-			throw new JwtException(GlobalErrorCode.UNSUPPORTED_TOKEN);
+			throw new JwtException(ErrorStatus.UNSUPPORTED_TOKEN);
 		} catch (IllegalArgumentException e) {
-			throw new JwtException(GlobalErrorCode.EMPTY_TOKEN);
+			throw new JwtException(ErrorStatus.EMPTY_TOKEN);
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class JwtUtil {
 				.parseSignedClaims(token)
 				.getPayload();
 		} catch (Exception e) {
-			throw new JwtException(GlobalErrorCode.INVALID_TOKEN);
+			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 }

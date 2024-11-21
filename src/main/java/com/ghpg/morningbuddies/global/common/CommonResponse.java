@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.ghpg.morningbuddies.global.exception.common.code.BaseCode;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,14 @@ public class CommonResponse<T> {
 
 	public static <T> CommonResponse<T> onSuccess(T data) {
 		return new CommonResponse<>(true, "200", "요청에 성공하였습니다.", LocalDateTime.now(), data);
+	}
+
+	public static <T> CommonResponse<T> of(BaseCode code, T data) {
+		return new CommonResponse<>(true,
+			code.getReasonHttpStatus().getCode(),
+			code.getReasonHttpStatus().getMessage(),
+			LocalDateTime.now(),
+			data);
 	}
 
 	public static <T> CommonResponse<T> onFailure(String code, String message, T data) {

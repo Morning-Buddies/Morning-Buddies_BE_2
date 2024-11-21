@@ -24,7 +24,7 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import jakarta.servlet.FilterChain;
@@ -67,7 +67,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 			return authenticateUser(loginRequest);
 		} catch (IOException e) {
-			throw new MemberException(GlobalErrorCode.INVALID_LOGIN_REQUEST);
+			throw new MemberException(ErrorStatus.INVALID_LOGIN_REQUEST);
 		}
 	}
 
@@ -142,16 +142,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	private BaseErrorCode determineErrorCode(AuthenticationException exception) {
 		if (exception instanceof UsernameNotFoundException ||
 			exception.getCause() instanceof MemberException)  // 이 부분 추가
-			return GlobalErrorCode.MEMBER_NOT_FOUND;
+			return ErrorStatus.MEMBER_NOT_FOUND;
 		if (exception instanceof BadCredentialsException)
-			return GlobalErrorCode.INVALID_CREDENTIALS;
+			return ErrorStatus.INVALID_CREDENTIALS;
 		if (exception instanceof DisabledException)
-			return GlobalErrorCode.ACCOUNT_DISABLED;
+			return ErrorStatus.ACCOUNT_DISABLED;
 		if (exception instanceof LockedException)
-			return GlobalErrorCode.ACCOUNT_LOCKED;
+			return ErrorStatus.ACCOUNT_LOCKED;
 		if (exception instanceof AccountExpiredException)
-			return GlobalErrorCode.ACCOUNT_EXPIRED;
-		return GlobalErrorCode.LOGIN_FAILED;
+			return ErrorStatus.ACCOUNT_EXPIRED;
+		return ErrorStatus.LOGIN_FAILED;
 	}
 
 	private void writeErrorResponse(HttpServletResponse response, BaseErrorCode errorCode,

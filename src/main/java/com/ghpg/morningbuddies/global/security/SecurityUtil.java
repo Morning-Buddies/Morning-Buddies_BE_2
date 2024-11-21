@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 
 import jakarta.servlet.http.Cookie;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ public class SecurityUtil {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || !authentication.isAuthenticated()) {
-			throw new GeneralException(GlobalErrorCode.AUTHENTICATION_REQUIRED);
+			throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
 		}
 
 		Object principal = authentication.getPrincipal();
@@ -35,7 +35,7 @@ public class SecurityUtil {
 			return (String)principal;
 		}
 
-		throw new GeneralException(GlobalErrorCode.INVALID_AUTHENTICATION);
+		throw new GeneralException(ErrorStatus.INVALID_AUTHENTICATION);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class SecurityUtil {
 
 		if (authentication == null || !authentication.isAuthenticated() ||
 			authentication.getPrincipal().equals("anonymousUser")) {
-			throw new GeneralException(GlobalErrorCode.AUTHENTICATION_REQUIRED);
+			throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
 		}
 
 		return (CustomUserDetails)authentication.getPrincipal();

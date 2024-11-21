@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.auth.member.validation.annotation.UniquePhoneNumber;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -33,7 +33,7 @@ public class UniquePhoneNumberValidator implements ConstraintValidator<UniquePho
 		if (existingMember.isPresent()) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
-					GlobalErrorCode.MEMBER_ALREADY_EXIST.getMessage())
+					ErrorStatus.MEMBER_ALREADY_EXIST.getMessage())
 				.addConstraintViolation();
 
 			// ValidationException을 던지지 않고 false 반환
