@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.domain.groups.dto;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
@@ -103,7 +104,7 @@ public class GroupResponseDto {
 		@Schema(description = "내가 속한 그룹 목록")
 		private List<GroupResponseDto.GroupInfo> groups;
 
-		public static GroupListResponseDTO of(List<Groups> groups) {
+		public static GroupListResponseDTO of(Set<Groups> groups) {
 			return GroupListResponseDTO.builder()
 				.totalCount(groups.size())
 				.groups(GroupResponseDto.GroupInfo.of(groups))
@@ -123,7 +124,7 @@ public class GroupResponseDto {
 		@JsonFormat(pattern = "HH:mm")
 		private LocalTime wakeupTime;
 
-		public static List<GroupInfo> of(List<Groups> groups) {
+		public static List<GroupInfo> of(Set<Groups> groups) {
 			return groups.stream()
 				.map(group -> GroupInfo.builder()
 					.id(group.getId())

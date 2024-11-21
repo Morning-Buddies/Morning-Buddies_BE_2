@@ -24,8 +24,9 @@ public class MemberRepositoryImpl implements MemberRepository {
 			.selectFrom(member)
 			.leftJoin(member.memberGroups, memberGroup).fetchJoin()
 			.leftJoin(memberGroup.group).fetchJoin()
+			.leftJoin(member.groups).fetchJoin()  // groups 컬렉션에 대한 fetch join 추가
 			.where(member.email.eq(email))
 			.fetchOne());
 	}
-	
+
 }

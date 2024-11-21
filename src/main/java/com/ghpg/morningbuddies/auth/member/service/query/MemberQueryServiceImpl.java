@@ -1,6 +1,7 @@
 package com.ghpg.morningbuddies.auth.member.service.query;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
@@ -47,16 +48,16 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
 
-		List<Groups> currentMembersGroups = getCurrentMembersGroups(currentMember);
+		Set<Groups> currentMembersGroups = getCurrentMembersGroups(currentMember);
 
 		return GroupResponseDto.GroupListResponseDTO.of(currentMembersGroups);
 
 	}
 
-	private static @NotNull List<Groups> getCurrentMembersGroups(Member currentMember) {
+	private static @NotNull Set<Groups> getCurrentMembersGroups(Member currentMember) {
 		return currentMember.getMemberGroups().stream()
 			.map(MemberGroup::getGroup)
-			.collect(Collectors.toList());
+			.collect(Collectors.toSet());
 	}
 
 	// 회원이 가입한 채팅방 리스트 가져오기

@@ -2,7 +2,9 @@ package com.ghpg.morningbuddies.auth.member.entity;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
@@ -88,10 +90,6 @@ public class Member extends BaseEntity {
 	private Boolean isDeleted = false;
 
 	@Builder.Default
-	@ColumnDefault("true")
-	private Boolean isActivated = true;
-
-	@Builder.Default
 	@ColumnDefault("0")
 	private Integer successGameCount = 0;
 
@@ -108,7 +106,7 @@ public class Member extends BaseEntity {
 
 	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
-	private List<Groups> groups = new ArrayList<>();
+	private Set<Groups> groups = new HashSet<>();
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
@@ -126,7 +124,7 @@ public class Member extends BaseEntity {
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	@Builder.Default
-	private List<MemberGroup> memberGroups = new ArrayList<>();
+	private Set<MemberGroup> memberGroups = new HashSet<>();
 
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
@@ -149,7 +147,7 @@ public class Member extends BaseEntity {
 			.preferredWakeupTime(request.getPreferredWakeupTime())
 			.phoneNumber(request.getPhoneNumber())
 			.role(UserRole.ROLE_USER)
-			.isActivated(true)
+			.isDeleted(false)
 			.build();
 	}
 

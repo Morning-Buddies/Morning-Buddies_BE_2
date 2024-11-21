@@ -13,10 +13,10 @@ import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.service.query.CustomUserDetailsService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
-import com.ghpg.morningbuddies.global.exception.JwtException.JwtException;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
