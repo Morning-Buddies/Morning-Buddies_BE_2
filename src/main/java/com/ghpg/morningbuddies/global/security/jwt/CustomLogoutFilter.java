@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
-import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
+import com.ghpg.morningbuddies.global.exception.jwt.JwtException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

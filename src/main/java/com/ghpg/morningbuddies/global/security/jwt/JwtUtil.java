@@ -11,7 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
-import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
+import com.ghpg.morningbuddies.global.exception.jwt.JwtException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

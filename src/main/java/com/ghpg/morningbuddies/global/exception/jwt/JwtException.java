@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.global.exception.jwtexception;
+package com.ghpg.morningbuddies.global.exception.jwt;
 
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.BaseErrorCode;
