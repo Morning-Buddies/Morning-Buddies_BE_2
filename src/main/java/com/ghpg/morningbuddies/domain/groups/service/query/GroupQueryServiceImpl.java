@@ -20,7 +20,7 @@ import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.RequestStatus;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJoinRequestRepository;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
@@ -67,13 +67,13 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	public List<GroupResponseDto.JoinRequestDTO> findByGroupAndStatus(Long groupId) {
 		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member member = memberJPARepository.findByEmail(currentEmail)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		Groups group = groupJPARepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
 		if (!group.getLeader().equals(member)) {
-			throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
+			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
 		}
 
 		List<GroupJoinRequest> joinRequests = groupJoinRequestRepository.findByGroupAndStatus(group,

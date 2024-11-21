@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.auth.member.validation.annotation.ExistingEmail;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -33,7 +33,7 @@ public class ExistingEmailValidator implements ConstraintValidator<ExistingEmail
 		if (existingMember.isEmpty()) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
-					GlobalErrorCode.MEMBER_NOT_EXIST.getMessage())
+					ErrorStatus.MEMBER_NOT_EXIST.getMessage())
 				.addConstraintViolation();
 
 			// ValidationException을 던지지 않고 false 반환

@@ -11,14 +11,17 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum GlobalErrorCode implements BaseErrorCode {
+public enum ErrorStatus implements BaseErrorCode {
 	//Global
 	// 500 Server Error
 	SERVER_ERROR(INTERNAL_SERVER_ERROR, "GLOBAL500_1", "서버 에러, 서버 개발자에게 알려주세요."),
 
 	// Args Validation Error
 	BAD_ARGS_ERROR(BAD_REQUEST, "GLOBAL400_1", "request body의 validation이 실패했습니다. 응답 body를 참고해주세요"),
-
+	_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
+	_BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
+	_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
+	_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
 	// Auth
 	// 401 Unauthorized - 권한 없음
 	TOKEN_EXPIRED(UNAUTHORIZED, "AUTH401_1", "인증 토큰이 만료 되었습니다. 토큰을 재발급 해주세요"),
@@ -106,14 +109,4 @@ public enum GlobalErrorCode implements BaseErrorCode {
 			.build();
 	}
 
-	@Override
-	public ErrorReason getReasonHttpStatus(Object data) {
-		return ErrorReason.builder()
-			.message(message)
-			.code(code)
-			.httpStatus(httpStatus)
-			.isSuccess(false)
-			.data(data)  // 데이터 포함
-			.build();
-	}
 }

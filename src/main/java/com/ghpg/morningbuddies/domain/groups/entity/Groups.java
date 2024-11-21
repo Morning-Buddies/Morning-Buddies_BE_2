@@ -15,7 +15,7 @@ import com.ghpg.morningbuddies.domain.groups.entity.enums.AlarmSound;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.group.GroupException;
 
 import jakarta.persistence.CascadeType;
@@ -130,11 +130,11 @@ public class Groups extends BaseEntity {
 
 	public void addMemberGroup(MemberGroup memberGroup) {
 		if (this.currentParticipantCount >= this.maxParticipantCount) {
-			throw new GroupException(GlobalErrorCode.GROUP_FULL);
+			throw new GroupException(ErrorStatus.GROUP_FULL);
 		}
 
 		if (this.memberGroups.contains(memberGroup)) {
-			throw new GroupException(GlobalErrorCode.MEMBER_ALREADY_JOINED);
+			throw new GroupException(ErrorStatus.MEMBER_ALREADY_JOINED);
 		}
 
 		this.memberGroups.add(memberGroup);
@@ -159,9 +159,9 @@ public class Groups extends BaseEntity {
 
 	public void removeMember(Member member) {
 		MemberGroup memberGroup = this.memberGroups.stream()
-				.filter(mg -> mg.getMember().equals(member))
-				.findFirst()
-				.orElseThrow(() -> new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP));
+			.filter(mg -> mg.getMember().equals(member))
+			.findFirst()
+			.orElseThrow(() -> new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP));
 
 		this.memberGroups.remove(memberGroup);
 		memberGroup.setGroup(null);

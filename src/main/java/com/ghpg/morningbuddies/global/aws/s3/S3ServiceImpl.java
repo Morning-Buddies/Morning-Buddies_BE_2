@@ -12,7 +12,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.file.FileException;
 import com.ghpg.morningbuddies.global.util.MockMultipartFile;
 
@@ -66,10 +66,10 @@ public class S3ServiceImpl implements S3Service {
 			return uploadImage(multipartFile);
 		} catch (MalformedURLException e) {
 			log.error("Invalid URL: {}", imageUrl, e);
-			throw new FileException(GlobalErrorCode.FILE_DOWNLOAD_FAILED);
+			throw new FileException(ErrorStatus.FILE_DOWNLOAD_FAILED);
 		} catch (IOException e) {
 			log.error("Failed to transfer image from {} to S3", imageUrl, e);
-			throw new FileException(GlobalErrorCode.FILE_UPLOAD_FAILED);
+			throw new FileException(ErrorStatus.FILE_UPLOAD_FAILED);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class S3ServiceImpl implements S3Service {
 			return localFilePath;
 		} catch (Exception e) {
 			log.error("Failed to download image from S3: {}", s3Url, e);
-			throw new FileException(GlobalErrorCode.FILE_DOWNLOAD_FAILED);
+			throw new FileException(ErrorStatus.FILE_DOWNLOAD_FAILED);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class S3ServiceImpl implements S3Service {
 
 			return s3Url + "/" + fileName;
 		} catch (IOException e) {
-			throw new FileException(GlobalErrorCode.FILE_UPLOAD_FAILED);
+			throw new FileException(ErrorStatus.FILE_UPLOAD_FAILED);
 		}
 	}
 

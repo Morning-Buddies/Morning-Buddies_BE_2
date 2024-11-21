@@ -7,7 +7,7 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.auth.refreshtoken.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
-import com.ghpg.morningbuddies.global.exception.common.code.GlobalErrorCode;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class RefreshTokenCommandServiceImpl implements RefreshTokenCommandServic
 	@Override
 	public void saveNewRefreshToken(String email, String refreshToken) {
 		Member member = memberJPARepository.findByEmail(email)
-			.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		refreshTokenJPARepository.deleteByMemberId(member.getId());
 
