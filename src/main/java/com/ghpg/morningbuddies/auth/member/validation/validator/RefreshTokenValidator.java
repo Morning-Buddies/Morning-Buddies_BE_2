@@ -8,7 +8,7 @@ import com.ghpg.morningbuddies.auth.refreshtoken.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
-import com.ghpg.morningbuddies.global.exception.jwtexception.JwtException;
+import com.ghpg.morningbuddies.global.exception.jwt.JwtException;
 import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 
