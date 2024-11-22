@@ -40,5 +40,21 @@ public class GroupJoinRequest {
 
 	@Enumerated(EnumType.STRING)
 	private RequestStatus status;
-	
+
+	/*
+	 * 연관 관계
+	 * 편의 메서드
+	 * */
+
+	public void changeStatus(RequestStatus status) {
+		this.status = status;
+	}
+
+	public void accept() {
+		this.changeStatus(RequestStatus.ACCEPTED);
+	}
+
+
 }
+
+
