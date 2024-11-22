@@ -43,6 +43,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		String authorization = request.getHeader("Authorization");
 
+		// 회원가입, 로그인 요청인 경우
+		if (request.getRequestURI().equals(JOIN_URL) || request.getRequestURI().equals(LOGIN_URL)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+
 		// Authorization 헤더가 없거나 Bearer로 시작하지 않는 경우
 		if (authorization == null || !authorization.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
