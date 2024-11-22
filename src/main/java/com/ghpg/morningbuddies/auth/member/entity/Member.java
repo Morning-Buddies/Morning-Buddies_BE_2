@@ -24,6 +24,8 @@ import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
+import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -176,4 +178,11 @@ public class Member extends BaseEntity {
 		this.currentGroupCount = currentGroupCount;
 	}
 
+	public void decreaseGroupCount() {
+		if (this.currentGroupCount > 0) {
+			this.currentGroupCount--;
+		} else {
+			throw new MemberException(ErrorStatus.INVALID_GROUP_COUNT);
+		}
+	}
 }

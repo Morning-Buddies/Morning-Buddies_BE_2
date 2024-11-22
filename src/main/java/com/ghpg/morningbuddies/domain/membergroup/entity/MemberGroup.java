@@ -1,5 +1,8 @@
 package com.ghpg.morningbuddies.domain.membergroup.entity;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
@@ -23,6 +26,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@DynamicUpdate
+@DynamicInsert
 public class MemberGroup extends BaseEntity {
 
 	@Id
@@ -60,6 +65,14 @@ public class MemberGroup extends BaseEntity {
 
 	public boolean isLeader() {
 		return group.getLeader().getId().equals(member.getId());
+	}
+
+	public void remove() {
+		if (this.group != null) {
+			this.member.decreaseGroupCount();
+			this.member = null;
+			this.group = null;
+		}
 	}
 
 }

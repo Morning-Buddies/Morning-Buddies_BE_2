@@ -12,6 +12,7 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.AlarmSound;
+import com.ghpg.morningbuddies.domain.groups.entity.enums.GroupStatus;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
@@ -48,6 +49,7 @@ import lombok.NoArgsConstructor;
 @DynamicInsert
 @Table(name = "`group`")
 public class Groups extends BaseEntity {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "group_id")
@@ -60,13 +62,17 @@ public class Groups extends BaseEntity {
 
 	private LocalTime wakeupTime;
 
+	@Builder.Default
 	@ColumnDefault("0")
-	private Integer successCount;
+	private Integer successCount = 0;
 
-	private String groupImageUrl;
+	@Builder.Default
+	private String groupImageUrl = null;
 
-	@ColumnDefault("true")
-	private Boolean isActivated;
+	@Builder.Default
+	@ColumnDefault("'ACTIVE'")
+	@Enumerated(EnumType.STRING)
+	private GroupStatus status = GroupStatus.ACTIVE;
 
 	@Column(nullable = false)
 	@Builder.Default
@@ -117,7 +123,6 @@ public class Groups extends BaseEntity {
 			.groupImageUrl(groupImageUrl)
 			.currentParticipantCount(1)
 			.leader(leader)
-			.isActivated(true)
 			.build();
 
 		for (MemberGroup memberGroup : memberGroups) {
@@ -157,22 +162,52 @@ public class Groups extends BaseEntity {
 		}
 	}
 
-	public void removeMember(Member member) {
-		MemberGroup memberGroup = this.memberGroups.stream()
+	public void leave(Member member) {
+		validateMemberCanLeave(member);
+		MemberGroup memberGroup = findMemberGroup(member);
+		removeMemberGroup(memberGroup);
+	}
+
+	/**
+	 * 멤버가 속한 멤버그룹 찾기
+	 * @param member
+	 * @return
+	 */
+	private MemberGroup findMemberGroup(Member member) {
+		return this.memberGroups.stream()
 			.filter(mg -> mg.getMember().equals(member))
 			.findFirst()
 			.orElseThrow(() -> new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP));
+	}
 
+	private void removeMemberGroup(MemberGroup memberGroup) {
 		this.memberGroups.remove(memberGroup);
-		memberGroup.setGroup(null);
+		memberGroup.remove();  // MemberGroup에서 양방향 관계 처리
 		this.currentParticipantCount--;
 	}
 
-	public boolean isMemberInGroup(Member member) {
-		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
+	/**
+	 * 멤버가 탈퇴할 수 있는지 검증
+	 * @param member
+	 */
+	private void validateMemberCanLeave(Member member) {
+
+		// 그룹장은 탈퇴할 수 없음
+		if (isLeader(member)) {
+			throw new GroupException(ErrorStatus.LEADER_CANNOT_LEAVE);
+		}
+
+		// 그룹에 속해있지 않은 멤버는 탈퇴할 수 없음
+		if (!containsMember(member)) {
+			throw new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP);
+		}
 	}
 
-
+	/**
+	 * 그룹 정보 수정
+	 * @param request
+	 * @param groupImageUrl
+	 */
 	public void updateGroup(GroupRequestDto.GroupCommand request,
 		String groupImageUrl) {
 
@@ -184,9 +219,22 @@ public class Groups extends BaseEntity {
 
 	}
 
+	/**
+	 * 그룹장인지 확인
+	 * @param member
+	 * @return
+	 */
 	public boolean isLeader(Member member) {
 		return this.leader.equals(member);
 	}
 
+	/**
+	 * 그룹에 멤버가 포함되어 있는지 확인
+	 * @param member
+	 * @return
+	 */
+	private boolean containsMember(Member member) {
+		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
+	}
 
 }

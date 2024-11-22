@@ -133,19 +133,9 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public Void leaveGroup(Long groupId) {
 		Member currentMember = getCurrentMember();
 
-		Groups group = getGroupAllInfoByGroupId(groupId);
+		Groups currentGroup = getGroupAllInfoByGroupId(groupId);
 
-		if (!group.isMemberInGroup(currentMember)) {
-			throw new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP);
-		}
-
-		// 그룹에서 멤버 삭제
-		group.removeMember(currentMember);
-
-		// 채팅방에서 멤버 삭제
-		if (group.getChatRoom() != null) {
-			chatRoomCommandService.leaveChatRoom(group.getChatRoom().getId(), currentMember.getId());
-		}
+		currentGroup.leave(currentMember);
 
 		return null;
 
