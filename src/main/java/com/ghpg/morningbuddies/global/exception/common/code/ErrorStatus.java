@@ -12,79 +12,50 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
-	//Global
-	// 500 Server Error
-	SERVER_ERROR(INTERNAL_SERVER_ERROR, "GLOBAL500_1", "서버 에러, 서버 개발자에게 알려주세요."),
+	// Global (GLOBAL)
+	_INTERNAL_SERVER_ERROR(INTERNAL_SERVER_ERROR, "GLOBAL_500_0", "서버 에러, 관리자에게 문의 바랍니다."),
+	_BAD_REQUEST(BAD_REQUEST, "GLOBAL_400_0", "잘못된 요청입니다."),
+	_VALIDATION_ERROR(BAD_REQUEST, "GLOBAL_400_1", "요청 데이터 검증에 실패했습니다."),
 
-	// Args Validation Error
-	BAD_ARGS_ERROR(BAD_REQUEST, "GLOBAL400_1", "request body의 validation이 실패했습니다. 응답 body를 참고해주세요"),
-	_INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
-	_BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
-	_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
-	_FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
-	// Auth
-	// 401 Unauthorized - 권한 없음
-	TOKEN_EXPIRED(UNAUTHORIZED, "AUTH401_1", "인증 토큰이 만료 되었습니다. 토큰을 재발급 해주세요"),
-	INVALID_TOKEN(UNAUTHORIZED, "AUTH401_2", "인증 토큰이 유효하지 않습니다."),
-	INVALID_REFRESH_TOKEN(UNAUTHORIZED, "AUTH401_3", "리프레시 토큰이 유효하지 않습니다."),
-	REFRESH_TOKEN_EXPIRED(UNAUTHORIZED, "AUTH401_4", "리프레시 토큰이 만료 되었습니다."),
-	AUTHENTICATION_REQUIRED(UNAUTHORIZED, "AUTH401_5", "인증 정보가 유효하지 않습니다."),
-	LOGIN_REQUIRED(UNAUTHORIZED, "AUTH401_6", "로그인이 필요한 서비스입니다."),
-	REFRESH_TOKEN_REQUIRED(UNAUTHORIZED, "AUTH401_7", "리프레시 토큰이 필요합니다."),
-	ACCESS_TOKEN_EXPIRED(UNAUTHORIZED, "AUTH401_8", "액세스 토큰이 만료 되었습니다."),
-	INVALID_ACCESS_TOKEN(UNAUTHORIZED, "AUTH401_9", "액세스 토큰이 유효하지 않습니다."),
-	EMPTY_TOKEN(UNAUTHORIZED, "AUTH401_10", "토큰이 비어있습니다."),
-	INVALID_SIGNATURE(UNAUTHORIZED, "AUTH401_11", "토큰의 서명이 유효하지 않습니다."),
-	UNSUPPORTED_TOKEN(UNAUTHORIZED, "AUTH401_12", "지원되지 않는 토큰입니다."),
-	INVALID_CREDENTIALS(UNAUTHORIZED, "AUTH401_13", "로그인 정보가 올바르지 않습니다."),
-	ACCOUNT_DISABLED(UNAUTHORIZED, "AUTH401_14", "계정이 비활성화 되었습니다."),
-	ACCOUNT_LOCKED(UNAUTHORIZED, "AUTH401_15", "계정이 잠겼습니다."),
-	ACCOUNT_EXPIRED(UNAUTHORIZED, "AUTH401_16", "계정이 만료되었습니다."),
-	LOGIN_FAILED(UNAUTHORIZED, "AUTH401_17", "로그인에 실패하였습니다."),
-	INVALID_AUTHENTICATION(UNAUTHORIZED, "AUTH401_18", "인증 정보가 올바르지 않습니다."),
-	INVALID_LOGIN_REQUEST(BAD_REQUEST, "AUTH400_1", "로그인 요청이 올바르지 않습니다."),
-	LOGOUT_FAILED(UNAUTHORIZED, "AUTH401_19", "로그아웃에 실패하였습니다."),
+	// Authentication & Authorization (AUTH)
+	LOGOUT_FAILED(BAD_REQUEST, "AUTH_400_0", "잘못된 로그아웃 요청입니다."),
+	TOKEN_EXPIRED(UNAUTHORIZED, "AUTH_401_0", "인증 토큰이 만료되었습니다."),
+	INVALID_TOKEN(UNAUTHORIZED, "AUTH_401_1", "유효하지 않은 토큰입니다."),
+	REFRESH_TOKEN_EXPIRED(UNAUTHORIZED, "AUTH_401_2", "리프레시 토큰이 만료되었습니다."),
+	ACCESS_TOKEN_EXPIRED(UNAUTHORIZED, "AUTH_401_3", "액세스 토큰이 만료되었습니다."),
+	LOGIN_REQUIRED(UNAUTHORIZED, "AUTH_401_4", "로그인이 필요한 서비스입니다."),
+	INVALID_CREDENTIALS(UNAUTHORIZED, "AUTH_401_5", "로그인 정보가 올바르지 않습니다."),
+	AUTHENTICATION_DENIED(FORBIDDEN, "AUTH_403_0", "접근 권한이 없습니다."),
+	LOGIN_FAILED(INTERNAL_SERVER_ERROR, "AUTH_500_0", "로그인에 실패했습니다."),
+	AUTHENTICATION_REQUIRED(INTERNAL_SERVER_ERROR, "AUTH_500_1", "인증 정보가 필요합니다."),
 
-	// 403 Forbidden - 인증 거부
-	AUTHENTICATION_DENIED(FORBIDDEN, "AUTH403_1", "인증이 거부 되었습니다."),
+	// Member (MEMBER)
+	MEMBER_NOT_FOUND(NOT_FOUND, "MEMBER_404_0", "회원을 찾을 수 없습니다."),
+	MEMBER_ALREADY_EXISTS(CONFLICT, "MEMBER_409_0", "이미 존재하는 회원입니다."),
 
-	// 404 Not Found - 찾을 수 없음
-	REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "AUTH404_1", "리프레시 토큰이 존재하지 않습니다."),
+	// Group (GROUP)
+	GROUP_NOT_FOUND(NOT_FOUND, "GROUP_404_0", "그룹을 찾을 수 없습니다."),
+	GROUP_ALREADY_EXISTS(CONFLICT, "GROUP_409_0", "그룹이 이미 존재합니다."),
+	GROUP_FULL(CONFLICT, "GROUP_409_1", "그룹 인원이 가득 찼습니다."),
+	GROUP_PERMISSION_DENIED(FORBIDDEN, "GROUP_403_0", "그룹에 대한 권한이 없습니다."),
+	LEADER_CANNOT_LEAVE(FORBIDDEN, "GROUP_403_1", "그룹장은 탈퇴할 수 없습니다."),
+	MEMBER_NOT_IN_GROUP(FORBIDDEN, "GROUP_403_2", "그룹에 속해있지 않은 회원입니다."),
+	MEMBER_ALREADY_JOINED(CONFLICT, "GROUP_409_2", "이미 가입한 그룹입니다."),
 
-	//Member
-	// 404 Not Found - 찾을 수 없음
-	MEMBER_NOT_FOUND(NOT_FOUND, "MEMBER404_1", "회원을 찾을 수 없습니다."),
-	MEMBER_ALREADY_EXIST(CONFLICT, "MEMBER409_1", "이미 존재하는 회원입니다."),
-	MEMBER_NOT_EXIST(CONFLICT, "MEMBER409_2", "존재하지 않는 회원입니다."),
+	// ChatRoom (CHAT)
+	CHATROOM_NOT_FOUND(NOT_FOUND, "CHAT_404_0", "채팅방을 찾을 수 없습니다."),
+	MEMBER_NOT_IN_CHATROOM(FORBIDDEN, "CHAT_403_0", "채팅방에 속해있지 않은 회원입니다."),
 
-	//Group
-	GROUP_ALREADY_CREATED(CONFLICT, "GROUP409_1", "그룹이 이미 존재합니다."),
-	GROUP_NOT_FOUND(CONFLICT, "GROUP409_2", "그룹을 찾을 수 없습니다."),
-	GROUP_PERMISSION_DENIED(CONFLICT, "GROUP409_3", "그룹에 대한 권한이 없습니다."),
-	GROUP_FULL(CONFLICT, "GROUP409_4", "인원이 다 찼습니다."),
-	LEADER_CANNOT_LEAVE_GROUP(CONFLICT, "GROUP409_5", "반장은 그룹에서 나갈 수 없습니다."),
-	MEMBER_ALREADY_JOINED(CONFLICT, "GROUP409_6", "이미 가입한 그룹입니다."),
+	// File (FILE)
+	FILE_UPLOAD_FAILED(INTERNAL_SERVER_ERROR, "FILE_500_0", "파일 업로드에 실패했습니다."),
+	FILE_DOWNLOAD_FAILED(INTERNAL_SERVER_ERROR, "FILE_500_1", "파일 다운로드에 실패했습니다."),
 
-	// ChatRoom
-	CHATROOM_NOT_FOUND(NOT_FOUND, "CHATROOM404_1", "채팅방을 찾을 수 없습니다."),
-	MEMBER_NOT_IN_CHATROOM(CONFLICT, "CHATROOM409_1", "해당 회원은 채팅방에 없습니다."),
+	// Puzzle (PUZZLE)
+	PUZZLE_NOT_FOUND(NOT_FOUND, "PUZZLE_404_0", "퍼즐을 찾을 수 없습니다."),
+	PUZZLE_SAVE_FAILED(INTERNAL_SERVER_ERROR, "PUZZLE_500_0", "퍼즐 저장에 실패했습니다."),
 
-	//MemberGroup
-	MEMBER_NOT_IN_GROUP(CONFLICT, "MEMBERGROUP409_1", "해당 회원은 그룹에 없습니다."),
-
-	//Request
-	REQUEST_NOT_FOUND(CONFLICT, "REQUEST409_1", "요청을 찾을 수 없습니다."),
-
-	//File
-	FILE_UPLOAD_FAILED(CONFLICT, "FILE409_1", "파일 업로드에 실패하였습니다."),
-	FILE_DOWNLOAD_FAILED(CONFLICT, "FILE409_2", "파일 다운로드에 실패하였습니다."),
-
-	//Puzzle
-	PUZZLE_NOT_FOUND(NOT_FOUND, "PUZZLE404_1", "퍼즐을 찾을 수 없습니다."),
-	PUZZLE_PIECE_SAVE_FAILED(CONFLICT, "PUZZLE409_1", "퍼즐 조각 저장에 실패하였습니다."),
-
-	//Game
-	GAME_NOT_FOUND(NOT_FOUND, "GAME404_1", "게임을 찾을 수 없습니다.");
+	// Game (GAME)
+	GAME_NOT_FOUND(NOT_FOUND, "GAME_404_0", "게임을 찾을 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;
@@ -108,5 +79,4 @@ public enum ErrorStatus implements BaseErrorCode {
 			.isSuccess(false)
 			.build();
 	}
-
 }

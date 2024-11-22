@@ -33,7 +33,7 @@ public class ExistingEmailValidator implements ConstraintValidator<ExistingEmail
 		if (existingMember.isEmpty()) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
-					ErrorStatus.MEMBER_NOT_EXIST.getMessage())
+					ErrorStatus.MEMBER_NOT_FOUND.getMessage())
 				.addConstraintViolation();
 
 			// ValidationException을 던지지 않고 false 반환

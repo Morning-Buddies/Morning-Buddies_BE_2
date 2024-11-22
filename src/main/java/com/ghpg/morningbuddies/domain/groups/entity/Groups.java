@@ -104,7 +104,7 @@ public class Groups extends BaseEntity {
 	 * */
 
 	public static Groups createGroup(
-		GroupRequestDto.CreateGroupDto createGroupDto,
+		GroupRequestDto.GroupCommand createGroupDto,
 		String groupImageUrl,
 		Member leader,
 		MemberGroup... memberGroups
@@ -172,4 +172,14 @@ public class Groups extends BaseEntity {
 		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
 	}
 
+	public void updateGroup(GroupRequestDto.GroupCommand request,
+		String groupImageUrl) {
+
+		groupName = request.getGroupName();
+		wakeupTime = request.getWakeUpTime();
+		maxParticipantCount = request.getMaxParticipantCount();
+		description = request.getDescription();
+		this.groupImageUrl = groupImageUrl;
+
+	}
 }

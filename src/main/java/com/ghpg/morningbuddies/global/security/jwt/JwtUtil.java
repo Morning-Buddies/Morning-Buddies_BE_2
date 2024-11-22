@@ -16,8 +16,6 @@ import com.ghpg.morningbuddies.global.exception.jwt.JwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -108,7 +106,7 @@ public class JwtUtil {
 		if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(BEARER_PREFIX.length());
 		}
-		throw new JwtException(ErrorStatus.EMPTY_TOKEN);
+		throw new JwtException(ErrorStatus.INVALID_TOKEN);
 	}
 
 	public String extractAccessToken(HttpServletRequest request) {
@@ -116,7 +114,7 @@ public class JwtUtil {
 		if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
 			return bearerToken.substring(BEARER_PREFIX.length());
 		}
-		throw new JwtException(ErrorStatus.INVALID_ACCESS_TOKEN);
+		throw new JwtException(ErrorStatus.INVALID_TOKEN);
 	}
 
 	public String extractRefreshToken(HttpServletRequest request) {
@@ -138,14 +136,8 @@ public class JwtUtil {
 				.build()
 				.parseSignedClaims(token);
 			return true;
-		} catch (SignatureException e) {
-			throw new JwtException(ErrorStatus.INVALID_SIGNATURE);
 		} catch (ExpiredJwtException e) {
 			throw new JwtException(ErrorStatus.TOKEN_EXPIRED);
-		} catch (UnsupportedJwtException e) {
-			throw new JwtException(ErrorStatus.UNSUPPORTED_TOKEN);
-		} catch (IllegalArgumentException e) {
-			throw new JwtException(ErrorStatus.EMPTY_TOKEN);
 		} catch (Exception e) {
 			throw new JwtException(ErrorStatus.INVALID_TOKEN);
 		}

@@ -5,11 +5,8 @@ import java.time.Duration;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -67,7 +64,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 			return authenticateUser(loginRequest);
 		} catch (IOException e) {
-			throw new MemberException(ErrorStatus.INVALID_LOGIN_REQUEST);
+			throw new MemberException(ErrorStatus.INVALID_CREDENTIALS);
 		}
 	}
 
@@ -145,12 +142,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 			return ErrorStatus.MEMBER_NOT_FOUND;
 		if (exception instanceof BadCredentialsException)
 			return ErrorStatus.INVALID_CREDENTIALS;
-		if (exception instanceof DisabledException)
-			return ErrorStatus.ACCOUNT_DISABLED;
-		if (exception instanceof LockedException)
-			return ErrorStatus.ACCOUNT_LOCKED;
-		if (exception instanceof AccountExpiredException)
-			return ErrorStatus.ACCOUNT_EXPIRED;
+
 		return ErrorStatus.LOGIN_FAILED;
 	}
 
@@ -162,7 +154,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		CommonResponse<?> errorResponse = CommonResponse.onFailure(
 			errorCode.getReason().getCode(),
 			errorCode.getReason().getMessage(),
-			exception.getMessage()
+			null
 		);
 
 		objectMapper.writeValue(response.getOutputStream(), errorResponse);

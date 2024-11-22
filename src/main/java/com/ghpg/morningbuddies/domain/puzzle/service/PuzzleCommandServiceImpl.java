@@ -360,7 +360,7 @@ public class PuzzleCommandServiceImpl implements PuzzleCommandService {
 			return pieceImageUrl;
 		} catch (IOException e) {
 			log.error("Failed to save and upload piece image", e);
-			throw new FileException(ErrorStatus.PUZZLE_PIECE_SAVE_FAILED);
+			throw new FileException(ErrorStatus.PUZZLE_SAVE_FAILED);
 		}
 	}
 

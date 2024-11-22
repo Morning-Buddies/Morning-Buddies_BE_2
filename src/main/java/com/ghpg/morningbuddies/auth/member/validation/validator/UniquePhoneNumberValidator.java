@@ -33,7 +33,7 @@ public class UniquePhoneNumberValidator implements ConstraintValidator<UniquePho
 		if (existingMember.isPresent()) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
-					ErrorStatus.MEMBER_ALREADY_EXIST.getMessage())
+					ErrorStatus.MEMBER_ALREADY_EXISTS.getMessage())
 				.addConstraintViolation();
 
 			// ValidationException을 던지지 않고 false 반환
