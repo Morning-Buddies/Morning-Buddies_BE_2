@@ -172,6 +172,7 @@ public class Groups extends BaseEntity {
 		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
 	}
 
+
 	public void updateGroup(GroupRequestDto.GroupCommand request,
 		String groupImageUrl) {
 
@@ -182,4 +183,10 @@ public class Groups extends BaseEntity {
 		this.groupImageUrl = groupImageUrl;
 
 	}
+
+	public boolean isLeader(Member member) {
+		return this.leader.equals(member);
+	}
+
+
 }

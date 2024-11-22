@@ -207,35 +207,38 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
 
-		// String currentEmail = SecurityUtil.getCurrentUserEmail();
-		// Member leader = memberJPARepository.findByEmail(currentEmail)
-		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-		//
-		// GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
-		//
-		// Groups group = joinRequest.getGroupAllInfoByGroupId();
-		// Member member = joinRequest.getMember();
-		//
-		// if (!group.getId().equals(groupId)) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
-		// }
-		//
-		// if (!group.getLeader().equals(leader)) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-		// }
-		//
-		// if (group.getCurrentParticipantCount() > group.getMaxParticipantCount()) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_FULL);
-		// }
-		//
-		// joinRequest.setStatus(RequestStatus.ACCEPTED);
-		// groupJoinRequestRepository.save(joinRequest);
-		//
-		// addMemberToGroup(group, member);
-		//
-		// // 가입 요청이 수락되었다는 알림 전송
-		// notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
+
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
+		Member leader = memberJPARepository.findByEmail(currentEmail)
+				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+
+		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
+				.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
+
+		Groups group = joinRequest.getGroup();
+		Member member = joinRequest.getMember();
+
+		validateJoinRequest(group, groupId, leader);
+
+		joinRequest.accept();
+
+		group.addMemberGroup(MemberGroup.builder()
+				.member(member)
+				.build());
+
+		groupJoinRequestRepository.save(joinRequest);
+		//notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
+	}
+
+	 private void validateJoinRequest(Groups group, Long groupId, Member leader){
+		 if (!group.getId().equals(groupId)) {
+			 throw new GroupException(ErrorStatus.GROUP_NOT_FOUND);
+		 }
+
+		 if (!group.isLeader(leader)) {
+			 throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
+		 }
+
 	}
 
 	/**
