@@ -172,4 +172,8 @@ public class Groups extends BaseEntity {
 		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
 	}
 
+	public boolean isLeader(Member member) {
+		return this.leader.equals(member);
+	}
+
 }
