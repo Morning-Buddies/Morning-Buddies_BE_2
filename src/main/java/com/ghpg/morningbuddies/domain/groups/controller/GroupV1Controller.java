@@ -64,12 +64,12 @@ public class GroupV1Controller {
 	}
 
 	// 그룹 탈퇴
-	// @DeleteMapping("/groups/{groupId}/members/me")
-	// @Operation(summary = "그룹 탈퇴", description = "그룹에서 탈퇴합니다.")
-	// public CommonResponse<String> deleteGroup(@PathVariable("groupId") Long groupId) {
-	// 	memberCommandService.leaveGroup(groupId);
-	// 	return CommonResponse.onSuccess("그룹에서 탈퇴하였습니다.");
-	// }
+	@DeleteMapping("/{groupId}/members/me")
+	@Operation(summary = "그룹 탈퇴", description = "그룹에서 탈퇴합니다.")
+	public CommonResponse<Void> leaveGroup(@PathVariable Long groupId) {
+
+		return CommonResponse.onSuccess(groupCommandService.leaveGroup(groupId));
+	}
 
 	// 그룹 정보 수정
 	@PatchMapping("/{groupId}")
@@ -89,7 +89,7 @@ public class GroupV1Controller {
 	}
 
 	// 그룹 삭제
-	@DeleteMapping("/{groupId}/members/me")
+	@DeleteMapping("/{groupId}")
 	@Operation(summary = "그룹 삭제", description = "해당 그룹을 삭제합니다.")
 	public CommonResponse<Void> deleteGroup(@PathVariable @ExistingGroupId Long groupId) {
 

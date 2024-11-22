@@ -34,6 +34,7 @@ public enum ErrorStatus implements BaseErrorCode {
 	MEMBER_ALREADY_EXISTS(CONFLICT, "MEMBER_409_0", "이미 존재하는 회원입니다."),
 
 	// Group (GROUP)
+	INVALID_GROUP_COUNT(BAD_REQUEST, "GROUP_400_0", "그룹 인원 수가 올바르지 않습니다."),
 	GROUP_NOT_FOUND(NOT_FOUND, "GROUP_404_0", "그룹을 찾을 수 없습니다."),
 	REQUEST_NOT_FOUND(NOT_FOUND, "GROUP_404_1", "그룹 가입 요청을 찾을 수 없습니다."),
 	GROUP_ALREADY_EXISTS(CONFLICT, "GROUP_409_0", "그룹이 이미 존재합니다."),
