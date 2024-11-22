@@ -35,6 +35,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
 	// Group (GROUP)
 	GROUP_NOT_FOUND(NOT_FOUND, "GROUP_404_0", "그룹을 찾을 수 없습니다."),
+	REQUEST_NOT_FOUND(NOT_FOUND, "GROUP_404_1", "그룹 가입 요청을 찾을 수 없습니다."),
 	GROUP_ALREADY_EXISTS(CONFLICT, "GROUP_409_0", "그룹이 이미 존재합니다."),
 	GROUP_FULL(CONFLICT, "GROUP_409_1", "그룹 인원이 가득 찼습니다."),
 	GROUP_PERMISSION_DENIED(FORBIDDEN, "GROUP_403_0", "그룹에 대한 권한이 없습니다."),
