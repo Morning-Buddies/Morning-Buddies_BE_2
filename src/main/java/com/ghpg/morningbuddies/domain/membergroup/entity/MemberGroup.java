@@ -58,4 +58,8 @@ public class MemberGroup extends BaseEntity {
 		this.group = group;
 	}
 
+	public boolean isLeader() {
+		return group.getLeader().getId().equals(member.getId());
+	}
+
 }

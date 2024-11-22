@@ -75,7 +75,7 @@ public class GroupV1Controller {
 				schema = @Schema(type = "string", format = "binary"))
 		)
 	})
-	@PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public CommonResponse<GroupResponseDto.GroupDetailDTO> createGroup(
 		@RequestPart("request") String requestString,
 		@RequestPart(value = "image", required = false) MultipartFile file
@@ -85,6 +85,15 @@ public class GroupV1Controller {
 		return CommonResponse.onSuccess(groupCommandService.createGroup(request, file));
 	}
 
+	// 그룹 상세 정보
+	@GetMapping("/{groupId}")
+	@Operation(summary = "그룹 상세 정보 가져오기", description = "해당 그룹 정보를 가져옵니다.")
+	public CommonResponse<GroupResponseDto.GroupDetailDTO> getGroupDetailsById(
+		@PathVariable Long groupId) {
+
+		return CommonResponse.onSuccess(groupQueryService.getGroupDetailById(groupId));
+	}
+
 	// 그룹 탈퇴
 	// @DeleteMapping("/groups/{groupId}/members/me")
 	// @Operation(summary = "그룹 탈퇴", description = "그룹에서 탈퇴합니다.")
@@ -92,15 +101,6 @@ public class GroupV1Controller {
 	// 	memberCommandService.leaveGroup(groupId);
 	// 	return CommonResponse.onSuccess("그룹에서 탈퇴하였습니다.");
 	// }
-
-	// 그룹 정보 가져오기
-	@GetMapping("/{groupId}")
-	@Operation(summary = "그룹 정보 가져오기", description = "해당 그룹 정보를 가져옵니다.")
-	public CommonResponse<GroupResponseDto.GroupDetailDTO> getGroupDetailsById(@PathVariable("groupId") Long groupId) {
-		GroupResponseDto.GroupDetailDTO group = groupQueryService.getGroupDetailById(groupId);
-
-		return CommonResponse.onSuccess(group);
-	}
 
 	// 그룹 정보 수정
 	@PatchMapping("/{groupId}")

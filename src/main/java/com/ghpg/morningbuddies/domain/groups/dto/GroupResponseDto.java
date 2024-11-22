@@ -9,7 +9,6 @@ import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.RequestStatus;
-import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -53,10 +52,8 @@ public class GroupResponseDto {
 		@Schema(description = "그룹 멤버 목록")
 		private MemberResponseDto.MemberListResponseDTO members;
 
-		@Schema(description = "그룹 리더 정보")
-		private LeaderDTO leader;
-
 		public static GroupDetailDTO of(Groups group) {
+
 			return GroupDetailDTO.builder()
 				.groupId(group.getId())
 				.groupName(group.getGroupName())
@@ -65,9 +62,7 @@ public class GroupResponseDto {
 				.currentParticipantCount(group.getCurrentParticipantCount())
 				.maxParticipantCount(group.getMaxParticipantCount())
 				.imageUrl(group.getGroupImageUrl())
-				.members(MemberResponseDto.MemberListResponseDTO.of(
-					group.getMemberGroups().stream().map(MemberGroup::getMember).toList()))
-				.leader(LeaderDTO.from(group.getLeader()))
+				.members(MemberResponseDto.MemberListResponseDTO.of(group.getMemberGroups()))
 				.build();
 		}
 	}

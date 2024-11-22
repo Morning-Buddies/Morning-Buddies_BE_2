@@ -40,7 +40,10 @@ public class GroupQueryServiceImpl implements GroupQueryService {
 	// 그룹 정보 가져오기
 	@Override
 	public GroupResponseDto.GroupDetailDTO getGroupDetailById(Long groupId) {
-		return null;
+		Groups group = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
+
+		return GroupResponseDto.GroupDetailDTO.of(group);
 	}
 
 	@Override

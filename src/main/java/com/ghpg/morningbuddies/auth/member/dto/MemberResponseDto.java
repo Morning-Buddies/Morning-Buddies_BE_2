@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -76,12 +77,16 @@ public class MemberResponseDto {
 		@Schema(description = "이메일", example = "test@example.com")
 		private String email;
 
-		public static MemberSummaryDTO of(Member member) {
+		@Schema(description = "리더 여부", example = "true")
+		private boolean isLeader;
+
+		public static MemberSummaryDTO of(Member member, boolean isLeader) {
 			return MemberSummaryDTO.builder()
 				.id(member.getId())
 				.firstName(member.getFirstName())
 				.lastName(member.getLastName())
 				.email(member.getEmail())
+				.isLeader(isLeader)
 				.build();
 		}
 
@@ -97,13 +102,13 @@ public class MemberResponseDto {
 		private int totalCount;
 
 		@Schema(description = "회원 목록")
-		private List<MemberSummaryDTO> memberSummaryDTOS;
+		private List<MemberSummaryDTO> members;
 
-		public static MemberListResponseDTO of(List<Member> members) {
+		public static MemberListResponseDTO of(List<MemberGroup> memberGroups) {
 			return MemberListResponseDTO.builder()
-				.totalCount(members.size())
-				.memberSummaryDTOS(members.stream()
-					.map(MemberSummaryDTO::of)
+				.totalCount(memberGroups.size())
+				.members(memberGroups.stream()
+					.map(mg -> MemberSummaryDTO.of(mg.getMember(), mg.isLeader()))
 					.toList())
 				.build();
 		}
