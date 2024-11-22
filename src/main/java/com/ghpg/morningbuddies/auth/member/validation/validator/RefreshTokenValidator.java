@@ -29,7 +29,7 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 	@Override
 	public boolean isValid(String refreshToken, ConstraintValidatorContext context) {
 		if (refreshToken == null) {
-			setCustomMessage(context, ErrorStatus.REFRESH_TOKEN_NOT_FOUND.getMessage());
+			setCustomMessage(context, ErrorStatus.INVALID_TOKEN.getMessage());
 			return false;
 		}
 
@@ -37,14 +37,14 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 			validateRefreshToken(refreshToken);
 			return true;
 		} catch (JwtException e) {
-			setCustomMessage(context, ErrorStatus.INVALID_REFRESH_TOKEN.getMessage());
+			setCustomMessage(context, ErrorStatus.INVALID_TOKEN.getMessage());
 			return false;
 		} catch (GeneralException e) {
 			setCustomMessage(context, e.getErrorReason().getMessage());
 			return false;
 		} catch (Exception e) {
 			log.error("Unexpected error during validation", e);
-			setCustomMessage(context, ErrorStatus.SERVER_ERROR.getMessage());
+			setCustomMessage(context, ErrorStatus._INTERNAL_SERVER_ERROR.getMessage());
 			return false;
 		}
 	}
@@ -52,12 +52,12 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 	private void validateRefreshToken(String refreshToken) {
 		// JWT 토큰 유효성 검증
 		if (!jwtUtil.validateToken(refreshToken)) {
-			throw new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN);
+			throw new GeneralException(ErrorStatus.INVALID_TOKEN);
 		}
 
 		// DB에서 리프레시 토큰 조회
 		RefreshToken storedToken = refreshTokenJPARepository.findByRefreshToken(refreshToken)
-			.orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN));
+			.orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_TOKEN));
 
 		// 현재 인증된 사용자 이메일 가져오기
 		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
@@ -68,7 +68,7 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 
 		// 토큰 소유자와 현재 사용자가 일치하는지 확인
 		if (!storedToken.getEmail().equals(currentUserEmail)) {
-			throw new GeneralException(ErrorStatus.INVALID_REFRESH_TOKEN);
+			throw new GeneralException(ErrorStatus.INVALID_TOKEN);
 		}
 	}
 

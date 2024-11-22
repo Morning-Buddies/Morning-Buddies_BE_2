@@ -24,7 +24,7 @@ public class SecurityUtil {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || !authentication.isAuthenticated()) {
-			throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
+			throw new GeneralException(ErrorStatus.LOGIN_REQUIRED);
 		}
 
 		Object principal = authentication.getPrincipal();
@@ -35,7 +35,7 @@ public class SecurityUtil {
 			return (String)principal;
 		}
 
-		throw new GeneralException(ErrorStatus.INVALID_AUTHENTICATION);
+		throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
 	}
 
 	/**

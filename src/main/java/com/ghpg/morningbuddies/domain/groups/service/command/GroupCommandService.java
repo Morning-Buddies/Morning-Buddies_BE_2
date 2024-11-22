@@ -8,16 +8,16 @@ import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 public interface GroupCommandService {
 
 	// 그룹 생성
-	GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file);
+	GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file);
 
 	// 그룹 수정
-	GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO requestDto,
+	GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand requestDto,
 		MultipartFile file);
 
 	Void leaveGroup(Long groupId);
 
 	// 그룹 삭제
-	void deleteGroup(Long groupId);
+	Void deleteGroup(Long groupId);
 
 	// 그룹 가입 요청
 	void requestJoinGroup(Long groupId);

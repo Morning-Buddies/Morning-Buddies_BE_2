@@ -33,7 +33,7 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 		if (existingMember.isPresent()) {
 			context.disableDefaultConstraintViolation();
 			context.buildConstraintViolationWithTemplate(
-					ErrorStatus.MEMBER_ALREADY_EXIST.getCode())
+					ErrorStatus.MEMBER_ALREADY_EXISTS.getCode())
 				.addConstraintViolation();
 
 			// ValidationException을 던지지 않고 false 반환

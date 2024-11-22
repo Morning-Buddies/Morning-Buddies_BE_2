@@ -55,7 +55,7 @@ public class CustomLogoutFilter extends OncePerRequestFilter {
 
 			// Validate access token
 			if (!jwtUtil.validateToken(accessToken) || !jwtUtil.isAccessToken(accessToken)) {
-				throw new JwtException(ErrorStatus.INVALID_ACCESS_TOKEN);
+				throw new JwtException(ErrorStatus.INVALID_TOKEN);
 			}
 
 			// Get user email from access token

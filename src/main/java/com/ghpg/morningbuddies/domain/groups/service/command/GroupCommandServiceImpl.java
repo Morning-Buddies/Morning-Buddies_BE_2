@@ -16,6 +16,7 @@ import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.RequestStatus;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJoinRequestRepository;
+import com.ghpg.morningbuddies.domain.groups.repository.GroupRepository;
 import com.ghpg.morningbuddies.domain.memberchatroom.repository.MemberChatRoomJPARepository;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.membergroup.repository.MemberGroupJPARepository;
@@ -40,6 +41,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final GroupJoinRequestRepository groupJoinRequestRepository;
 	private final NotificationCommandService notificationCommandService;
 	private final ChatRoomCommandService chatRoomCommandService;
+	private final GroupRepository groupRepository;
 
 	private final S3Service s3Service;
 	private final ChatRoomRepository chatRoomRepository;
@@ -47,7 +49,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final MemberGroupJPARepository memberGroupJPARepository;
 
 	@Override
-	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.CreateGroupDto requestDto, MultipartFile file) {
+	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file) {
 
 		// 현재 로그인한 사용자 정보 가져오기
 		Member currentMember = getCurrentMember();
@@ -70,11 +72,20 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	}
 
+	/**
+	 * 현재 로그인한 사용자 정보 가져오기
+	 * @return Member
+	 */
 	private Member getCurrentMember() {
 		return memberJPARepository.findByEmail(SecurityUtil.getCurrentUserEmail())
 			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 	}
 
+	/**
+	 * 이미지 업로드
+	 * @param file
+	 * @return String
+	 */
 	private @Nullable String getUploadedGroupImageUrl(MultipartFile file) {
 		// 이미지 업로드
 		String uploadedGroupImageUrl = null;
@@ -87,22 +98,30 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	/**
 	 * 그룹 정보 수정
-	 *
 	 * @param groupId
 	 * @param request
 	 * @param file
 	 * @return GroupResponseDto.GroupDetailDTO
 	 */
 	@Override
-	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.UpdateGroupDTO request,
+	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand request,
 		MultipartFile file) {
 
-		// 현재 로그인한 사용자 정보 가져오기
-		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
-		Member currentMember = memberJPARepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+		Groups group = getGroupAllInfoByGroupId(groupId);
 
-		return null;
+		// 현재 로그인한 사용자 정보 가져오기
+		Member currentMember = getCurrentMember();
+
+		if (!group.getLeader().equals(currentMember)) {
+			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
+		}
+
+		String uploadedGroupImageUrl = getUploadedGroupImageUrl(file);
+
+		group.updateGroup(request, uploadedGroupImageUrl);
+
+		return GroupResponseDto.GroupDetailDTO.of(group);
+
 	}
 
 	/**
@@ -114,8 +133,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public Void leaveGroup(Long groupId) {
 		Member currentMember = getCurrentMember();
 
-		Groups group = groupJPARepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
+		Groups group = getGroupAllInfoByGroupId(groupId);
 
 		if (!group.isMemberInGroup(currentMember)) {
 			throw new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP);
@@ -133,25 +151,25 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 	}
 
-	/**
-	 * 그룹 삭제
-	 *
-	 * @param groupId
-	 */
 	@Override
-	public void deleteGroup(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member member = memberJPARepository.findByEmail(currentEmail)
-			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+	public Void deleteGroup(Long groupId) {
 
-		Groups group = groupJPARepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
+		// 현재 멤버 가져오기
+		Member currentMember = getCurrentMember();
 
-		if (!group.getLeader().equals(member)) {
+		// 그룹 가져오기
+		Groups group = getGroupAllInfoByGroupId(groupId);
+
+		if (!group.getLeader().equals(currentMember)) {
 			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
 		}
 
 		groupJPARepository.delete(group);
+	}
+
+	private Groups getGroupAllInfoByGroupId(Long groupId) {
+		return groupRepository.findGroupAndMemberGroupsAndGroupByGroupId(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 	}
 
 	/**
@@ -165,8 +183,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		Member member = memberJPARepository.findByEmail(currentEmail)
 			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
-		Groups group = groupJPARepository.findById(groupId)
-			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
+		Groups group = getGroupAllInfoByGroupId(groupId);
 
 		GroupJoinRequest joinRequest = GroupJoinRequest.builder()
 			.member(member)
@@ -189,6 +206,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
+
 
 		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberJPARepository.findByEmail(currentEmail)
@@ -238,7 +256,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		// GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
 		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
 		//
-		// Groups group = joinRequest.getGroup();
+		// Groups group = joinRequest.getGroupAllInfoByGroupId();
 		//
 		// if (!group.getId().equals(groupId)) {
 		// 	throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
