@@ -165,6 +165,8 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		}
 
 		groupJPARepository.delete(group);
+
+		return null;
 	}
 
 	private Groups getGroupAllInfoByGroupId(Long groupId) {
@@ -207,13 +209,12 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
 
-
 		String currentEmail = SecurityUtil.getCurrentUserEmail();
 		Member leader = memberJPARepository.findByEmail(currentEmail)
-				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-				.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
+			.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
 
 		Groups group = joinRequest.getGroup();
 		Member member = joinRequest.getMember();
@@ -223,21 +224,21 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		joinRequest.accept();
 
 		group.addMemberGroup(MemberGroup.builder()
-				.member(member)
-				.build());
+			.member(member)
+			.build());
 
 		groupJoinRequestRepository.save(joinRequest);
 		//notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
 	}
 
-	 private void validateJoinRequest(Groups group, Long groupId, Member leader){
-		 if (!group.getId().equals(groupId)) {
-			 throw new GroupException(ErrorStatus.GROUP_NOT_FOUND);
-		 }
+	private void validateJoinRequest(Groups group, Long groupId, Member leader) {
+		if (!group.getId().equals(groupId)) {
+			throw new GroupException(ErrorStatus.GROUP_NOT_FOUND);
+		}
 
-		 if (!group.isLeader(leader)) {
-			 throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
-		 }
+		if (!group.isLeader(leader)) {
+			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
+		}
 
 	}
 
