@@ -54,6 +54,10 @@ public class GroupJoinRequest {
 		this.changeStatus(RequestStatus.ACCEPTED);
 	}
 
+	public void reject() {
+		this.changeStatus(RequestStatus.REJECTED);
+	}
+
 
 }
 
