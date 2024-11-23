@@ -221,17 +221,6 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		//notificationCommandService.sendJoinRequestAcceptedNotification(member, group);
 	}
 
-	private void validateJoinRequest(Groups group, Long groupId, Member leader) {
-		if (!group.getId().equals(groupId)) {
-			throw new GroupException(ErrorStatus.GROUP_NOT_FOUND);
-		}
-
-		if (!group.isLeader(leader)) {
-			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
-		}
-
-	}
-
 	/**
 	 * 그룹 가입 요청 거절
 	 *
@@ -240,29 +229,35 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void rejectJoinGroup(Long groupId, Long requestId) {
-		// String currentEmail = SecurityUtil.getCurrentUserEmail();
-		// Member leader = memberJPARepository.findByEmail(currentEmail)
-		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-		//
-		// GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
-		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.REQUEST_NOT_FOUND));
-		//
-		// Groups group = joinRequest.getGroupAllInfoByGroupId();
-		//
-		// if (!group.getId().equals(groupId)) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_NOT_FOUND);
-		// }
-		//
-		// if (!group.getLeader().equals(leader)) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-		// }
-		//
-		// joinRequest.setStatus(RequestStatus.REJECTED);
-		//
-		// groupJoinRequestRepository.save(joinRequest);
-		//
-		// // 가입 요청이 거절되었다는 알림 전송
+
+		String currentEmail = SecurityUtil.getCurrentUserEmail();
+		Member leader = memberJPARepository.findByEmail(currentEmail)
+				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+
+		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(groupId)
+				.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
+
+		Groups group = joinRequest.getGroup();
+
+		validateJoinRequest(group, groupId, leader);
+
+		joinRequest.reject();
+
+		groupJoinRequestRepository.save(joinRequest);
+
+		// 가입 요청이 거절되었다는 알림 전송
 		// notificationCommandService.sendJoinRequestRejectedNotification(leader, group);
+
+	}
+
+	private void validateJoinRequest(Groups group, Long groupId, Member leader) {
+		if (!group.getId().equals(groupId)) {
+			throw new GroupException(ErrorStatus.GROUP_NOT_FOUND);
+		}
+
+		if (!group.isLeader(leader)) {
+			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
+		}
 
 	}
 
