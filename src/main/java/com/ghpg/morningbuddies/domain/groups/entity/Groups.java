@@ -237,4 +237,27 @@ public class Groups extends BaseEntity {
 		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
 	}
 
+	/**
+	 * 그룹의 반장 권한 변경
+	 * @param currentLeader, newLeader
+	 * @return
+	 */
+	public void transferLeadershop(Member currentLeader, Member newLeader){
+		validateLeadershipTransfer(currentLeader, newLeader);
+		this.leader = newLeader;
+	}
+
+	/**
+	 * 그룹의 현재 리더 검증
+	 * @param currentLeader, newLeader
+	 * @return
+	 */
+	private void validateLeadershipTransfer(Member currentLeader, Member newLeader) {{
+		if(!isLeader(currentLeader)) {
+			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
+		}
+	}
+	}
+
+
 }

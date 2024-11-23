@@ -171,14 +171,12 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 */
 	@Override
 	public void requestJoinGroup(Long groupId) {
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member member = memberJPARepository.findByEmail(currentEmail)
-			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+		Member currentMember = getCurrentMember();
 
 		Groups group = getGroupAllInfoByGroupId(groupId);
 
 		GroupJoinRequest joinRequest = GroupJoinRequest.builder()
-			.member(member)
+			.member(currentMember)
 			.group(group)
 			.status(RequestStatus.PENDING)
 			.build();
@@ -199,9 +197,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public void acceptJoinGroup(Long groupId, Long requestId) {
 
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member leader = memberJPARepository.findByEmail(currentEmail)
-			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+		Member leader = getCurrentMember();
 
 		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(requestId)
 			.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
@@ -230,9 +226,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	@Override
 	public void rejectJoinGroup(Long groupId, Long requestId) {
 
-		String currentEmail = SecurityUtil.getCurrentUserEmail();
-		Member leader = memberJPARepository.findByEmail(currentEmail)
-				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+		Member leader = getCurrentMember();
 
 		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(groupId)
 				.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
@@ -262,33 +256,23 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	}
 
 	/**
-	 * 그룹 탈퇴
+	 * 그룹의 반장 권한 변경
 	 *
-	 * @param groupId
+	 * @param groupId, newLeaderId
 	 */
 	@Override
 	public void changeLeaderAuthority(Long groupId, Long newLeaderId) {
-		// String currentEmail = SecurityUtil.getCurrentUserEmail();
-		// Member currentLeader = memberRepository.findByEmail(currentEmail)
-		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-		//
-		// Groups group = groupRepository.findById(groupId)
-		// 	.orElseThrow(() -> new GroupException(GlobalErrorCode.GROUP_NOT_FOUND));
-		//
-		// if (!group.getLeader().equals(currentLeader)) {
-		// 	throw new GroupException(GlobalErrorCode.GROUP_PERMISSION_DENIED);
-		// }
-		//
-		// Member newLeader = memberRepository.findById(newLeaderId)
-		// 	.orElseThrow(() -> new MemberException(GlobalErrorCode.MEMBER_NOT_FOUND));
-		//
-		// if (!group.getMemberEntities().contains(newLeader)) {
-		// 	throw new GroupException(GlobalErrorCode.MEMBER_NOT_IN_GROUP);
-		// }
-		//
-		// group.setLeader(newLeader);
-		//
-		// groupRepository.save(group);
+
+		Member currentLeader = getCurrentMember();
+
+		Groups group = getGroupAllInfoByGroupId(groupId);
+
+		Member newLeader = memberJPARepository.findById(newLeaderId)
+				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+
+		group.transferLeadershop(currentLeader, newLeader);
+
+		groupJPARepository.save(group);
 
 	}
 
