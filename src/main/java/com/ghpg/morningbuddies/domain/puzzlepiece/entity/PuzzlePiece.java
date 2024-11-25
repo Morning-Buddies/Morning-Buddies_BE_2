@@ -1,13 +1,9 @@
-package com.ghpg.morningbuddies.domain.game.gamesession;
+package com.ghpg.morningbuddies.domain.puzzlepiece.entity;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.game.Game;
+import com.ghpg.morningbuddies.domain.puzzlegame.entity.PuzzleGame;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -24,30 +20,34 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@Entity
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@DynamicUpdate
 @DynamicInsert
-public class GameSession extends BaseEntity {
+@DynamicUpdate
+public class PuzzlePiece extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "game_participant_id")
+	@Column(name = "puzzle_piece_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
-	private Member member;
+	@JoinColumn(name = "puzzle_game_id")
+	private PuzzleGame puzzleGame;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "game_id")
-	private Game game;
+	private Integer originalX;
 
-	private LocalDateTime joinedAt;
+	private Integer originalY;
 
-	@ColumnDefault("0")
-	private Integer score;
+	private Integer currentX;
+
+	private Integer currentY;
+
+	private Boolean isCorrect;
+
+	private String pieceImageUrl;
+
 }
