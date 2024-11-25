@@ -36,6 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	private static final String JOIN_URL = "/api/v1/auth/join";
 	private static final String LOGIN_URL = "/api/v1/auth/login";
+	private static final String REISSUE_URL = "/api/v1/auth/reissue";
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -45,6 +46,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		// 회원가입, 로그인 요청인 경우
 		if (request.getRequestURI().equals(JOIN_URL) || request.getRequestURI().equals(LOGIN_URL)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+
+		// Refresh Token 재발급 요청인 경우
+		if (request.getRequestURI().equals(REISSUE_URL)) {
 			filterChain.doFilter(request, response);
 			return;
 		}

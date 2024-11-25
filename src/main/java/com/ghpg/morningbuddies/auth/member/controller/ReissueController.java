@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 import com.ghpg.morningbuddies.auth.member.service.command.MemberCommandService;
-import com.ghpg.morningbuddies.auth.member.validation.annotation.ValidRefreshToken;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,7 +44,7 @@ public class ReissueController {
 	})
 	@PostMapping("/reissue")
 	public ResponseEntity<CommonResponse<Void>> reissue(
-		@CookieValue("refresh_token") @ValidRefreshToken String refreshToken
+		@CookieValue("refresh_token") String refreshToken
 	) {
 		TokenDto.ReissueDto newTokens = memberCommandService.reissue(refreshToken);
 		ResponseCookie cookie = ResponseCookie.from("refresh_token", newTokens.getRefreshToken())
