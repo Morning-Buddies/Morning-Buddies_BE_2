@@ -1,13 +1,13 @@
-package com.ghpg.morningbuddies.domain.puzzle;
+package com.ghpg.morningbuddies.domain.puzzlegame.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.ghpg.morningbuddies.domain.game.Game;
+import com.ghpg.morningbuddies.domain.gamesession.entity.GameSession;
+import com.ghpg.morningbuddies.domain.puzzlepiece.entity.PuzzlePiece;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
 import jakarta.persistence.CascadeType;
@@ -33,38 +33,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamicUpdate
 @DynamicInsert
-public class Puzzle extends BaseEntity {
+public class PuzzleGame extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "puzzle_id")
+	@Column(name = "puzzle_game_id")
 	private Long id;
 
-	@Builder.Default
-	@OneToMany(mappedBy = "puzzle", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<PuzzlePiece> puzzlePieces = new ArrayList<>();
-
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "game_id")
-	private Game game;
+	@JoinColumn(name = "game_session_id")
+	private GameSession gameSession;
+
+	@OneToMany(mappedBy = "puzzleGame", orphanRemoval = true, cascade = CascadeType.ALL)
+	@Builder.Default
+	private Set<PuzzlePiece> puzzlePieces = new HashSet<>();
 
 	private String imageUrl;
 
-	@ColumnDefault("0")
 	private Integer width;
 
-	@ColumnDefault("0")
 	private Integer height;
 
-	@ColumnDefault("0")
 	private Integer pieceCount;
 
-	/*
-	 * 사용자 편의 메서드
-	 * */
-
-	public void setPuzzlePieces(List<PuzzlePiece> puzzlePieces) {
-		this.puzzlePieces.clear();
-		this.puzzlePieces.addAll(puzzlePieces);
-	}
 }

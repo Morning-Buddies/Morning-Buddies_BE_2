@@ -1,19 +1,22 @@
-package com.ghpg.morningbuddies.domain.puzzle;
+package com.ghpg.morningbuddies.domain.gametype.entity;
 
-import org.hibernate.annotations.ColumnDefault;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.ghpg.morningbuddies.domain.gameroom.entity.GameRoom;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,30 +30,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
-public class PuzzlePiece extends BaseEntity {
+public class GameType extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "puzzle_piece_id")
+	@Column(name = "game_type_id")
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "puzzle_id")
-	private Puzzle puzzle;
+	private String name;
 
-	@ColumnDefault("0")
-	private Integer originalX;
+	@Lob
+	private String description;
 
-	@ColumnDefault("0")
-	private Integer originalY;
+	@Builder.Default
+	@OneToMany(mappedBy = "gameType", orphanRemoval = true, cascade = CascadeType.ALL)
+	private List<GameRoom> gameRooms = new ArrayList<>();
 
-	@ColumnDefault("0")
-	private Integer currentX;
-
-	@ColumnDefault("0")
-	private Integer currentY;
-
-	private boolean isPlaced;
-
-	private String pieceImageUrl;
 }

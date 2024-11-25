@@ -22,6 +22,7 @@ import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.memberchatroom.entity.MemberChatRoom;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.notification.Notification;
+import com.ghpg.morningbuddies.domain.player.entity.Player;
 import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
@@ -135,6 +136,10 @@ public class Member extends BaseEntity {
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<MemberChatRoom> memberChatRooms = new ArrayList<>();
+
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Player> players = new ArrayList<>();
 
 	/*
 	 * 사용자 편의 메서드

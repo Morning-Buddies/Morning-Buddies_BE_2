@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Auth", description = "회원 인증/인가 관리 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class ReissueController {
 
 	private final MemberCommandService memberCommandService;
