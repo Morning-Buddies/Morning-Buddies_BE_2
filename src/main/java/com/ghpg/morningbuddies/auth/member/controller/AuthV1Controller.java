@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.auth.member.controller;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/v1/auth")
 @SecurityRequirements
 @RequiredArgsConstructor
+@Validated
 public class AuthV1Controller {
 
 	private final MemberCommandService memberCommandService;

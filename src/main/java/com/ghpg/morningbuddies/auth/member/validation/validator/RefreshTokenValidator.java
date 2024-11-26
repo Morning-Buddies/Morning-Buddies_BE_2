@@ -8,8 +8,6 @@ import com.ghpg.morningbuddies.auth.refreshtoken.entity.RefreshToken;
 import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
 import com.ghpg.morningbuddies.global.exception.common.GeneralException;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
-import com.ghpg.morningbuddies.global.exception.jwt.JwtException;
-import com.ghpg.morningbuddies.global.security.SecurityUtil;
 import com.ghpg.morningbuddies.global.security.jwt.JwtUtil;
 
 import jakarta.validation.ConstraintValidator;
@@ -36,15 +34,8 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 		try {
 			validateRefreshToken(refreshToken);
 			return true;
-		} catch (JwtException e) {
-			setCustomMessage(context, ErrorStatus.INVALID_TOKEN.getMessage());
-			return false;
-		} catch (GeneralException e) {
-			setCustomMessage(context, e.getErrorReason().getMessage());
-			return false;
 		} catch (Exception e) {
-			log.error("Unexpected error during validation", e);
-			setCustomMessage(context, ErrorStatus._INTERNAL_SERVER_ERROR.getMessage());
+			setCustomMessage(context, ErrorStatus.INVALID_TOKEN.getMessage());
 			return false;
 		}
 	}
@@ -59,17 +50,17 @@ public class RefreshTokenValidator implements ConstraintValidator<ValidRefreshTo
 		RefreshToken storedToken = refreshTokenJPARepository.findByRefreshToken(refreshToken)
 			.orElseThrow(() -> new GeneralException(ErrorStatus.INVALID_TOKEN));
 
-		// 현재 인증된 사용자 이메일 가져오기
-		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
+		// 토큰에서 직접 이메일 추출
+		String emailFromToken = jwtUtil.getEmail(refreshToken);
 
-		// 현재 사용자 정보 조회
-		memberJPARepository.findByEmail(currentUserEmail)
-			.orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
-
-		// 토큰 소유자와 현재 사용자가 일치하는지 확인
-		if (!storedToken.getEmail().equals(currentUserEmail)) {
+		// 토큰의 이메일과 저장된 토큰의 이메일이 일치하는지 확인
+		if (!storedToken.getEmail().equals(emailFromToken)) {
 			throw new GeneralException(ErrorStatus.INVALID_TOKEN);
 		}
+
+		// 사용자 존재 여부 확인
+		memberJPARepository.findByEmail(emailFromToken)
+			.orElseThrow(() -> new GeneralException(ErrorStatus.MEMBER_NOT_FOUND));
 	}
 
 	private void setCustomMessage(ConstraintValidatorContext context, String message) {

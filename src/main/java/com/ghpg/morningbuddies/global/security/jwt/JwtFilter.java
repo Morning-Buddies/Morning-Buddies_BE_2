@@ -50,14 +50,14 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// Refresh Token 재발급 요청인 경우
-		if (request.getRequestURI().equals(REISSUE_URL)) {
+		// Authorization 헤더가 없거나 Bearer로 시작하지 않는 경우
+		if (authorization == null || !authorization.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		// Authorization 헤더가 없거나 Bearer로 시작하지 않는 경우
-		if (authorization == null || !authorization.startsWith("Bearer ")) {
+		// 토큰 재발급 요청인 경우
+		if (request.getRequestURI().equals(REISSUE_URL)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
