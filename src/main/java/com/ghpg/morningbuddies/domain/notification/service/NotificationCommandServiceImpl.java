@@ -10,6 +10,7 @@ import com.ghpg.morningbuddies.domain.notification.repository.NotificationReposi
 import com.google.firebase.messaging.FirebaseMessagingException;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -17,53 +18,54 @@ import lombok.RequiredArgsConstructor;
 public class NotificationCommandServiceImpl implements NotificationCommandService {
 
 	private final NotificationRepository notificationRepository;
-
 	private final PushNotificationService pushNotificationService;
 
 	@Override
 	public void sendJoinRequestNotification(Member leader, Member requester, Groups group) {
+		String title = "새로운 가입 요청";
 		String message = String.format("%s님이 %s 그룹에 가입을 요청했습니다.", requester.getFirstName(), group.getGroupName());
-		Notification notification = createNotification(leader, message, group);
-		try {
-			pushNotificationService.sendPushNotification(leader.getFcmToken(), "새로운 가입 요청", message);
 
-		} catch (FirebaseMessagingException e) {
-			e.printStackTrace();
-		}
+		sendNotification(leader, title, message, group);
 	}
 
 	@Override
 	public void sendJoinRequestAcceptedNotification(Member member, Groups group) {
+		String title = "가입 요청 수락";
 		String message = String.format("%s님의 %s 그룹 가입 요청이 수락되었습니다.", member.getFirstName(), group.getGroupName());
-		Notification notification = createNotification(member, message, group);
-		try {
-			pushNotificationService.sendPushNotification(member.getFcmToken(), "가입 요청 수락", message);
 
-		} catch (FirebaseMessagingException e) {
-			e.printStackTrace();
-		}
+		sendNotification(member, title, message, group);
 	}
 
 	@Override
 	public void sendJoinRequestRejectedNotification(Member member, Groups group) {
+		String title = "가입 요청 거절";
 		String message = String.format("%s님의 %s 그룹 가입 요청이 거절되었습니다.", member.getFirstName(), group.getGroupName());
-		Notification notification = createNotification(member, message, group);
-		try {
-			pushNotificationService.sendPushNotification(member.getFcmToken(), "가입 요청 거절", message);
 
-		} catch (FirebaseMessagingException e) {
-			e.printStackTrace();
-		}
+		sendNotification(member, title, message, group);
 
 	}
 
-	private Notification createNotification(Member member, String message, Groups group) {
+	private void sendNotification(Member member, String title, String message, Groups group){
+		Notification notification = createAndSaveNotification(member, title, message, group);
+
+		if (StringUtils.hasText(member.getFcmToken())){
+			try {
+				pushNotificationService.sendPushNotification(member.getFcmToken(), title, message);
+			} catch (FirebaseMessagingException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private Notification createAndSaveNotification(Member member, String title, String message, Groups group) {
 		Notification notification = Notification.builder()
-			.member(member)
-			.message(message)
-			.groups(group)
-			.isRead(false)
-			.build();
+				.member(member)
+				.title(title)
+				.message(message)
+				.groups(group)
+				.isRead(false)
+				.build();
 		return notificationRepository.save(notification);
 	}
+
 }

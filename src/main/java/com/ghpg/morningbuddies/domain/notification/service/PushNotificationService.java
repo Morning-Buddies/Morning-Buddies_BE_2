@@ -1,5 +1,6 @@
 package com.ghpg.morningbuddies.domain.notification.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -11,22 +12,28 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PushNotificationService {
 
+	private final FirebaseMessaging firebaseMessaging;
+
 	public void sendPushNotification(String token, String title, String body) throws FirebaseMessagingException {
-		Notification notification = Notification.builder()
-			.setTitle(title)
-			.setBody(body)
-			.build();
-
 		Message message = Message.builder()
-			.setToken(token)
-			.setNotification(notification)
-			.build();
+				.setToken(token)
+				.setNotification(Notification.builder()
+						.setTitle(title)
+						.setBody(body)
+						.build())
+				.putData("title", title)
+				.putData("body", body)
+				.build();
 
-		String response = FirebaseMessaging.getInstance().send(message);
-
-		log.info("Successfully sent message: " + response);
-
+		try {
+			String response = firebaseMessaging.send(message);
+			log.info("Successfully sent message: {}", response);
+		} catch (FirebaseMessagingException e) {
+			log.error("Failed to send push notification. Token: {}, Title: {}", token, title, e);
+			throw e;
+		}
 	}
 }

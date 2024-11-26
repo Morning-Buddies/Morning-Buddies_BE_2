@@ -2,6 +2,7 @@ package com.ghpg.morningbuddies.global.config;
 
 import java.io.IOException;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -24,5 +25,10 @@ public class FirebaseConfig {
 			return FirebaseApp.initializeApp(options);
 		}
 		return FirebaseApp.getInstance();
+	}
+
+	@Bean
+	public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
+		return FirebaseMessaging.getInstance(firebaseApp);
 	}
 }
