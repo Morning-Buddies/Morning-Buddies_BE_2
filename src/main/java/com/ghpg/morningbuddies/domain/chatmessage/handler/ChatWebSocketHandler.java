@@ -12,7 +12,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;
-import com.ghpg.morningbuddies.domain.chatmessage.service.ChatMessageCommandService;
+import com.ghpg.morningbuddies.domain.chatmessage.service.command.ChatMessageCommandService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

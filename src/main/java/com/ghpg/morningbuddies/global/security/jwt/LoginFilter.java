@@ -124,7 +124,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	private void writeMemberInfoResponse(HttpServletResponse response, Member member) throws IOException {
-		MemberResponseDto.MemberInfo memberInfo = MemberResponseDto.MemberInfo.of(member);
+		MemberResponseDto.MemberInfo memberInfo = MemberResponseDto.MemberInfo.from(member);
 		setResponseProperties(response);
 		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(memberInfo));
 	}

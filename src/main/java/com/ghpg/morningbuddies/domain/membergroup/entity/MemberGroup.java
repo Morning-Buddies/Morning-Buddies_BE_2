@@ -43,28 +43,54 @@ public class MemberGroup extends BaseEntity {
 	@JoinColumn(name = "group_id")
 	private Groups group;
 
-	/*
-	 * 편의 메서드
-	 * */
+	private Boolean isLeader; //
 
-	public static MemberGroup createMemberGroup(Member member) {
-		MemberGroup memberGroup = MemberGroup.builder().build();
-		memberGroup.setMember(member);
-		return memberGroup;
+	//==생성 메서드==//
+	public static MemberGroup createMemberGroup(Member member, Groups group, Boolean isLeader) {
+		MemberGroup newMemberGroup = MemberGroup.builder()
+			.isLeader(isLeader)
+			.build();
+
+		// 연관 관계 설정
+		newMemberGroup.setMember(member);
+		newMemberGroup.setGroup(group);
+
+		// 멤버가 참가한 그룹 수 증가
+		member.increaseCurrentGroupCount();
+
+		// 그룹 현재 참가자 수 증가
+		group.increaseCurrentParticipantsCount();
+
+		return newMemberGroup;
+
 	}
 
 	public void setMember(Member member) {
+
+		if (this.member != null) {
+			this.member.getMemberGroups().remove(this);
+		}
+
 		this.member = member;
 		member.getMemberGroups().add(this);
-		member.setCurrentGroupCount(member.getCurrentGroupCount() + 1);
+
+	}
+
+	public void setIsLeader(Boolean isLeader) {
+		this.isLeader = isLeader;
 	}
 
 	public void setGroup(Groups group) {
+		if (this.group != null) {
+			this.group.getMemberGroups().remove(this);
+		}
+
 		this.group = group;
+		group.getMemberGroups().add(this);
 	}
 
 	public boolean isLeader() {
-		return group.getLeader().getId().equals(member.getId());
+		return this.isLeader;
 	}
 
 	public void remove() {

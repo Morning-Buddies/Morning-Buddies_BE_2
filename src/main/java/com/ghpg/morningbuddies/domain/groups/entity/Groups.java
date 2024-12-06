@@ -28,9 +28,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -78,17 +76,13 @@ public class Groups extends BaseEntity {
 	@Builder.Default
 	private LocalTime timeOut = LocalTime.of(0, 5);
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "leader_id", nullable = false) // 방장은 무조건 있어야 하므로 nullable = false
-	private Member leader; // 그룹장
+	@Builder.Default
+	@ColumnDefault("0")
+	private Integer currentParticipantCount = 1;
 
 	@Builder.Default
 	@ColumnDefault("0")
-	private Integer currentParticipantCount = 0;
-
-	@Builder.Default
-	@ColumnDefault("0")
-	private Integer maxParticipantCount = 0;
+	private Integer maxParticipantCount = 1;
 
 	@Enumerated(EnumType.STRING)
 	private AlarmSound alarmSound;
@@ -109,27 +103,16 @@ public class Groups extends BaseEntity {
 	 * 편의 메서드
 	 * */
 
-	public static Groups createGroup(
-		GroupRequestDto.GroupCommand createGroupDto,
-		String groupImageUrl,
-		Member leader,
-		MemberGroup... memberGroups
-	) {
-		Groups group = Groups.builder()
-			.groupName(createGroupDto.getGroupName())
-			.wakeupTime(createGroupDto.getWakeUpTime())
-			.maxParticipantCount(createGroupDto.getMaxParticipantCount())
-			.description(createGroupDto.getDescription())
-			.groupImageUrl(groupImageUrl)
-			.currentParticipantCount(1)
-			.leader(leader)
+	//==생성 메서드==//
+	public static Groups createGroup(String groupName, String description, LocalTime wakeupTime,
+		Integer maxParticipantCount) {
+
+		return Groups.builder()
+			.groupName(groupName)
+			.description(description)
+			.wakeupTime(wakeupTime)
+			.maxParticipantCount(maxParticipantCount)
 			.build();
-
-		for (MemberGroup memberGroup : memberGroups) {
-			group.addMemberGroup(memberGroup);
-		}
-
-		return group;
 
 	}
 
@@ -166,6 +149,16 @@ public class Groups extends BaseEntity {
 		validateMemberCanLeave(member);
 		MemberGroup memberGroup = findMemberGroup(member);
 		removeMemberGroup(memberGroup);
+	}
+
+	public void increaseCurrentParticipantsCount() {
+		currentParticipantCount++;
+	}
+
+	public void decreaseCurrentParticipantsCount() {
+		if (currentParticipantCount <= 0) {
+			throw new GroupException(ErrorStatus.GROUP_PARTICIPANT_COUNT_ERROR);
+		}
 	}
 
 	/**
@@ -219,20 +212,13 @@ public class Groups extends BaseEntity {
 
 	}
 
-	/**
-	 * 그룹장인지 확인
-	 * @param member
-	 * @return
-	 */
+	// 그룹장인지 확인
 	public boolean isLeader(Member member) {
-		return this.leader.equals(member);
+		return this.memberGroups.stream()
+			.anyMatch(mg -> mg.getMember().equals(member) && mg.getIsLeader());
 	}
 
-	/**
-	 * 그룹에 멤버가 포함되어 있는지 확인
-	 * @param member
-	 * @return
-	 */
+	// 멤버가 그룹에 속해있는지 확인
 	private boolean containsMember(Member member) {
 		return this.memberGroups.stream().anyMatch(mg -> mg.getMember().equals(member));
 	}
@@ -242,22 +228,26 @@ public class Groups extends BaseEntity {
 	 * @param currentLeader, newLeader
 	 * @return
 	 */
-	public void transferLeadershop(Member currentLeader, Member newLeader){
-		validateLeadershipTransfer(currentLeader, newLeader);
-		this.leader = newLeader;
-	}
+	public void transferLeadershop(Member currentLeader, Member newLeader) {
 
-	/**
-	 * 그룹의 현재 리더 검증
-	 * @param currentLeader, newLeader
-	 * @return
-	 */
-	private void validateLeadershipTransfer(Member currentLeader, Member newLeader) {{
-		if(!isLeader(currentLeader)) {
+		// 현재 리더인지 확인
+		if (!isLeader(currentLeader)) {
 			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
 		}
-	}
-	}
 
+		// 새 리더가 그룹에 속해있는지 확인
+		if (!containsMember(newLeader)) {
+			throw new GroupException(ErrorStatus.MEMBER_NOT_IN_GROUP);
+		}
+
+		// 기존 리더 권한 해제
+		MemberGroup currentLeaderGroup = findMemberGroup(currentLeader);
+		currentLeaderGroup.setIsLeader(false);
+
+		// 새 리더 권한 부여
+		MemberGroup newLeaderGroup = findMemberGroup(newLeader);
+		newLeaderGroup.setIsLeader(true);
+
+	}
 
 }

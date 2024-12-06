@@ -11,8 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
-import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
-import com.ghpg.morningbuddies.auth.refreshtoken.repository.RefreshTokenJPARepository;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
@@ -20,7 +18,6 @@ import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
-import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,28 +26,23 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class MemberQueryServiceImpl implements MemberQueryService {
 
-	private final RefreshTokenJPARepository refreshTokenJPARepository;
 	private final MemberJPARepository memberJPARepository;
-	private final MemberRepository memberRepository;
 
 	@Override
-	public MemberResponseDto.MemberInfo getMyInfo() {
-		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
-
-		Member currentMember = memberRepository.findMemberAndGroupsByEmail(currentUserEmail)
+	public MemberResponseDto.MemberInfo getMemberInfo(String email) {
+		Member member = memberJPARepository.findByEmail(email)
 			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
-		return MemberResponseDto.MemberInfo.of(currentMember);
+		return MemberResponseDto.MemberInfo.from(member);
 	}
 
 	@Override
-	public GroupResponseDto.GroupListResponseDTO getMyGroups() {
-		Member currentMember = memberRepository.findMemberAndGroupsByEmail(SecurityUtil.getCurrentUserEmail())
+	public GroupResponseDto.GroupsResponseDto getMemberGroups(String email) {
+
+		Member member = memberJPARepository.findByEmail(email)
 			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
-		Set<Groups> currentMembersGroups = getCurrentMembersGroups(currentMember);
-
-		return GroupResponseDto.GroupListResponseDTO.of(currentMembersGroups);
+		return GroupResponseDto.GroupsResponseDto.of(member.getMemberGroups());
 
 	}
 
@@ -62,7 +54,7 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
 	// 회원이 가입한 채팅방 리스트 가져오기
 	@Override
-	public List<ChatRoomResponseDto.AllChatRoomByMemberId> findAllChatroomsByMemberId(Long memberId) {
+	public List<ChatRoomResponseDto.AllChatRoomByMemberId> findAllChatRoomsByMemberId(Long memberId) {
 		List<ChatRoom> chatRooms = memberJPARepository.findAllChatroomsByMemberId(memberId);
 
 		Member member = memberJPARepository.findById(memberId)

@@ -18,12 +18,10 @@ import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.auth.refreshtoken.entity.RefreshToken;
 import com.ghpg.morningbuddies.domain.allowance.MemberAllowance;
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
-import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.memberchatroom.entity.MemberChatRoom;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 import com.ghpg.morningbuddies.domain.notification.Notification;
 import com.ghpg.morningbuddies.domain.player.entity.Player;
-import com.ghpg.morningbuddies.domain.recommend.Recommend;
 import com.ghpg.morningbuddies.global.common.BaseEntity;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
 import com.ghpg.morningbuddies.global.exception.member.MemberException;
@@ -107,16 +105,9 @@ public class Member extends BaseEntity {
 	@ColumnDefault("2")
 	private Integer maxGroupCount = 2;
 
-	@OneToMany(mappedBy = "leader", cascade = CascadeType.ALL, orphanRemoval = true)
-	@Builder.Default
-	private Set<Groups> groups = new HashSet<>();
-
 	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<MemberAllowance> memberAllowances = new ArrayList<>();
-
-	@OneToOne(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private Recommend recommend;
 
 	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
@@ -181,6 +172,19 @@ public class Member extends BaseEntity {
 
 	public void setCurrentGroupCount(Integer currentGroupCount) {
 		this.currentGroupCount = currentGroupCount;
+	}
+
+	public void increaseCurrentGroupCount() {
+		this.currentGroupCount++;
+	}
+
+	public void decreaseCurrentGroupCount() {
+		if (currentGroupCount <= 0) {
+			throw new MemberException(ErrorStatus.INVALID_GROUP_COUNT);
+		}
+
+		this.currentGroupCount--;
+
 	}
 
 	public void decreaseGroupCount() {

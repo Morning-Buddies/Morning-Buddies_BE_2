@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
 
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+public interface ChatRoomJpaRepository extends JpaRepository<ChatRoom, Long> {
 
 }

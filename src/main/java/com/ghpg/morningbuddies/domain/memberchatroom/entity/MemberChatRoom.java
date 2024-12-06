@@ -44,23 +44,32 @@ public class MemberChatRoom extends BaseEntity {
 	 * */
 
 	public static MemberChatRoom createMemberChatRoom(Member member, ChatRoom chatRoom) {
-		return MemberChatRoom.builder()
-			.member(member)
-			.chatRoom(chatRoom)
-			.build();
+		MemberChatRoom newMemberChatRoom = MemberChatRoom.builder().build();
 
+		newMemberChatRoom.setMember(member);
+		newMemberChatRoom.setChatRoom(chatRoom);
+
+		return newMemberChatRoom;
 	}
 
-	public void removeMemberChatRoom() {
-		member.getMemberChatRooms().remove(this);
-		chatRoom.getMemberChatRooms().remove(this);
-		member = null;
-		chatRoom = null;
+	public void setMember(Member member) {
+		if (this.member != null) {
+			this.member.getMemberChatRooms().remove(this);
+		}
+
+		this.member = member;
+		member.getMemberChatRooms().add(this);
 	}
 
 	public void setChatRoom(ChatRoom chatRoom) {
+
+		if (this.chatRoom != null) {
+			this.chatRoom.getMemberChatRooms().remove(this);
+		}
+
 		this.chatRoom = chatRoom;
 		chatRoom.getMemberChatRooms().add(this);
+
 	}
 
 }

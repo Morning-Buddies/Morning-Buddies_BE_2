@@ -38,22 +38,6 @@ public class SecurityUtil {
 		throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
 	}
 
-	/**
-	 * SecurityContext에서 현재 인증된 CustomUserDetails를 가져옵니다.
-	 * @return 인증된 사용자의 CustomUserDetails
-	 * @throws GeneralException 인증 정보가 없거나 유효하지 않은 경우
-	 */
-	public static CustomUserDetails getCurrentUserDetails() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null || !authentication.isAuthenticated() ||
-			authentication.getPrincipal().equals("anonymousUser")) {
-			throw new GeneralException(ErrorStatus.AUTHENTICATION_REQUIRED);
-		}
-
-		return (CustomUserDetails)authentication.getPrincipal();
-	}
-
 	public Cookie createCookie(String name, String value, int maxAge) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setPath("/");
