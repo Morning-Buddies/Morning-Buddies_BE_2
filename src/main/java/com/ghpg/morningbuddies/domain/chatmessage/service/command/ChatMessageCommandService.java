@@ -1,4 +1,4 @@
-package com.ghpg.morningbuddies.domain.chatmessage.service;
+package com.ghpg.morningbuddies.domain.chatmessage.service.command;
 
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageRequestDto;
 import com.ghpg.morningbuddies.domain.chatmessage.dto.ChatMessageResponseDto;

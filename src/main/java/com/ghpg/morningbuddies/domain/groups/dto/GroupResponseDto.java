@@ -3,12 +3,14 @@ package com.ghpg.morningbuddies.domain.groups.dto;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.RequestStatus;
+import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -28,29 +30,29 @@ public class GroupResponseDto {
 	public static class GroupDetailDTO {
 
 		@Schema(description = "그룹 ID", example = "1")
-		private Long groupId;
+		Long groupId;
 
 		@Schema(description = "그룹 이름", example = "아침형 인간 모임")
-		private String groupName;
+		String groupName;
 
 		@Schema(description = "그룹 설명", example = "아침형 인간 모임입니다.")
-		private String description;
+		String description;
 
 		@Schema(description = "그룹 선호 기상 시간", example = "07:00", type = "string")
 		@JsonFormat(pattern = "HH:mm")
-		private LocalTime wakeUpTime;
+		LocalTime wakeUpTime;
 
 		@Schema(description = "그룹 최대 인원 수", example = "5")
-		private int currentParticipantCount;
+		int currentParticipantCount;
 
 		@Schema(description = "그룹 최대 인원 수", example = "5")
-		private int maxParticipantCount;
+		int maxParticipantCount;
 
 		@Schema(description = "그룹 이미지 URL", example = "https://example.com/group.jpg")
-		private String imageUrl;
+		String imageUrl;
 
 		@Schema(description = "그룹 멤버 목록")
-		private MemberResponseDto.MemberListResponseDTO members;
+		MemberResponseDto.MemberListResponseDTO members;
 
 		public static GroupDetailDTO of(Groups group) {
 
@@ -73,10 +75,10 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class LeaderDTO {
-		private Long id;
-		private String firstName;
-		private String lastName;
-		private String email;
+		Long id;
+		String firstName;
+		String lastName;
+		String email;
 
 		public static LeaderDTO from(Member member) {
 			return LeaderDTO.builder()
@@ -93,18 +95,21 @@ public class GroupResponseDto {
 	@Builder
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
-	public static class GroupListResponseDTO {
-		private int totalCount;
+	public static class GroupsResponseDto {
+
+		@Schema(description = "전체 그룹 수", example = "3")
+		int totalCount;
 
 		@Schema(description = "내가 속한 그룹 목록")
-		private List<GroupResponseDto.GroupInfo> groups;
+		Set<GroupInfo> groups;
 
-		public static GroupListResponseDTO of(Set<Groups> groups) {
-			return GroupListResponseDTO.builder()
-				.totalCount(groups.size())
-				.groups(GroupResponseDto.GroupInfo.of(groups))
+		public static GroupsResponseDto of(Set<MemberGroup> memberGroups) {
+			return GroupsResponseDto.builder()
+				.totalCount(memberGroups.size())
+				.groups(GroupInfo.of(memberGroups))
 				.build();
 		}
+
 	}
 
 	@Getter
@@ -112,22 +117,37 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class GroupInfo {
-		private Long id;
-		private String name;
+
+		@Schema(description = "그룹 ID", example = "1")
+		Long id;
+
+		@Schema(description = "그룹 이름", example = "아침형 인간 모임")
+		String name;
 
 		@Schema(description = "그룹 선호 기상 시간", example = "07:00", type = "string")
 		@JsonFormat(pattern = "HH:mm")
-		private LocalTime wakeupTime;
+		LocalTime wakeupTime;
 
-		public static List<GroupInfo> of(Set<Groups> groups) {
-			return groups.stream()
-				.map(group -> GroupInfo.builder()
-					.id(group.getId())
-					.name(group.getGroupName())
-					.wakeupTime(group.getWakeupTime())
-					.build())
-				.toList();
+		@Schema(description = "리더 여부", example = "true")
+		Boolean isLeader;
+
+		public static GroupInfo from(MemberGroup memberGroup) {
+			Groups currentGroup = memberGroup.getGroup();
+
+			return GroupInfo.builder()
+				.id(currentGroup.getId())
+				.name(currentGroup.getGroupName())
+				.wakeupTime(currentGroup.getWakeupTime())
+				.isLeader(memberGroup.getIsLeader())
+				.build();
 		}
+
+		public static Set<GroupInfo> of(Set<MemberGroup> memberGroups) {
+			return memberGroups.stream()
+				.map(GroupInfo::from)
+				.collect(Collectors.toSet());
+		}
+
 	}
 
 	// 그룹 요청 DTO
@@ -136,12 +156,12 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class JoinRequestDTO {
-		private Long requestId;
-		private Long memberId;
-		private String firstName;
-		private String lastName;
-		private String email;
-		private RequestStatus status;
+		Long requestId;
+		Long memberId;
+		String firstName;
+		String lastName;
+		String email;
+		RequestStatus status;
 	}
 
 	@Getter
@@ -162,13 +182,13 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class SearchedGroupInfo {
-		private Long id;
-		private String imageUrl;
-		private String name;
-		private String description;
-		private LocalTime wakeupTime;
-		private Integer currentParticipantCount;
-		private Integer maxParticipantCount;
+		Long id;
+		String imageUrl;
+		String name;
+		String description;
+		LocalTime wakeupTime;
+		Integer currentParticipantCount;
+		Integer maxParticipantCount;
 	}
 
 	// 그룹 요약 DTO
@@ -177,11 +197,11 @@ public class GroupResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	public static class GroupSummaryDTO {
-		private Long id;
-		private String groupName;
-		private LocalTime wakeupTime;
-		private Integer currentParticipantCount;
-		private Integer maxParticipantCount;
-		private String groupImage;
+		Long id;
+		String groupName;
+		LocalTime wakeupTime;
+		Integer currentParticipantCount;
+		Integer maxParticipantCount;
+		String groupImage;
 	}
 }

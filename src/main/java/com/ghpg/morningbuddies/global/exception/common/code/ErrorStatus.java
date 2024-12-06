@@ -43,6 +43,7 @@ public enum ErrorStatus implements BaseErrorCode {
 	LEADER_CANNOT_LEAVE(FORBIDDEN, "GROUP_403_1", "그룹장은 탈퇴할 수 없습니다."),
 	MEMBER_NOT_IN_GROUP(FORBIDDEN, "GROUP_403_2", "그룹에 속해있지 않은 회원입니다."),
 	MEMBER_ALREADY_JOINED(CONFLICT, "GROUP_409_2", "이미 가입한 그룹입니다."),
+	GROUP_PARTICIPANT_COUNT_ERROR(INTERNAL_SERVER_ERROR, "GROUP_500_0", "그룹 참가자 수 오류입니다."),
 
 	// ChatRoom (CHAT)
 	CHATROOM_NOT_FOUND(NOT_FOUND, "CHAT_404_0", "채팅방을 찾을 수 없습니다."),

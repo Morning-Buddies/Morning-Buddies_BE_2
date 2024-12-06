@@ -6,6 +6,6 @@ import com.ghpg.morningbuddies.auth.member.entity.Member;
 
 public interface MemberRepository {
 
-	Optional<Member> findMemberAndGroupsByEmail(String email);
+	Optional<Member> findByEmailWithMemberGroups(String email);
 	
 }

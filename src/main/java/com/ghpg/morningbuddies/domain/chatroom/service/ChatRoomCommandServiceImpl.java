@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.domain.chatroom.entity.ChatRoom;
-import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
+import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomJpaRepository;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.repository.GroupJPARepository;
 import com.ghpg.morningbuddies.domain.memberchatroom.entity.MemberChatRoom;
@@ -22,28 +22,24 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatRoomCommandServiceImpl implements ChatRoomCommandService {
 
 	private final GroupJPARepository groupJPARepository;
-	private final ChatRoomRepository chatRoomRepository;
+	private final ChatRoomJpaRepository chatRoomJpaRepository;
 	private final MemberChatRoomJPARepository memberChatRoomJPARepository;
 	private final MemberJPARepository memberJPARepository;
 
 	// 채팅방 생성
 	@Override
 	public void createNewChatRoom(Groups group, Member member) {
-
 		ChatRoom newChatRoom = ChatRoom.createChatRoom(group);
 
-		MemberChatRoom memberChatRoom = MemberChatRoom.createMemberChatRoom(member, newChatRoom);
+		MemberChatRoom newMemberChatRoom = MemberChatRoom.createMemberChatRoom(member, newChatRoom);
 
-		newChatRoom.addMemberChatRoom(memberChatRoom);
-		// 채팅방 생성
-		chatRoomRepository.save(newChatRoom);
-
+		chatRoomJpaRepository.save(newChatRoom);
 	}
 
 	@Override
 	public void leaveChatRoom(Long chatRoomId, Long memberId) {
 		// // 1. 채팅방과 멤버 조회
-		// ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+		// ChatRoom chatRoom = chatRoomJpaRepository.findById(chatRoomId)
 		// 	.orElseThrow(() -> new ChatRoomException(GlobalErrorCode.CHATROOM_NOT_FOUND));
 		//
 		// Member member = memberRepository.findById(memberId)

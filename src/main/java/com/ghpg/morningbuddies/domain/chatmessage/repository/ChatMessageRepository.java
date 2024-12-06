@@ -1,9 +1,9 @@
 package com.ghpg.morningbuddies.domain.chatmessage.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
 import com.ghpg.morningbuddies.domain.chatmessage.ChatMessage;
 
-public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-	
+public interface ChatMessageRepository {
+	List<ChatMessage> findChatMessageWithCursor(Long chatRoomId, Long lastMessageId, int pageSize);
 }

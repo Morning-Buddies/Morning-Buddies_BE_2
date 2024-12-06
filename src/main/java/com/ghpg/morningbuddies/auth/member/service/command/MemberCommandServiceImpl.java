@@ -40,7 +40,7 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 
 		memberJPARepository.save(member);
 
-		return MemberResponseDto.MemberInfo.of(member);
+		return MemberResponseDto.MemberInfo.from(member);
 
 	}
 

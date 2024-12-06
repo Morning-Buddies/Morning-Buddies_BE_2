@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
+import com.ghpg.morningbuddies.auth.member.entity.enums.UserRole;
 import com.ghpg.morningbuddies.auth.member.service.query.CustomUserDetailsService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 import com.ghpg.morningbuddies.global.exception.common.ErrorReason;
@@ -75,15 +76,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
 			if (email != null) {
 				// UserDetails 로드
-				CustomUserDetails customUserDetails = (CustomUserDetails)customUserDetailsService.loadUserByUsername(
-					email);
-				Member member = customUserDetails.getMember();
+				Member currentMember = Member.builder()
+					.email(email)
+					.role(UserRole.valueOf(role))
+					.build();
 
-				// Role 검증
-				if (!member.getRole().name().equals(role)) {
-					handleException(new GeneralException(ErrorStatus.AUTHENTICATION_DENIED), response);
-					return;
-				}
+				CustomUserDetails customUserDetails = new CustomUserDetails(currentMember);
 
 				// Authentication 객체 생성 및 설정
 				Authentication auth = new UsernamePasswordAuthenticationToken(
@@ -96,6 +94,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
 		} catch (JwtException e) {
 			handleException(new GeneralException(e.getCode()), response);
+			return;
+		} catch (GeneralException e) {
+			handleException(e, response);
 			return;
 		} catch (Exception e) {
 			log.error("JWT Filter Error", e);

@@ -9,6 +9,7 @@ import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberRepository;
 import com.ghpg.morningbuddies.global.exception.common.code.ErrorStatus;
+import com.ghpg.morningbuddies.global.exception.member.MemberException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,10 +22,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-		Member member = memberRepository.findMemberAndGroupsByEmail(email)
-			.orElseThrow(
-				() -> new UsernameNotFoundException(ErrorStatus.MEMBER_NOT_FOUND.getMessage())
-			);
+		Member member = memberRepository.findByEmailWithMemberGroups(email)
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		return new CustomUserDetails(member);
 

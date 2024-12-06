@@ -24,29 +24,31 @@ public class MemberResponseDto {
 	@AllArgsConstructor
 	@Schema(description = "회원 상세 정보")
 	public static class MemberInfo {
+
 		@Schema(description = "회원 ID", example = "1")
-		private Long id;
+		Long id;
 
 		@Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
-		private String profileImage;
+		String profileImage;
 
 		@Schema(description = "이름", example = "동규")
-		private String firstName;
+		String firstName;
 
 		@Schema(description = "성", example = "박")
-		private String lastName;
+		String lastName;
 
 		@Schema(description = "선호하는 기상 시간", example = "07:00", type = "string")
 		@JsonFormat(pattern = "HH:mm")
-		private LocalTime preferredWakeupTime;
+		LocalTime preferredWakeupTime;
 
 		@Schema(description = "성공한 게임 횟수", example = "5")
-		private Integer successGameCount;
+		Integer successGameCount;
 
 		@Schema(description = "속한 그룹 목록")
-		private GroupResponseDto.GroupListResponseDTO groups;
+		GroupResponseDto.GroupsResponseDto participatedMemberGroups;
 
-		public static MemberInfo of(Member member) {
+		public static MemberInfo from(Member member) {
+
 			return MemberInfo.builder()
 				.id(member.getId())
 				.profileImage(member.getProfileImageUrl())
@@ -54,7 +56,7 @@ public class MemberResponseDto {
 				.lastName(member.getLastName())
 				.preferredWakeupTime(member.getPreferredWakeupTime())
 				.successGameCount(member.getSuccessGameCount())
-				.groups(GroupResponseDto.GroupListResponseDTO.of(member.getGroups()))
+				.participatedMemberGroups(GroupResponseDto.GroupsResponseDto.of(member.getMemberGroups()))
 				.build();
 		}
 	}
@@ -66,19 +68,19 @@ public class MemberResponseDto {
 	@Schema(description = "회원 요약 정보")
 	public static class MemberSummaryDTO {
 		@Schema(description = "회원 ID", example = "1")
-		private Long id;
+		Long id;
 
 		@Schema(description = "이름", example = "동규")
-		private String firstName;
+		String firstName;
 
 		@Schema(description = "성", example = "박")
-		private String lastName;
+		String lastName;
 
 		@Schema(description = "이메일", example = "test@example.com")
-		private String email;
+		String email;
 
 		@Schema(description = "리더 여부", example = "true")
-		private boolean isLeader;
+		boolean isLeader;
 
 		public static MemberSummaryDTO of(Member member, boolean isLeader) {
 			return MemberSummaryDTO.builder()
@@ -99,10 +101,10 @@ public class MemberResponseDto {
 	@Schema(description = "회원 요약 정보 리스트")
 	public static class MemberListResponseDTO {
 		@Schema(description = "전체 회원 수", example = "5")
-		private int totalCount;
+		int totalCount;
 
 		@Schema(description = "회원 목록")
-		private List<MemberSummaryDTO> members;
+		List<MemberSummaryDTO> members;
 
 		public static MemberListResponseDTO of(List<MemberGroup> memberGroups) {
 			return MemberListResponseDTO.builder()

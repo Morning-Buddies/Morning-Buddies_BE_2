@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
-import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomRepository;
+import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomJpaRepository;
 import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
@@ -44,7 +44,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final GroupRepository groupRepository;
 
 	private final S3Service s3Service;
-	private final ChatRoomRepository chatRoomRepository;
+	private final ChatRoomJpaRepository chatRoomJpaRepository;
 	private final MemberChatRoomJPARepository memberChatRoomJPARepository;
 	private final MemberGroupJPARepository memberGroupJPARepository;
 
@@ -54,20 +54,24 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		// 현재 로그인한 사용자 정보 가져오기
 		Member currentMember = getCurrentMember();
 
+		// 이미지를 s3를 사용해서 업로드 후 반환.
 		String uploadedGroupImageUrl = getUploadedGroupImageUrl(file);
 
-		// 리더의 MemberGroup 생성
-		MemberGroup leaderMemberGroup = MemberGroup.createMemberGroup(currentMember);
+		// 그룹 생성
+		Groups newGroup = Groups.createGroup(requestDto.getGroupName(),
+			requestDto.getDescription(),
+			requestDto.getWakeUpTime(),
+			requestDto.getMaxParticipantCount());
 
-		// 새로운 그룹 생성 및 리더의 MemberGroup과 연결
-		Groups newGroup = Groups.createGroup(requestDto, uploadedGroupImageUrl, currentMember, leaderMemberGroup);
+		// 그룹장으로 멤버그룹 생성
+		MemberGroup newMemberGroup = MemberGroup.createMemberGroup(currentMember, newGroup, true);
 
-		// 그룹 저장
+		// 그룹 저장하면 cascade에 의해 newMemberGroup 저장.
 		groupJPARepository.save(newGroup);
 
-		// 그룹과 연동된 채팅방 생성
 		chatRoomCommandService.createNewChatRoom(newGroup, currentMember);
 
+		// 새롭게 만들어진 그룹의 정보를 리턴
 		return GroupResponseDto.GroupDetailDTO.of(newGroup);
 
 	}
@@ -107,12 +111,14 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand request,
 		MultipartFile file) {
 
-		Groups group = getGroupAllInfoByGroupId(groupId);
-
+		// 그룹 정보 가져오기
+		Groups group = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 		// 현재 로그인한 사용자 정보 가져오기
 		Member currentMember = getCurrentMember();
 
-		if (!group.getLeader().equals(currentMember)) {
+		// 그룹장만 그룹 정보 수정 가능
+		if (!group.isLeader(currentMember)) {
 			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
 		}
 
@@ -133,7 +139,8 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public Void leaveGroup(Long groupId) {
 		Member currentMember = getCurrentMember();
 
-		Groups currentGroup = getGroupAllInfoByGroupId(groupId);
+		Groups currentGroup = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
 		currentGroup.leave(currentMember);
 
@@ -148,20 +155,17 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		Member currentMember = getCurrentMember();
 
 		// 그룹 가져오기
-		Groups group = getGroupAllInfoByGroupId(groupId);
+		Groups group = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
-		if (!group.getLeader().equals(currentMember)) {
+		// 그룹장만 그룹 삭제 가능
+		if (!group.isLeader(currentMember)) {
 			throw new GroupException(ErrorStatus.GROUP_PERMISSION_DENIED);
 		}
 
 		groupJPARepository.delete(group);
 
 		return null;
-	}
-
-	private Groups getGroupAllInfoByGroupId(Long groupId) {
-		return groupRepository.findGroupAndMemberGroupsAndGroupByGroupId(groupId)
-			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 	}
 
 	/**
@@ -173,7 +177,8 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	public void requestJoinGroup(Long groupId) {
 		Member currentMember = getCurrentMember();
 
-		Groups group = getGroupAllInfoByGroupId(groupId);
+		Groups group = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
 		GroupJoinRequest joinRequest = GroupJoinRequest.builder()
 			.member(currentMember)
@@ -229,7 +234,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		Member leader = getCurrentMember();
 
 		GroupJoinRequest joinRequest = groupJoinRequestRepository.findById(groupId)
-				.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
+			.orElseThrow(() -> new GroupException(ErrorStatus.REQUEST_NOT_FOUND));
 
 		Groups group = joinRequest.getGroup();
 
@@ -265,10 +270,11 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		Member currentLeader = getCurrentMember();
 
-		Groups group = getGroupAllInfoByGroupId(groupId);
+		Groups group = groupJPARepository.findById(groupId)
+			.orElseThrow(() -> new GroupException(ErrorStatus.GROUP_NOT_FOUND));
 
 		Member newLeader = memberJPARepository.findById(newLeaderId)
-				.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
+			.orElseThrow(() -> new MemberException(ErrorStatus.MEMBER_NOT_FOUND));
 
 		group.transferLeadershop(currentLeader, newLeader);
 

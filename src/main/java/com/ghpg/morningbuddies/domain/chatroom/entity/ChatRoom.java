@@ -53,17 +53,16 @@ public class ChatRoom extends BaseEntity {
 	@Builder.Default
 	private List<ChatMessage> message = new ArrayList<>();
 
+	//==생성 메서드==//
+	public static ChatRoom createChatRoom(Groups group) {
+		return ChatRoom.builder()
+			.group(group)
+			.build();
+	}
+
 	/*
 	 * 편의 메서드
 	 * */
-
-	public static ChatRoom createChatRoom(Groups group) {
-		ChatRoom chatRoom = ChatRoom.builder().build();
-		chatRoom.setGroup(group);
-		return chatRoom;
-	}
-
-	// 연관관계 편의 메서드
 	public void setGroup(Groups group) {
 		// 기존 관계 제거
 		if (this.group != null) {

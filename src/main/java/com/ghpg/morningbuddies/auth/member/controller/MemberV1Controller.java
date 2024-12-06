@@ -17,6 +17,7 @@ import com.ghpg.morningbuddies.auth.member.service.query.MemberQueryService;
 import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
+import com.ghpg.morningbuddies.global.security.SecurityUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,22 +45,48 @@ public class MemberV1Controller {
 		return CommonResponse.onSuccess(memberCommandService.changePassword(request));
 	}
 
+	// 내 프로필 조회
 	@Operation(summary = "내 정보 조회", description = "내 정보를 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "내 정보 조회 성공", content = {
 		@Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class))
 	})
 	@GetMapping("/me")
 	public CommonResponse<MemberResponseDto.MemberInfo> getMyInfo() {
-		return CommonResponse.onSuccess(memberQueryService.getMyInfo());
+		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
+
+		return CommonResponse.onSuccess(memberQueryService.getMemberInfo(currentUserEmail));
 	}
 
+	// 유저 프로필 조회
+	@Operation(summary = "유저 정보 조회", description = "유저 정보를 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "유저 정보 조회 성공", content = {
+		@Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class))
+	})
+	@GetMapping("/{email}")
+	public CommonResponse<MemberResponseDto.MemberInfo> getUserInfo(@PathVariable String email) {
+		return CommonResponse.onSuccess(memberQueryService.getMemberInfo(email));
+	}
+
+	// 내가 속한 그룹 조회
 	@Operation(summary = "내 그룹 조회", description = "내가 속한 그룹을 조회합니다.")
 	@ApiResponse(responseCode = "200", description = "내 그룹 조회 성공", content = {
-		@Content(schema = @Schema(implementation = GroupResponseDto.GroupListResponseDTO.class))
+		@Content(schema = @Schema(implementation = GroupResponseDto.GroupsResponseDto.class))
 	})
 	@GetMapping("/me/groups")
-	public CommonResponse<GroupResponseDto.GroupListResponseDTO> getMyGroups() {
-		return CommonResponse.onSuccess(memberQueryService.getMyGroups());
+	public CommonResponse<GroupResponseDto.GroupsResponseDto> getMyGroups() {
+		String currentUserEmail = SecurityUtil.getCurrentUserEmail();
+
+		return CommonResponse.onSuccess(memberQueryService.getMemberGroups(currentUserEmail));
+	}
+
+	// 유저가 속한 그룹 조회
+	@Operation(summary = "유저 그룹 조회", description = "유저가 속한 그룹을 조회합니다.")
+	@ApiResponse(responseCode = "200", description = "유저 그룹 조회 성공", content = {
+		@Content(schema = @Schema(implementation = GroupResponseDto.GroupsResponseDto.class))
+	})
+	@GetMapping("/{email}/groups")
+	public CommonResponse<GroupResponseDto.GroupsResponseDto> getUserGroups(@PathVariable String email) {
+		return CommonResponse.onSuccess(memberQueryService.getMemberGroups(email));
 	}
 
 	@Operation(summary = "FCM 토큰 등록", description = "FCM 토큰을 등록합니다.")
@@ -75,9 +102,9 @@ public class MemberV1Controller {
 	// 회원이 가입한 채팅방 리스트 가져오기
 	@GetMapping("/me/{memberId}/chatRooms")
 	@Operation(summary = "회원이 가입한 채팅방 리스트 가져오기", description = "회원이 가입한 채팅방 리스트를 가져옵니다.")
-	public CommonResponse<List<ChatRoomResponseDto.AllChatRoomByMemberId>> findAllChatroomsByMemberId(
+	public CommonResponse<List<ChatRoomResponseDto.AllChatRoomByMemberId>> findAllChatRoomsByMemberId(
 		@PathVariable("memberId") Long memberId) {
-		List<ChatRoomResponseDto.AllChatRoomByMemberId> chatRooms = memberQueryService.findAllChatroomsByMemberId(
+		List<ChatRoomResponseDto.AllChatRoomByMemberId> chatRooms = memberQueryService.findAllChatRoomsByMemberId(
 			memberId);
 		return CommonResponse.onSuccess(chatRooms);
 

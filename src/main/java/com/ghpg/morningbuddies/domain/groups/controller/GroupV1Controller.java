@@ -49,8 +49,11 @@ public class GroupV1Controller {
 		@RequestPart("request") String requestString,
 		@RequestPart(value = "image", required = false) MultipartFile file
 	) throws JsonProcessingException {
+
+		// requestString을 GroupCommand로 변환
 		GroupRequestDto.GroupCommand request = objectMapper.readValue(requestString,
 			GroupRequestDto.GroupCommand.class);
+
 		return CommonResponse.onSuccess(groupCommandService.createGroup(request, file));
 	}
 

@@ -7,10 +7,10 @@ import com.ghpg.morningbuddies.domain.chatroom.dto.ChatRoomResponseDto;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
 
 public interface MemberQueryService {
-	MemberResponseDto.MemberInfo getMyInfo();
+	MemberResponseDto.MemberInfo getMemberInfo(String email);
 
-	GroupResponseDto.GroupListResponseDTO getMyGroups();
+	GroupResponseDto.GroupsResponseDto getMemberGroups(String email);
 
 	// 회원이 가입한 채팅방 리스트 가져오기
-	List<ChatRoomResponseDto.AllChatRoomByMemberId> findAllChatroomsByMemberId(Long memberId);
+	List<ChatRoomResponseDto.AllChatRoomByMemberId> findAllChatRoomsByMemberId(Long memberId);
 }
