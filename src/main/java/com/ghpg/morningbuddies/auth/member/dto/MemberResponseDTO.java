@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
-import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDTO;
 import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class MemberResponseDto {
+public class MemberResponseDTO {
 
 	@Builder
 	@Getter
@@ -45,10 +45,9 @@ public class MemberResponseDto {
 		Integer successGameCount;
 
 		@Schema(description = "속한 그룹 목록")
-		GroupResponseDto.GroupsResponseDto participatedMemberGroups;
+		GroupResponseDTO.GroupsResponseDto participatedMemberGroups;
 
 		public static MemberInfo from(Member member) {
-
 			return MemberInfo.builder()
 				.id(member.getId())
 				.profileImage(member.getProfileImageUrl())
@@ -56,7 +55,7 @@ public class MemberResponseDto {
 				.lastName(member.getLastName())
 				.preferredWakeupTime(member.getPreferredWakeupTime())
 				.successGameCount(member.getSuccessGameCount())
-				.participatedMemberGroups(GroupResponseDto.GroupsResponseDto.of(member.getMemberGroups()))
+				.participatedMemberGroups(GroupResponseDTO.GroupsResponseDto.of(member.getMemberGroups()))
 				.build();
 		}
 	}
@@ -99,20 +98,21 @@ public class MemberResponseDto {
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor
 	@Schema(description = "회원 요약 정보 리스트")
-	public static class MemberListResponseDTO {
+	public static class MembersResponseDTO {
 		@Schema(description = "전체 회원 수", example = "5")
 		int totalCount;
 
 		@Schema(description = "회원 목록")
 		List<MemberSummaryDTO> members;
 
-		public static MemberListResponseDTO of(List<MemberGroup> memberGroups) {
-			return MemberListResponseDTO.builder()
+		public static MembersResponseDTO of(List<MemberGroup> memberGroups) {
+			return MembersResponseDTO.builder()
 				.totalCount(memberGroups.size())
 				.members(memberGroups.stream()
 					.map(mg -> MemberSummaryDTO.of(mg.getMember(), mg.isLeader()))
 					.toList())
 				.build();
 		}
+
 	}
 }

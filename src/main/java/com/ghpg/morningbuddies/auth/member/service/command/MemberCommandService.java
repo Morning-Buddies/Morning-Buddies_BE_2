@@ -1,11 +1,11 @@
 package com.ghpg.morningbuddies.auth.member.service.command;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDTO;
 import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 
 public interface MemberCommandService {
-	MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto joinDto);
+	MemberResponseDTO.MemberInfo join(MemberRequestDto.JoinDto joinDto);
 
 	Void changePassword(MemberRequestDto.PasswordDto request);
 

@@ -8,4 +8,6 @@ public interface MemberGroupRepository {
 
 	List<MemberGroup> findAllByEmailWithMemberGroups(String email);
 
+	List<MemberGroup> findMemberGroupsByGroupId(Long groupId);
+
 }

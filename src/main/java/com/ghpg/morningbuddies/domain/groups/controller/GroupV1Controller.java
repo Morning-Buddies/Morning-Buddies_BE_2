@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
-import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDTO;
 import com.ghpg.morningbuddies.domain.groups.service.command.GroupCommandService;
 import com.ghpg.morningbuddies.domain.groups.service.query.GroupQueryService;
 import com.ghpg.morningbuddies.domain.groups.validation.annotation.ExistingGroupId;
@@ -45,7 +45,7 @@ public class GroupV1Controller {
 	// 그룹 생성
 	@Operation(summary = "그룹 생성", description = "그룹을 생성합니다.")
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public CommonResponse<GroupResponseDto.GroupDetailDTO> createGroup(
+	public CommonResponse<GroupResponseDTO.GroupDetailDTO> createGroup(
 		@RequestPart("request") String requestString,
 		@RequestPart(value = "image", required = false) MultipartFile file
 	) throws JsonProcessingException {
@@ -60,7 +60,7 @@ public class GroupV1Controller {
 	// 그룹 상세 정보
 	@GetMapping("/{groupId}")
 	@Operation(summary = "그룹 상세 정보 가져오기", description = "해당 그룹 정보를 가져옵니다.")
-	public CommonResponse<GroupResponseDto.GroupDetailDTO> getGroupDetailsById(
+	public CommonResponse<GroupResponseDTO.GroupDetailDTO> getGroupDetailsById(
 		@PathVariable Long groupId) {
 
 		return CommonResponse.onSuccess(groupQueryService.getGroupDetailById(groupId));
@@ -77,7 +77,7 @@ public class GroupV1Controller {
 	// 그룹 정보 수정
 	@PatchMapping("/{groupId}")
 	@Operation(summary = "그룹 정보 수정", description = "해당 그룹 정보를 수정합니다.")
-	public CommonResponse<GroupResponseDto.GroupDetailDTO> updateGroup(
+	public CommonResponse<GroupResponseDTO.GroupDetailDTO> updateGroup(
 		@PathVariable("groupId") Long groupId,
 		@RequestPart("request") String requestString,
 		@RequestPart(value = "file", required = false) MultipartFile file
@@ -86,7 +86,7 @@ public class GroupV1Controller {
 		GroupRequestDto.GroupCommand request = objectMapper.readValue(requestString,
 			GroupRequestDto.GroupCommand.class);
 
-		GroupResponseDto.GroupDetailDTO group = groupCommandService.updateGroup(groupId, request, file);
+		GroupResponseDTO.GroupDetailDTO group = groupCommandService.updateGroup(groupId, request, file);
 
 		return CommonResponse.onSuccess(group);
 	}
@@ -102,7 +102,7 @@ public class GroupV1Controller {
 	// 그룹 검색 결과 가져오기
 	@GetMapping("/search")
 	@Operation(summary = "그룹 검색 결과 가져오기", description = "검색하신 그룹 검색 결과를 가져옵니다.")
-	public CommonResponse<GroupResponseDto.SearchedGroupInfoList> searchGroups(
+	public CommonResponse<GroupResponseDTO.SearchedGroupInfoList> searchGroups(
 		@RequestParam String keyword,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size) {
@@ -124,9 +124,9 @@ public class GroupV1Controller {
 	// 그룹 가입 요청 리스트
 	@GetMapping("/{groupId}/join-request")
 	@Operation(summary = "그룹 가입 요청 리스트", description = "해당 그룹 가입 요청 리스트입니다.")
-	public CommonResponse<List<GroupResponseDto.JoinRequestDTO>> findByGroupAndStatus(
+	public CommonResponse<List<GroupResponseDTO.JoinRequestDTO>> findByGroupAndStatus(
 		@PathVariable("groupId") Long groupId) {
-		List<GroupResponseDto.JoinRequestDTO> joinRequests = groupQueryService.findByGroupAndStatus(groupId);
+		List<GroupResponseDTO.JoinRequestDTO> joinRequests = groupQueryService.findByGroupAndStatus(groupId);
 
 		return CommonResponse.onSuccess(joinRequests);
 	}
@@ -154,10 +154,10 @@ public class GroupV1Controller {
 	// 생성된 모든 그룹 리스트 가져오기
 	@GetMapping("")
 	@Operation(summary = "생성된 모든 그룹 리스트 가져오기", description = "현재 생성된 모든 그룹 리스트입니다.")
-	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getAllGroups(
+	public CommonResponse<Page<GroupResponseDTO.GroupSummaryDTO>> getAllGroups(
 		@RequestParam(defaultValue = "0") Integer page,
 		@RequestParam(defaultValue = "10") Integer size) {
-		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getAllGroups(page, size);
+		Page<GroupResponseDTO.GroupSummaryDTO> groups = groupQueryService.getAllGroups(page, size);
 
 		return CommonResponse.onSuccess(groups);
 	}
@@ -165,10 +165,10 @@ public class GroupV1Controller {
 	// 핫한 그룹 기준
 	@GetMapping("/popular")
 	@Operation(summary = "핫한 그룹 기준", description = "인기가 많은 그룹 기준 리스트입니다.")
-	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getHotGroups(
+	public CommonResponse<Page<GroupResponseDTO.GroupSummaryDTO>> getHotGroups(
 		@RequestParam(defaultValue = "0") Integer page,
 		@RequestParam(defaultValue = "10") Integer size) {
-		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getHotGroups(page, size);
+		Page<GroupResponseDTO.GroupSummaryDTO> groups = groupQueryService.getHotGroups(page, size);
 
 		return CommonResponse.onSuccess(groups);
 	}
@@ -176,11 +176,11 @@ public class GroupV1Controller {
 	// 일찍 일어나는 그룹 기준
 	@GetMapping("/early")
 	@Operation(summary = "일찍 일어나는 그룹 기준", description = "일찍 일어나는 그룹 기준 리스트입니다.")
-	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getEarlyMorningGroups(
+	public CommonResponse<Page<GroupResponseDTO.GroupSummaryDTO>> getEarlyMorningGroups(
 		@RequestParam(defaultValue = "0") Integer page,
 		@RequestParam(defaultValue = "10") Integer size) {
 
-		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getEarlyMorningGroups(page, size);
+		Page<GroupResponseDTO.GroupSummaryDTO> groups = groupQueryService.getEarlyMorningGroups(page, size);
 
 		return CommonResponse.onSuccess(groups);
 	}
@@ -188,11 +188,11 @@ public class GroupV1Controller {
 	// 늦게 일어나는 그룹 기준
 	@GetMapping("/late")
 	@Operation(summary = "늦게 일어나는 그룹 기준", description = "늦게 일어나는 그룹 기준 리스트입니다.")
-	public CommonResponse<Page<GroupResponseDto.GroupSummaryDTO>> getGroupsByLateEvening(
+	public CommonResponse<Page<GroupResponseDTO.GroupSummaryDTO>> getGroupsByLateEvening(
 		@RequestParam(defaultValue = "0") Integer page,
 		@RequestParam(defaultValue = "10") Integer size) {
 
-		Page<GroupResponseDto.GroupSummaryDTO> groups = groupQueryService.getGroupsByLateEvening(page, size);
+		Page<GroupResponseDTO.GroupSummaryDTO> groups = groupQueryService.getGroupsByLateEvening(page, size);
 
 		return CommonResponse.onSuccess(groups);
 	}

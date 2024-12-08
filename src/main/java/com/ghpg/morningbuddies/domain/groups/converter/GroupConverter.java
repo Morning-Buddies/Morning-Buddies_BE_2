@@ -1,13 +1,13 @@
 package com.ghpg.morningbuddies.domain.groups.converter;
 
-import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDTO;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 
 public class GroupConverter {
 
-	public static GroupResponseDto.SearchedGroupInfo convertToSearchedGroupInfo(Groups group) {
+	public static GroupResponseDTO.SearchedGroupInfo convertToSearchedGroupInfo(Groups group) {
 
-		return GroupResponseDto.SearchedGroupInfo.builder()
+		return GroupResponseDTO.SearchedGroupInfo.builder()
 			.id(group.getId())
 			.imageUrl(group.getGroupImageUrl())  // null이 될 수 있음
 			.name(group.getGroupName())

@@ -3,15 +3,15 @@ package com.ghpg.morningbuddies.domain.groups.service.command;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
-import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDTO;
 
 public interface GroupCommandService {
 
 	// 그룹 생성
-	GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file);
+	GroupResponseDTO.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file);
 
 	// 그룹 수정
-	GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand requestDto,
+	GroupResponseDTO.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand requestDto,
 		MultipartFile file);
 
 	Void leaveGroup(Long groupId);

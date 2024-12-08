@@ -10,7 +10,7 @@ import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
 import com.ghpg.morningbuddies.domain.chatroom.repository.ChatRoomJpaRepository;
 import com.ghpg.morningbuddies.domain.chatroom.service.ChatRoomCommandService;
 import com.ghpg.morningbuddies.domain.groups.dto.GroupRequestDto;
-import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDto;
+import com.ghpg.morningbuddies.domain.groups.dto.GroupResponseDTO;
 import com.ghpg.morningbuddies.domain.groups.entity.GroupJoinRequest;
 import com.ghpg.morningbuddies.domain.groups.entity.Groups;
 import com.ghpg.morningbuddies.domain.groups.entity.enums.RequestStatus;
@@ -49,7 +49,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	private final MemberGroupJPARepository memberGroupJPARepository;
 
 	@Override
-	public GroupResponseDto.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file) {
+	public GroupResponseDTO.GroupDetailDTO createGroup(GroupRequestDto.GroupCommand requestDto, MultipartFile file) {
 
 		// 현재 로그인한 사용자 정보 가져오기
 		Member currentMember = getCurrentMember();
@@ -72,7 +72,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 		chatRoomCommandService.createNewChatRoom(newGroup, currentMember);
 
 		// 새롭게 만들어진 그룹의 정보를 리턴
-		return GroupResponseDto.GroupDetailDTO.of(newGroup);
+		return GroupResponseDTO.GroupDetailDTO.from(newGroup);
 
 	}
 
@@ -105,10 +105,10 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 	 * @param groupId
 	 * @param request
 	 * @param file
-	 * @return GroupResponseDto.GroupDetailDTO
+	 * @return GroupResponseDTO.GroupDetailDTO
 	 */
 	@Override
-	public GroupResponseDto.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand request,
+	public GroupResponseDTO.GroupDetailDTO updateGroup(Long groupId, GroupRequestDto.GroupCommand request,
 		MultipartFile file) {
 
 		// 그룹 정보 가져오기
@@ -126,7 +126,7 @@ public class GroupCommandServiceImpl implements GroupCommandService {
 
 		group.updateGroup(request, uploadedGroupImageUrl);
 
-		return GroupResponseDto.GroupDetailDTO.of(group);
+		return GroupResponseDTO.GroupDetailDTO.from(group);
 
 	}
 

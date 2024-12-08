@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ghpg.morningbuddies.auth.member.dto.CustomUserDetails;
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDTO;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.refreshtoken.service.RefreshTokenCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
@@ -124,7 +124,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	private void writeMemberInfoResponse(HttpServletResponse response, Member member) throws IOException {
-		MemberResponseDto.MemberInfo memberInfo = MemberResponseDto.MemberInfo.from(member);
+		MemberResponseDTO.MemberInfo memberInfo = MemberResponseDTO.MemberInfo.from(member);
 		setResponseProperties(response);
 		objectMapper.writeValue(response.getOutputStream(), CommonResponse.onSuccess(memberInfo));
 	}
