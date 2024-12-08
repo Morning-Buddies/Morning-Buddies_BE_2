@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDTO;
 import com.ghpg.morningbuddies.auth.member.dto.TokenDto;
 import com.ghpg.morningbuddies.auth.member.entity.Member;
 import com.ghpg.morningbuddies.auth.member.repository.MemberJPARepository;
@@ -34,13 +34,13 @@ public class MemberCommandServiceImpl implements MemberCommandService {
 	private final RefreshTokenJPARepository refreshTokenJPARepository;
 
 	@Override
-	public MemberResponseDto.MemberInfo join(MemberRequestDto.JoinDto request) {
+	public MemberResponseDTO.MemberInfo join(MemberRequestDto.JoinDto request) {
 
 		Member member = Member.createMember(request, bCryptPasswordEncoder);
 
 		memberJPARepository.save(member);
 
-		return MemberResponseDto.MemberInfo.from(member);
+		return MemberResponseDTO.MemberInfo.from(member);
 
 	}
 

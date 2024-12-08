@@ -29,4 +29,14 @@ public class MemberGroupRepositoryImpl implements MemberGroupRepository {
 			.fetch();
 
 	}
+
+	@Override
+	public List<MemberGroup> findMemberGroupsByGroupId(Long groupId) {
+		return jpaQueryFactory
+			.selectFrom(memberGroup)
+			.join(memberGroup.member, member).fetchJoin()
+			.join(memberGroup.group, groups).fetchJoin()
+			.where(groups.id.eq(groupId))
+			.fetch();
+	}
 }

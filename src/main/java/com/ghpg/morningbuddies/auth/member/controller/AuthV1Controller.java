@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ghpg.morningbuddies.auth.member.dto.MemberRequestDto;
-import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDto;
+import com.ghpg.morningbuddies.auth.member.dto.MemberResponseDTO;
 import com.ghpg.morningbuddies.auth.member.service.command.MemberCommandService;
 import com.ghpg.morningbuddies.global.common.CommonResponse;
 
@@ -39,10 +39,10 @@ public class AuthV1Controller {
 	@Operation(summary = "회원 가입", description = "새로운 회원을 등록합니다.")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "회원 가입 성공",
-			content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class)))
+			content = @Content(schema = @Schema(implementation = MemberResponseDTO.MemberInfo.class)))
 	})
 	@PostMapping("/join")
-	public CommonResponse<MemberResponseDto.MemberInfo> join(
+	public CommonResponse<MemberResponseDTO.MemberInfo> join(
 		@RequestBody @Valid MemberRequestDto.JoinDto joinDto
 	) {
 
@@ -56,9 +56,9 @@ public class AuthV1Controller {
 	 */
 	@Operation(summary = "로그인", description = "이메일과 비밀번호를 사용하여 로그인합니다.")
 	@ApiResponse(responseCode = "200", description = "로그인 성공",
-		content = @Content(schema = @Schema(implementation = MemberResponseDto.MemberInfo.class)))
+		content = @Content(schema = @Schema(implementation = MemberResponseDTO.MemberInfo.class)))
 	@PostMapping("/login")
-	public CommonResponse<MemberResponseDto.MemberInfo> login(
+	public CommonResponse<MemberResponseDTO.MemberInfo> login(
 		@RequestBody @Valid MemberRequestDto.LoginDto loginDto
 	) {
 		return null;

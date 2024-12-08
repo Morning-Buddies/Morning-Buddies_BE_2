@@ -11,4 +11,5 @@ import com.ghpg.morningbuddies.domain.membergroup.entity.MemberGroup;
 public interface MemberGroupJPARepository extends JpaRepository<MemberGroup, Long> {
 
 	Optional<MemberGroup> findByMemberAndGroup(Member member, Groups group);
+
 }
